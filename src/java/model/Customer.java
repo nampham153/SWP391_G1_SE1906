@@ -1,6 +1,6 @@
 package model;
 
-import java.util.Date;
+import java.sql.Date;
 
 public class Customer {
 
@@ -11,15 +11,6 @@ public class Customer {
     private boolean customerGender;
 
     public Customer() {
-    }
-
-    public Customer(String customerId, String customerName, String customerEmail,
-            Date customerBirthDate, boolean customerGender) {
-        this.customerId = customerId;
-        this.customerName = customerName;
-        this.customerEmail = customerEmail;
-        this.customerBirthDate = customerBirthDate;
-        this.customerGender = customerGender;
     }
 
     // Getters and Setters
@@ -61,16 +52,5 @@ public class Customer {
 
     public void setCustomerGender(boolean customerGender) {
         this.customerGender = customerGender;
-    }
-
-    @Override
-    public String toString() {
-        return "Customer{"
-                + "customerId='" + customerId + '\''
-                + ", customerName='" + customerName + '\''
-                + ", customerEmail='" + customerEmail + '\''
-                + ", customerBirthDate=" + customerBirthDate
-                + ", customerGender=" + customerGender
-                + '}';
     }
 }
