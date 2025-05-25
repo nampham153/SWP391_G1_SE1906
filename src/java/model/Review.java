@@ -8,18 +8,20 @@ public class Review {
     private int reviewRating;
     private String customerId;
     private int orderId;
+    private String itemId;
 
     public Review() {
     }
 
     public Review(int reviewId, String reviewContent, byte[] reviewImage,
-            int reviewRating, String customerId, int orderId) {
+            int reviewRating, String customerId, int orderId, String itemId) {
         this.reviewId = reviewId;
         this.reviewContent = reviewContent;
         this.reviewImage = reviewImage;
         this.reviewRating = reviewRating;
         this.customerId = customerId;
         this.orderId = orderId;
+        this.itemId = itemId;
     }
 
     public int getReviewId() {
@@ -68,6 +70,14 @@ public class Review {
 
     public void setOrderId(int orderId) {
         this.orderId = orderId;
+    }
+
+    public String getItemId() {
+        return itemId;
+    }
+
+    public void setItemId(String itemId) {
+        this.itemId = itemId;
     }
 
 }

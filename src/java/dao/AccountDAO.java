@@ -1,6 +1,7 @@
 package dao;
 
-import context.DBContext;
+//import context.DBContext;
+import context.DBWrapper;
 import model.Account;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -17,7 +18,8 @@ public class AccountDAO {
                        "LEFT JOIN Customer c ON a.Phone = c.CustomerId " +
                        "WHERE a.Phone = ?";
         
-        try (Connection conn = new DBContext().getConnection();
+        //try (Connection conn = new DBContext().getConnection();
+        try (Connection conn = DBWrapper.db.getConnection();
              PreparedStatement ps = conn.prepareStatement(query)) {
             
             ps.setString(1, email);
@@ -48,7 +50,8 @@ public class AccountDAO {
         PreparedStatement psCustomer = null;
         
         try {
-            conn = new DBContext().getConnection();
+            //conn = new DBContext().getConnection();
+            conn = DBWrapper.db.getConnection();
             conn.setAutoCommit(false); // Bắt đầu transaction
             
             // 1. Thêm vào bảng Account
@@ -108,7 +111,8 @@ public class AccountDAO {
     public boolean checkEmailExist(String email) {
         String query = "SELECT Phone FROM Account WHERE Phone = ?";
         
-        try (Connection conn = new DBContext().getConnection();
+        //try (Connection conn = new DBContext().getConnection();
+        try (Connection conn = DBWrapper.db.getConnection();
              PreparedStatement ps = conn.prepareStatement(query)) {
             
             ps.setString(1, email);
