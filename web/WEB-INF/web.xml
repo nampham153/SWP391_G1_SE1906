@@ -14,7 +14,7 @@
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>ReviewServlet</servlet-name>
-        <url-pattern>/review</url-pattern>
+        <url-pattern>/customer/review</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

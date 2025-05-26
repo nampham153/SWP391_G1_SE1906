@@ -11,6 +11,7 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.sql.Timestamp;
 import model.Review;
 
 /**
@@ -18,11 +19,11 @@ import model.Review;
  * @author tuananh
  */
 public class ReviewDAO extends DBContext {
-    public Review createReview(String reviewContent, byte[] reviewImage, int reviewRating, String customerId, String itemId, int orderId)
+    public Review createReview(String reviewContent, byte[] reviewImage, int reviewRating, String customerId, String itemId, int orderId, Timestamp reviewDate)
     {
         try {
             String query = "INSERT INTO Review "
-                    + "(ReviewContent, ReviewImage, ReviewRating, CustomerId, itemId, orderId) "
+                    + "(ReviewContent, ReviewImage, ReviewRating, CustomerId, itemId, orderId, reviewDate) "
                     + "VALUES (?, ? , ?, ?, ?, ?)";
             PreparedStatement stm = connection.prepareStatement(query);
             stm.setString(1, reviewContent);
@@ -31,6 +32,7 @@ public class ReviewDAO extends DBContext {
             stm.setString(4, customerId);
             stm.setString(5, itemId);
             stm.setInt(6, orderId);
+            stm.setTimestamp(7, reviewDate);
             stm.executeUpdate();
         } catch (SQLException ex) {
             Logger.getLogger(ReviewDAO.class.getName()).log(Level.SEVERE, null, ex);
@@ -69,6 +71,7 @@ public class ReviewDAO extends DBContext {
                 review.setReviewContent(rs.getString("ReviewContent"));
                 review.setReviewImage(rs.getBytes("ReviewImage"));
                 review.setReviewRating(rs.getInt("ReviewRating"));
+                review.setReviewDate(rs.getTimestamp("reviewDate"));
                 reviews.add(review);
             }
         } catch (SQLException ex) {
@@ -81,7 +84,7 @@ public class ReviewDAO extends DBContext {
     {
         ArrayList<Review> reviews = new ArrayList<>();
         try {
-            String query = "SELECT ReviewId, ReviewContent, ReviewImage, ReviewRating "
+            String query = "SELECT ReviewId, ReviewContent, ReviewImage, ReviewRating, reviewDate "
                     + "FROM Review WHERE CustomerId = ?";
             PreparedStatement stm = connection.prepareStatement(query);
             stm.setString(1, customerId);
@@ -93,6 +96,7 @@ public class ReviewDAO extends DBContext {
                 review.setReviewContent(rs.getString("ReviewContent"));
                 review.setReviewImage(rs.getBytes("ReviewImage"));
                 review.setReviewRating(rs.getInt("ReviewRating"));
+                review.setReviewDate(rs.getTimestamp("ReviewDate"));
                 reviews.add(review);
             }
         } catch (SQLException ex) {

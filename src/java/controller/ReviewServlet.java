@@ -18,6 +18,10 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import model.ItemOrder;
 import model.Review;
+import java.sql.Date;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.sql.Timestamp;
 import org.apache.tomcat.jakartaee.commons.compress.utils.IOUtils;
 
 /**
@@ -90,7 +94,9 @@ public class ReviewServlet extends BaseAuthRequiredController {
         String customerId = request.getParameter("customerId");
         String itemId = request.getParameter("itemId");
         int orderId = Integer.parseInt(request.getParameter("orderId"));
-        DAOWrapper.reviewDAO.createReview(reviewContent, reviewImage, reviewRating, customerId, itemId, orderId);
+        java.util.Date date = new java.util.Date();
+        Timestamp reviewDate = new Timestamp(date.getTime());        
+        DAOWrapper.reviewDAO.createReview(reviewContent, reviewImage, reviewRating, customerId, itemId, orderId, reviewDate);
     }
 
     /** 

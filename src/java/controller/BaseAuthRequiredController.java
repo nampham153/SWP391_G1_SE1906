@@ -5,6 +5,7 @@
 
 package controller;
 
+import jakarta.servlet.ServletContext;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -70,7 +71,8 @@ public abstract class BaseAuthRequiredController extends HttpServlet {
         }
         else
         {
-            response.getWriter().println("Access Denied!");
+            response.sendRedirect(getServletContext().getContextPath() + "/404.html");
+
         }
     } 
 
@@ -91,7 +93,7 @@ public abstract class BaseAuthRequiredController extends HttpServlet {
         }
         else
         {
-            response.getWriter().println("Access Denied!");
+            response.sendRedirect(getServletContext().getContextPath() + "/404.html");
         }
     }
 
