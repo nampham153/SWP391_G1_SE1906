@@ -12,12 +12,12 @@ public class Staff {
     private boolean staffGender;
     private String supervisorId;
     private int departmentId;
+    private boolean status;
 
     public Staff() {
     }
 
-    public Staff(String staffId, String staffName, String staffTitle, String staffAddress,
-            Date staffBirthDate, boolean staffGender, String supervisorId, int departmentId) {
+    public Staff(String staffId, String staffName, String staffTitle, String staffAddress, Date staffBirthDate, boolean staffGender, String supervisorId, int departmentId, boolean status) {
         this.staffId = staffId;
         this.staffName = staffName;
         this.staffTitle = staffTitle;
@@ -26,7 +26,22 @@ public class Staff {
         this.staffGender = staffGender;
         this.supervisorId = supervisorId;
         this.departmentId = departmentId;
+        this.status = status;
     }
+
+    @Override
+    public String toString() {
+        return "Staff{" + "staffId=" + staffId + ", staffName=" + staffName + ", staffTitle=" + staffTitle + ", staffAddress=" + staffAddress + ", staffBirthDate=" + staffBirthDate + ", staffGender=" + staffGender + ", supervisorId=" + supervisorId + ", departmentId=" + departmentId + ", status=" + status + '}';
+    }
+
+    public boolean isStatus() {
+        return status;
+    }
+
+    public void setStatus(boolean status) {
+        this.status = status;
+    }
+
 
     public String getStaffId() {
         return staffId;

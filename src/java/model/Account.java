@@ -6,9 +6,19 @@ public class Account {
     private int roleId;
     private String customerId;
     private String customerName;
+    private boolean status;
 
     // Constructors, getters and setters
     public Account() {
+    }
+
+    public Account(String phone, String password, int roleId, String customerId, String customerName, boolean status) {
+        this.phone = phone;
+        this.password = password;
+        this.roleId = roleId;
+        this.customerId = customerId;
+        this.customerName = customerName;
+        this.status = status;
     }
 
     public String getPhone() {
@@ -50,4 +60,18 @@ public class Account {
     public void setCustomerName(String customerName) {
         this.customerName = customerName;
     }
+
+    public boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(boolean status) {
+        this.status = status;
+    }
+
+    @Override
+    public String toString() {
+        return "Account{" + "phone=" + phone + ", password=" + password + ", roleId=" + roleId + ", customerId=" + customerId + ", customerName=" + customerName + ", status=" + status + '}';
+    }
+    
 }

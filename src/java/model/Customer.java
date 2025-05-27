@@ -9,8 +9,31 @@ public class Customer {
     private String customerEmail;
     private Date customerBirthDate;
     private boolean customerGender;
+    private boolean status;
 
     public Customer() {
+    }
+
+    public Customer(String customerId, String customerName, String customerEmail, Date customerBirthDate, boolean customerGender, boolean status) {
+        this.customerId = customerId;
+        this.customerName = customerName;
+        this.customerEmail = customerEmail;
+        this.customerBirthDate = customerBirthDate;
+        this.customerGender = customerGender;
+        this.status = status;
+    }
+
+    @Override
+    public String toString() {
+        return "Customer{" + "customerId=" + customerId + ", customerName=" + customerName + ", customerEmail=" + customerEmail + ", customerBirthDate=" + customerBirthDate + ", customerGender=" + customerGender + ", status=" + status + '}';
+    }
+
+    public boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(boolean status) {
+        this.status = status;
     }
 
     // Getters and Setters
