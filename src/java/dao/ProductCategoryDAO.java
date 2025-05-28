@@ -4,7 +4,8 @@
  */
 package dao;
 
-import context.DbContext;
+import context.DBContext;
+//import context.DbContext;
 import model.ProductCategory;
 import java.sql.*;
 import java.util.ArrayList;
@@ -16,7 +17,7 @@ import java.util.logging.Logger;
  *
  * @author DELL
  */
-public class ProductCategoryDAO extends DbContext {
+public class ProductCategoryDAO extends DBContext {
 
     public void createProductCategory(String categoryName) {
         try {

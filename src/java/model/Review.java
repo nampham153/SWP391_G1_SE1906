@@ -1,4 +1,5 @@
 package model;
+import java.sql.Timestamp;
 
 public class Review {
 
@@ -8,18 +9,22 @@ public class Review {
     private int reviewRating;
     private String customerId;
     private int orderId;
+    private String itemId;
+    private Timestamp reviewDate;
 
     public Review() {
     }
 
     public Review(int reviewId, String reviewContent, byte[] reviewImage,
-            int reviewRating, String customerId, int orderId) {
+            int reviewRating, String customerId, int orderId, String itemId, Timestamp reviewDate) {
         this.reviewId = reviewId;
         this.reviewContent = reviewContent;
         this.reviewImage = reviewImage;
         this.reviewRating = reviewRating;
         this.customerId = customerId;
         this.orderId = orderId;
+        this.itemId = itemId;
+        this.reviewDate = reviewDate;
     }
 
     public int getReviewId() {
@@ -70,4 +75,20 @@ public class Review {
         this.orderId = orderId;
     }
 
+    public String getItemId() {
+        return itemId;
+    }
+
+    public void setItemId(String itemId) {
+        this.itemId = itemId;
+    }
+
+    public Timestamp getReviewDate() {
+        return reviewDate;
+    }
+
+    public void setReviewDate(Timestamp reviewDate) {
+        this.reviewDate = reviewDate;
+    }
+    
 }
