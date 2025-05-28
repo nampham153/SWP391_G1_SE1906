@@ -6,7 +6,6 @@
 # ignore ALL files in ANY directory named temp
 /build/
 /dist/
-/lib/
 /nbproject/
 build.xml
 OneDrive
