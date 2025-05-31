@@ -35,7 +35,7 @@ git branch -a
 - Nếu chưa chuyển sang branch của mình thì dùng lệnh checkout branch để chuyển sang branch của mình, hạn chế push lên master để tránh source code chung bị lỗi
 - Sử dụng các lệnh này để push lên branch của mình:
 ```
-git add.
+git add .
 git commit -m "<Mô tả commit>"
 git push origin "<Nhánh của mình>"
 ```
