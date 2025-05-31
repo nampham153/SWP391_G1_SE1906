@@ -3,7 +3,7 @@
 *.class
 *.properties
 
-# ignore ALL files in ANY directory named temp
+# ignore the following files and folders:
 /build/
 /dist/
 /nbproject/
