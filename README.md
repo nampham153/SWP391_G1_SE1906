@@ -14,19 +14,19 @@ git remote add origin https://github.com/nampham153/SWP391_G1_SE1906.git
 git pull origin master
 ```
 ![Config git](/assets/config_git.png)
-    - Nếu pull mà trên terminal yêu cầu xoá file gì thì xoá file đấy, rồi pull lại master
+- Nếu pull mà trên terminal yêu cầu xoá file gì thì xoá file đấy, rồi pull lại master
 - Chuyển sang nhánh của mình hoặc nhánh khác bằng câu lệnh
 ```
 git checkout <Tên nhánh của mình>
 ```
-    - Trường hợp chưa có nhánh thì dùng câu lệnh này để tạo nhánh và chuyển sang nhánh vừa tạo:
-    ```
-    git checkout -b <Tên nhánh của mình>
-    ```
-    - Để xem các nhánh đang có trên local và nhánh mình pull trên remote, dùng lệnh:
-    ```
-    git branch -a
-    ```
+- Trường hợp chưa có nhánh thì dùng câu lệnh này để tạo nhánh và chuyển sang nhánh vừa tạo:
+```
+git checkout -b <Tên nhánh của mình>
+```
+- Để xem các nhánh đang có trên local và nhánh mình pull trên remote, dùng lệnh:
+```
+git branch -a
+```
 ![Branch config](/assets/branch_config.png)
 - Lúc này trong project sẽ có cả source code, thư viện và UI, vào NetBeans và add tất cả các thư viện trong thư mục lib vừa pull về (Libraries --> Add JAR/folder):
 ![Add libraries](/assets/add_libraries.png)
