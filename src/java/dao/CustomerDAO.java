@@ -154,6 +154,26 @@ public class CustomerDAO {
         c.setStatus(rs.getBoolean("Status")); 
         return c;
     }
+    public boolean accountExists(String accountId) {
+    String query = "SELECT COUNT(*) FROM Account WHERE Phone = ?";
+
+    try (Connection conn = new DBContext().getConnection();
+         PreparedStatement ps = conn.prepareStatement(query)) {
+
+        ps.setString(1, accountId);
+        ResultSet rs = ps.executeQuery();
+
+        if(rs.next()){
+            int count =rs.getInt(1);
+            return count >0;
+        } // Tồn tại
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return false;
+}
+
 
     public static void main(String[] args) {
         CustomerDAO dao = new CustomerDAO();
