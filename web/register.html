@@ -343,21 +343,33 @@
 
         <script>
             $(document).ready(function () {
-                // Xử lý form đăng ký
                 $("#registerForm").submit(function (e) {
                     e.preventDefault();
+                    $("#registerMessage").html('<div class="alert alert-info">Processing...</div>');
+
                     $.ajax({
                         type: "POST",
-                        url: "register", // Gọi servlet RegisterController
+                        url: "register",
                         data: $(this).serialize(),
                         success: function (response) {
-                            var result = JSON.parse(response);
-                            if (result.success) {
-                                $("#registerMessage").html('<div class="alert alert-success">' + result.message + '</div>');
-                                $("#registerForm")[0].reset();
-                            } else {
-                                $("#registerMessage").html('<div class="alert alert-danger">' + result.message + '</div>');
+                            try {
+                                var result = JSON.parse(response);
+                                if (result.success) {
+                                    $("#registerMessage").html('<div class="alert alert-success">' + result.message + '</div>');
+                                    $("#registerForm")[0].reset();
+                                    // Redirect to login after 2 seconds
+                                    setTimeout(function () {
+                                        window.location.href = "login.html";
+                                    }, 2000);
+                                } else {
+                                    $("#registerMessage").html('<div class="alert alert-danger">' + result.message + '</div>');
+                                }
+                            } catch (e) {
+                                $("#registerMessage").html('<div class="alert alert-danger">Invalid server response</div>');
                             }
+                        },
+                        error: function (xhr, status, error) {
+                            $("#registerMessage").html('<div class="alert alert-danger">Error: ' + error + '</div>');
                         }
                     });
                 });

@@ -338,22 +338,31 @@
         <script src="js/jquery.prettyPhoto.js"></script>
         <script src="js/main.js"></script>
 
-        <script>
+        <<script>
             $(document).ready(function () {
-                // Xử lý form đăng nhập
                 $("#loginForm").submit(function (e) {
                     e.preventDefault();
+                    $("#loginMessage").html('<div class="alert alert-info">Logging in...</div>');
+
                     $.ajax({
                         type: "POST",
-                        url: "login", // Gọi servlet LoginController
+                        url: "login",
                         data: $(this).serialize(),
                         success: function (response) {
-                            var result = JSON.parse(response);
-                            if (result.success) {
-                                window.location.href = "index.html";
-                            } else {
-                                $("#loginMessage").html('<div class="alert alert-danger">' + result.message + '</div>');
+                            try {
+                                var result = JSON.parse(response);
+                                if (result.success) {
+                                    $("#loginMessage").html('<div class="alert alert-success">Login successful! Redirecting...</div>');
+                                    window.location.href = "index.html";
+                                } else {
+                                    $("#loginMessage").html('<div class="alert alert-danger">' + (result.message || "Invalid email or password") + '</div>');
+                                }
+                            } catch (e) {
+                                $("#loginMessage").html('<div class="alert alert-danger">Invalid server response</div>');
                             }
+                        },
+                        error: function (xhr, status, error) {
+                            $("#loginMessage").html('<div class="alert alert-danger">Error: ' + error + '</div>');
                         }
                     });
                 });
