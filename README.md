@@ -19,9 +19,9 @@ git pull origin master
 ```
 git checkout <Tên nhánh của mình>
 ```
-- Trường hợp chưa có nhánh thì dùng câu lệnh này để tạo nhánh và chuyển sang nhánh vừa tạo:
+- Trường hợp chưa có nhánh hoặc đã pull code mà checkout không thấy nhánh thì dùng câu lệnh này để tạo nhánh và chuyển sang nhánh vừa tạo:
 ```
-git checkout -b <Tên nhánh của mình>
+git checkout -b <Tên nhánh của mình trên github>
 ```
 - Để xem các nhánh đang có trên local và nhánh mình pull trên remote, dùng lệnh:
 ```
