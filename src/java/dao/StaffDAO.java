@@ -1,194 +1,137 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package dao;
 
-/**
- *
- * @author namp0
- */
-import context.DBContext;
 import model.Staff;
 
 import java.sql.*;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class StaffDAO {
+    private Connection conn;
 
-    public List<Staff> getAllStaff() {
+    public StaffDAO(Connection conn) {
+        this.conn = conn;
+    }
+
+    public List<Staff> getAll(String keyword, String statusFilter) throws SQLException {
         List<Staff> list = new ArrayList<>();
-        String query = "SELECT * FROM Staff";
-
-        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(query); ResultSet rs = ps.executeQuery()) {
-
-            while (rs.next()) {
-                Staff s = extractStaffFromResultSet(rs);
-                list.add(s);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        String sql = "SELECT * FROM staff WHERE staffName LIKE ?";
+        if (!statusFilter.equals("all")) {
+            sql += " AND status = ?";
         }
 
+        PreparedStatement stmt = conn.prepareStatement(sql);
+        stmt.setString(1, "%" + keyword + "%");
+
+        if (!statusFilter.equals("all")) {
+            stmt.setBoolean(2, Boolean.parseBoolean(statusFilter));
+        }
+
+        ResultSet rs = stmt.executeQuery();
+        while (rs.next()) {
+            Staff s = new Staff(
+                rs.getString("staffId"),
+                rs.getString("staffName"),
+                rs.getString("staffTitle"),
+                rs.getString("staffAddress"),
+                rs.getDate("staffBirthDate"),
+                rs.getBoolean("staffGender"),
+                rs.getString("supervisorId"),
+                rs.getInt("departmentId"),
+                rs.getBoolean("status")
+            );
+            list.add(s);
+        }
         return list;
     }
 
-    // Get staff by ID
-    public Staff getStaffById(String id) {
-        String query = "SELECT * FROM Staff WHERE StaffId = ?";
-
-        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
-
-            ps.setString(1, id);
-            ResultSet rs = ps.executeQuery();
-
-            if (rs.next()) {
-                return extractStaffFromResultSet(rs);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+    public Staff getById(String id) throws SQLException {
+        String sql = "SELECT * FROM staff WHERE staffId = ?";
+        PreparedStatement stmt = conn.prepareStatement(sql);
+        stmt.setString(1, id);
+        ResultSet rs = stmt.executeQuery();
+        if (rs.next()) {
+            return new Staff(
+                rs.getString("staffId"),
+                rs.getString("staffName"),
+                rs.getString("staffTitle"),
+                rs.getString("staffAddress"),
+                rs.getDate("staffBirthDate"),
+                rs.getBoolean("staffGender"),
+                rs.getString("supervisorId"),
+                rs.getInt("departmentId"),
+                rs.getBoolean("status")
+            );
         }
-
         return null;
     }
 
-    // Insert staff
-    public boolean insertStaff(Staff s) {
-        String query = "INSERT INTO Staff ("
-                + "StaffId,"
-                + " StaffName,"
-                + " StaffTitle,"
-                + " StaffAddress,"
-                + " StaffBirthDate,"
-                + " StaffGender,"
-                + " SupervisorId,"
-                + " DepartmentId,"
-                + " Status) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    public void insert(Staff s) throws SQLException {
+        String sql = "INSERT INTO staff (staffId, staffName, staffTitle, staffAddress, staffBirthDate, staffGender, supervisorId, departmentId, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        PreparedStatement stmt = conn.prepareStatement(sql);
+        stmt.setString(1, s.getStaffId());
+        stmt.setString(2, s.getStaffName());
+        stmt.setString(3, s.getStaffTitle());
+        stmt.setString(4, s.getStaffAddress());
+        stmt.setDate(5, new java.sql.Date(s.getStaffBirthDate().getTime()));
+        stmt.setBoolean(6, s.isStaffGender());
 
-        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
-
-            setStaffPreparedStatement(ps, s);
-            return ps.executeUpdate() > 0;
-        } catch (Exception e) {
-            e.printStackTrace();
+        // SupervisorId có thể null hoặc rỗng, không kiểm tra tồn tại nữa
+        if (s.getSupervisorId() == null || s.getSupervisorId().trim().isEmpty()) {
+            stmt.setNull(7, java.sql.Types.VARCHAR);
+        } else {
+            stmt.setString(7, s.getSupervisorId());
         }
 
-        return false;
+        stmt.setInt(8, s.getDepartmentId());
+        stmt.setBoolean(9, s.isStatus());
+        stmt.executeUpdate();
     }
 
-    // Update staff
-    public boolean updateStaff(Staff s) {
-        String query = "UPDATE Staff SET "
-                + "StaffName = ?, "
-                + "StaffTitle = ?, "
-                + "StaffAddress = ?, "
-                + "StaffBirthDate = ?, "
-                + "StaffGender = ?, "
-                + "SupervisorId = ?, "
-                + "DepartmentId = ?, "
-                + "Status = ? "
-                + "WHERE StaffId = ?";
+    public void update(Staff s) throws SQLException {
+        String sql = "UPDATE staff SET staffName=?, staffTitle=?, staffAddress=?, staffBirthDate=?, staffGender=?, supervisorId=?, departmentId=?, status=? WHERE staffId=?";
+        PreparedStatement stmt = conn.prepareStatement(sql);
+        stmt.setString(1, s.getStaffName());
+        stmt.setString(2, s.getStaffTitle());
+        stmt.setString(3, s.getStaffAddress());
+        stmt.setDate(4, new java.sql.Date(s.getStaffBirthDate().getTime()));
+        stmt.setBoolean(5, s.isStaffGender());
 
-        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
-
-            // Set parameters in order
-            ps.setString(1, s.getStaffName());
-            ps.setString(2, s.getStaffTitle());
-            ps.setString(3, s.getStaffAddress());
-            ps.setDate(4, new java.sql.Date(s.getStaffBirthDate().getTime()));
-            ps.setBoolean(5, s.isStaffGender());
-            ps.setString(6, s.getSupervisorId());
-            ps.setInt(7, s.getDepartmentId());
-            ps.setBoolean(8, s.isStatus());
-            ps.setString(9, s.getStaffId());
-
-            return ps.executeUpdate() > 0;
-        } catch (Exception e) {
-            e.printStackTrace();
+        // SupervisorId có thể null hoặc rỗng, không kiểm tra tồn tại nữa
+        if (s.getSupervisorId() == null || s.getSupervisorId().trim().isEmpty()) {
+            stmt.setNull(6, java.sql.Types.VARCHAR);
+        } else {
+            stmt.setString(6, s.getSupervisorId());
         }
 
-        return false;
+        stmt.setInt(7, s.getDepartmentId());
+        stmt.setBoolean(8, s.isStatus());
+        stmt.setString(9, s.getStaffId());
+        stmt.executeUpdate();
     }
 
-    // Delete staff
-    public boolean deleteStaff(String id) {
-        String query = "DELETE FROM Staff WHERE StaffId = ?";
-
-        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
-
-            ps.setString(1, id);
-            return ps.executeUpdate() > 0;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return false;
+    public void disableStaff(String id) throws SQLException {
+        String sql = "UPDATE staff SET status = false WHERE staffId = ?";
+        PreparedStatement stmt = conn.prepareStatement(sql);
+        stmt.setString(1, id);
+        stmt.executeUpdate();
     }
 
-   
-    public List<Staff> searchStaffByName(String name) {
-        List<Staff> list = new ArrayList<>();
-        String query = "SELECT * FROM Staff WHERE StaffName LIKE ?";
+    public boolean hasCustomerOrAccount(String staffId) throws SQLException {
+        String sqlCustomer = "SELECT COUNT(*) FROM customer WHERE staffId = ?";
+        String sqlAccount = "SELECT COUNT(*) FROM account WHERE staffId = ?";
 
-        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
+        PreparedStatement stmtC = conn.prepareStatement(sqlCustomer);
+        stmtC.setString(1, staffId);
+        ResultSet rsC = stmtC.executeQuery();
+        rsC.next();
+        int customerCount = rsC.getInt(1);
 
-            ps.setString(1, "%" + name + "%");
-            ResultSet rs = ps.executeQuery();
+        PreparedStatement stmtA = conn.prepareStatement(sqlAccount);
+        stmtA.setString(1, staffId);
+        ResultSet rsA = stmtA.executeQuery();
+        rsA.next();
+        int accountCount = rsA.getInt(1);
 
-            while (rs.next()) {
-                Staff s = extractStaffFromResultSet(rs);
-                list.add(s);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return list;
+        return customerCount > 0 || accountCount > 0;
     }
-
-    private Staff extractStaffFromResultSet(ResultSet rs) throws SQLException {
-        Staff s = new Staff();
-        s.setStaffId(rs.getString("StaffId"));
-        s.setStaffName(rs.getString("StaffName"));
-        s.setStaffTitle(rs.getString("StaffTitle"));
-        s.setStaffAddress(rs.getString("StaffAddress"));
-        s.setStaffBirthDate(rs.getDate("StaffBirthDate"));
-        s.setStaffGender(rs.getBoolean("StaffGender"));
-        s.setSupervisorId(rs.getString("SupervisorId"));
-        s.setDepartmentId(rs.getInt("DepartmentId"));
-        s.setStatus(rs.getBoolean("Status"));
-        return s;
-    }
-
-    private void setStaffPreparedStatement(PreparedStatement ps, Staff s) throws SQLException {
-        ps.setString(1, s.getStaffId());
-        ps.setString(2, s.getStaffName());
-        ps.setString(3, s.getStaffTitle());
-        ps.setString(4, s.getStaffAddress());
-        ps.setDate(5, new java.sql.Date(s.getStaffBirthDate().getTime()));
-        ps.setBoolean(6, s.isStaffGender());
-        ps.setString(7, s.getSupervisorId());
-        ps.setInt(8, s.getDepartmentId());
-        ps.setBoolean(9, s.isStatus());
-    }
-
-    public static void main(String[] args) {
-        StaffDAO dao = new StaffDAO();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-
-        try {
-
-            // 🔹 Test getAll
-            List<Staff> staffList = dao.getAllStaff();
-            for (Staff s : staffList) {
-                System.out.println(s.getStaffId() + " - " + s.getStaffName());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
 }
