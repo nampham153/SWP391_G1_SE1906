@@ -1,15 +1,15 @@
 package model;
 
-public class InventoryImage {
+public class ItemImage {
 
     private int imageId;
-    private byte[] imageContent;
+    private String imageContent;
     private String inventoryId;
 
-    public InventoryImage() {
+    public ItemImage() {
     }
 
-    public InventoryImage(int imageId, byte[] imageContent, String inventoryId) {
+    public ItemImage(int imageId, String imageContent, String inventoryId) {
         this.imageId = imageId;
         this.imageContent = imageContent;
         this.inventoryId = inventoryId;
@@ -19,7 +19,7 @@ public class InventoryImage {
         return imageId;
     }
 
-    public byte[] getImageContent() {
+    public String getImageContent() {
         return imageContent;
     }
 
@@ -31,7 +31,7 @@ public class InventoryImage {
         this.imageId = imageId;
     }
 
-    public void setImageContent(byte[] imageContent) {
+    public void setImageContent(String imageContent) {
         this.imageContent = imageContent;
     }
 

@@ -3,8 +3,9 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
 
-package controller;
+package controller.customer;
 
+import controller.common.BaseAuthRequiredController;
 import dao.DAOWrapper;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -83,12 +84,12 @@ public class ReviewServlet extends BaseAuthRequiredController {
     throws ServletException, IOException {
         String reviewContent = request.getParameter("reviewContent");
         Part filePart = request.getPart("reviewImage");
-        byte[] reviewImage = null;
+        String reviewImage = null;
         if(filePart != null)
         {
-            //String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
-            InputStream fileContent = filePart.getInputStream();
-            reviewImage = IOUtils.toByteArray(fileContent);
+            String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
+            // InputStream fileContent = filePart.getInputStream();
+            // reviewImage = IOUtils.toByteArray(fileContent);
         }
         int reviewRating = Integer.parseInt(request.getParameter("reviewRating"));
         String customerId = request.getParameter("customerId");

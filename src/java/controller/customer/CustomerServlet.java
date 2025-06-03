@@ -1,4 +1,4 @@
-package controller;
+package controller.customer;
 
 import dao.CustomerDAO;
 import model.Customer;
@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
-@WebServlet("/customer")
 public class CustomerServlet extends HttpServlet {
 
     CustomerDAO dao = new CustomerDAO();
@@ -43,7 +42,7 @@ public class CustomerServlet extends HttpServlet {
                 System.out.println("Searching for ID: " + searchId);
                 Customer found = dao.getCustomerById(searchId);
                 if (found != null) {
-                    request.setAttribute("customers", List.of(found));
+                    //request.setAttribute("customers", List.of(found));
                 } else {
                     request.setAttribute("error", "Không tìm thấy khách hàng với ID: " + searchId);
                     request.setAttribute("customers", dao.getAllCustomers());
