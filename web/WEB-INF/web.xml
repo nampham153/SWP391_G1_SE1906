@@ -11,6 +11,10 @@
     <servlet>
         <servlet-name>LoginServlet</servlet-name>
         <servlet-class>controller.common.LoginServlet</servlet-class>
+        <init-param>
+            <param-name>valid</param-name>
+            <param-value>1</param-value>
+        </init-param>
     </servlet>
     <servlet>
         <servlet-name>ContactServlet</servlet-name>
