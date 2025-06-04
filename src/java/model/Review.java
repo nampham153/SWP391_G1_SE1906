@@ -5,7 +5,7 @@ public class Review {
 
     private int reviewId;
     private String reviewContent;
-    private byte[] reviewImage;
+    private String reviewImage;
     private int reviewRating;
     private String customerId;
     private int orderId;
@@ -15,7 +15,7 @@ public class Review {
     public Review() {
     }
 
-    public Review(int reviewId, String reviewContent, byte[] reviewImage,
+    public Review(int reviewId, String reviewContent, String reviewImage,
             int reviewRating, String customerId, int orderId, String itemId, Timestamp reviewDate) {
         this.reviewId = reviewId;
         this.reviewContent = reviewContent;
@@ -35,7 +35,7 @@ public class Review {
         return reviewContent;
     }
 
-    public byte[] getReviewImage() {
+    public String getReviewImage() {
         return reviewImage;
     }
 
@@ -59,7 +59,7 @@ public class Review {
         this.reviewContent = reviewContent;
     }
 
-    public void setReviewImage(byte[] reviewImage) {
+    public void setReviewImage(String reviewImage) {
         this.reviewImage = reviewImage;
     }
 

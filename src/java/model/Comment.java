@@ -4,7 +4,7 @@ public class Comment {
 
     private int commentId;
     private String commentContent;
-    private byte[] commentImage;
+    private String commentImage;
     private String commenterName;
     private String customerId;
     private String inventoryId;
@@ -12,7 +12,7 @@ public class Comment {
     public Comment() {
     }
 
-    public Comment(int commentId, String commentContent, byte[] commentImage,
+    public Comment(int commentId, String commentContent, String commentImage,
             String commenterName, String customerId, String inventoryId) {
         this.commentId = commentId;
         this.commentContent = commentContent;
@@ -30,7 +30,7 @@ public class Comment {
         return commentContent;
     }
 
-    public byte[] getCommentImage() {
+    public String getCommentImage() {
         return commentImage;
     }
 
@@ -54,7 +54,7 @@ public class Comment {
         this.commentContent = commentContent;
     }
 
-    public void setCommentImage(byte[] commentImage) {
+    public void setCommentImage(String commentImage) {
         this.commentImage = commentImage;
     }
 

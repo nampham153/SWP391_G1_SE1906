@@ -1,130 +1,59 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package dao;
 
-//import context.DBContext;
-import context.DBWrapper;
-import model.Account;
-import java.sql.Connection;
+import context.DBContext;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import model.Account;
 
-public class AccountDAO {
-
-    // Phương thức kiểm tra đăng nhập
-    public Account login(String email, String password) {
-        String query = "SELECT a.Phone, a.Password, a.RoleId, c.CustomerId, c.CustomerName "
-                + "FROM Account a "
-                + "LEFT JOIN Customer c ON a.Phone = c.CustomerId "
-                + "WHERE a.Phone = ? OR c.CustomerEmail = ?"; // Kiểm tra cả Phone và Email
-
-        try (Connection conn = DBWrapper.db.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
-
-            ps.setString(1, email);
-            ps.setString(2, email);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    String storedPassword = rs.getString("Password");
-                    if (password.equals(storedPassword)) {
-                        Account account = new Account();
-                        account.setPhone(rs.getString("Phone"));
-                        account.setRoleId(rs.getInt("RoleId"));
-                        account.setCustomerId(rs.getString("CustomerId"));
-                        account.setCustomerName(rs.getString("CustomerName"));
-                        return account;
-                    }
-                }
+/**
+ *
+ * @author tuananh
+ */
+public class AccountDAO extends DBContext {
+    public Account getAccount(String phone, String password)
+    {
+        try {
+            String query = "SELECT * FROM Account WHERE Phone = ? AND Password = ?";
+            PreparedStatement stm = connection.prepareStatement(query);
+            stm.setString(1, phone);
+            stm.setString(2, password);
+            ResultSet rs = stm.executeQuery();
+            if(rs.next())
+            {
+                Account account = new Account();
+                account.setPhone(phone);
+                account.setPassword(password);
+                account.setRoleId(rs.getInt("RoleId"));
+                return account;
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException ex) {
+            Logger.getLogger(AccountDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
     }
-
-    // Phương thức đăng ký tài khoản mới
-    public boolean register(String name, String email, String password, Date birthdate, boolean gender) {
-        Connection conn = null;
-        PreparedStatement psAccount = null;
-        PreparedStatement psCustomer = null;
-
+    
+    public boolean createAccount(String phone, String password, int roleId)
+    {
         try {
-            //conn = new DBContext().getConnection();
-            conn = DBWrapper.db.getConnection();
-            conn.setAutoCommit(false); // Bắt đầu transaction
-
-            // 1. Thêm vào bảng Account
-            String sqlAccount = "INSERT INTO Account (Phone, Password, RoleId) VALUES (?, ?, ?)";
-            psAccount = conn.prepareStatement(sqlAccount);
-            psAccount.setString(1, email);
-            psAccount.setString(2, password); // Trong thực tế nên mã hóa password
-            psAccount.setInt(3, 2); // RoleId = 2 cho customer
-            int accountResult = psAccount.executeUpdate();
-
-            if (accountResult == 0) {
-                conn.rollback();
-                return false;
-            }
-
-            // 2. Thêm vào bảng Customer
-            String sqlCustomer = "INSERT INTO Customer (CustomerId, CustomerName, CustomerEmail, CustomerBirthDate, CustomerGender) "
-                    + "VALUES (?, ?, ?, ?, ?)";
-            psCustomer = conn.prepareStatement(sqlCustomer);
-            psCustomer.setString(1, email); // Sử dụng email làm CustomerId
-            psCustomer.setString(2, name);
-            psCustomer.setString(3, email);
-            psCustomer.setDate(4, new java.sql.Date(birthdate.getTime()));
-            psCustomer.setBoolean(5, gender);
-            int customerResult = psCustomer.executeUpdate();
-
-            if (customerResult == 0) {
-                conn.rollback();
-                return false;
-            }
-
-            conn.commit(); // Commit transaction nếu cả 2 thành công
+            String query = "INSERT INTO Account "
+                    + "(Phone, Password, RoleId) "
+                    + "VALUES (?, ?, ?)";
+            PreparedStatement stm = connection.prepareStatement(query);
+            stm.setString(1, phone);
+            stm.setString(2, password);
+            stm.setInt(3, roleId);
+            stm.executeUpdate();
             return true;
-
-        } catch (Exception e) {
-            if (conn != null) {
-                try {
-                    conn.rollback(); // Rollback nếu có lỗi
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-            }
-            e.printStackTrace();
-            return false;
-        } finally {
-            try {
-                if (psAccount != null) {
-                    psAccount.close();
-                }
-                if (psCustomer != null) {
-                    psCustomer.close();
-                }
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+        } catch (SQLException ex) {
+            Logger.getLogger(AccountDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }
-
-    // Kiểm tra email đã tồn tại chưa
-    public boolean checkEmailExist(String email) {
-        String query = "SELECT Phone FROM Account WHERE Phone = ?";
-
-        //try (Connection conn = new DBContext().getConnection();
-        try (Connection conn = DBWrapper.db.getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
-
-            ps.setString(1, email);
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next(); // Trả về true nếu email đã tồn tại
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
+        return false;
     }
 }

@@ -76,4 +76,10 @@ public class Customer {
     public void setCustomerGender(boolean customerGender) {
         this.customerGender = customerGender;
     }
+
+    public boolean isStatus() {
+        return status;
+    }
+    
+    
 }

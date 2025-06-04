@@ -1,20 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
     <servlet>
-        <servlet-name>BaseAuthRequiredController</servlet-name>
-        <servlet-class>controller.BaseAuthRequiredController</servlet-class>
+        <servlet-name>ReviewServlet</servlet-name>
+        <servlet-class>controller.customer.ReviewServlet</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>ReviewServlet</servlet-name>
-        <servlet-class>controller.ReviewServlet</servlet-class>
+        <servlet-name>IndexServlet</servlet-name>
+        <servlet-class>controller.common.IndexServlet</servlet-class>
     </servlet>
-    <servlet-mapping>
-        <servlet-name>BaseAuthRequiredController</servlet-name>
-        <url-pattern>/BaseAuthRequiredController</url-pattern>
-    </servlet-mapping>
+    <servlet>
+        <servlet-name>LoginServlet</servlet-name>
+        <servlet-class>controller.common.LoginServlet</servlet-class>
+        <init-param>
+            <param-name>valid</param-name>
+            <param-value>1</param-value>
+        </init-param>
+    </servlet>
+    <servlet>
+        <servlet-name>ContactServlet</servlet-name>
+        <servlet-class>controller.common.ContactServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>CustomerServlet</servlet-name>
+        <servlet-class>controller.customer.CustomerServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>RegisterServlet</servlet-name>
+        <servlet-class>controller.customer.RegisterServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>ReviewServlet</servlet-name>
         <url-pattern>/customer/review</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>IndexServlet</servlet-name>
+        <url-pattern>/index</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ContactServlet</servlet-name>
+        <url-pattern>/contact</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>CustomerServlet</servlet-name>
+        <url-pattern>/customer</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RegisterServlet</servlet-name>
+        <url-pattern>/customer/register</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>LoginServlet</servlet-name>
+        <url-pattern>/login</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

@@ -19,7 +19,7 @@ import model.Review;
  * @author tuananh
  */
 public class ReviewDAO extends DBContext {
-    public Review createReview(String reviewContent, byte[] reviewImage, int reviewRating, String customerId, String itemId, int orderId, Timestamp reviewDate)
+    public Review createReview(String reviewContent, String reviewImage, int reviewRating, String customerId, String itemId, int orderId, Timestamp reviewDate)
     {
         try {
             String query = "INSERT INTO Review "
@@ -27,7 +27,7 @@ public class ReviewDAO extends DBContext {
                     + "VALUES (?, ? , ?, ?, ?, ?)";
             PreparedStatement stm = connection.prepareStatement(query);
             stm.setString(1, reviewContent);
-            stm.setBytes(2, reviewImage);
+            stm.setString(2, reviewImage);
             stm.setInt(3, reviewRating);
             stm.setString(4, customerId);
             stm.setString(5, itemId);
@@ -69,7 +69,7 @@ public class ReviewDAO extends DBContext {
                 Review review = new Review();
                 review.setReviewId(rs.getInt("ReviewId"));
                 review.setReviewContent(rs.getString("ReviewContent"));
-                review.setReviewImage(rs.getBytes("ReviewImage"));
+                review.setReviewImage(rs.getString("ReviewImage"));
                 review.setReviewRating(rs.getInt("ReviewRating"));
                 review.setReviewDate(rs.getTimestamp("reviewDate"));
                 reviews.add(review);
@@ -94,7 +94,7 @@ public class ReviewDAO extends DBContext {
                 Review review = new Review();
                 review.setReviewId(rs.getInt("ReviewId"));
                 review.setReviewContent(rs.getString("ReviewContent"));
-                review.setReviewImage(rs.getBytes("ReviewImage"));
+                review.setReviewImage(rs.getString("ReviewImage"));
                 review.setReviewRating(rs.getInt("ReviewRating"));
                 review.setReviewDate(rs.getTimestamp("ReviewDate"));
                 reviews.add(review);
@@ -111,7 +111,7 @@ public class ReviewDAO extends DBContext {
             String query = "UPDATE Review SET ReviewContent = ?, ReviewImage = ?, ReviewRating = ? WHERE ReviewId = ?";
             PreparedStatement stm = connection.prepareStatement(query);
             stm.setString(1, review.getReviewContent());
-            stm.setBytes(2, review.getReviewImage());
+            stm.setString(2, review.getReviewImage());
             stm.setInt(3, review.getReviewRating());
             stm.setInt(4, review.getReviewId());
             stm.executeUpdate();

@@ -15,9 +15,34 @@ import model.Customer;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class CustomerDAO {
-
+public class CustomerDAO extends DBContext {
+    public Customer getCustomerByEmail(String email)
+    {
+        try {
+            String query = "SELECT * FROM Customer WHERE CustomerEmail = ?";
+            PreparedStatement stm = connection.prepareStatement(query);
+            stm.setString(1, email);
+            ResultSet rs = stm.executeQuery();
+            if(rs.next())
+            {
+                Customer customer = new Customer();
+                customer.setCustomerId(rs.getString("CustomerId"));
+                customer.setCustomerName(rs.getString("CustomerName"));
+                customer.setCustomerBirthDate(rs.getDate("CustomerBirthDate"));
+                customer.setCustomerGender(rs.getBoolean("CustomerGender"));
+                customer.setStatus(rs.getBoolean("Status"));
+                customer.setCustomerEmail(email);
+                return customer;
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(CustomerDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+    
     public List<Customer> getAllCustomers() {
         List<Customer> list = new ArrayList<>();
         String query = "SELECT * FROM Customer";

@@ -1,6 +1,8 @@
-package controller;
+package controller.customer;
 
 import dao.AccountDAO;
+import dao.DAOWrapper;
+import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -10,9 +12,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.sql.Date;
+import model.Customer;
+import model.Role;
 
-@WebServlet(name = "RegisterServlet", urlPatterns = {"/register"})
 public class RegisterServlet extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
@@ -21,6 +24,7 @@ public class RegisterServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
 
         try (PrintWriter out = response.getWriter()) {
+            String phone = request.getParameter("phone");
             String name = request.getParameter("name");
             String email = request.getParameter("email");
             String password = request.getParameter("password");
@@ -28,7 +32,7 @@ public class RegisterServlet extends HttpServlet {
             String genderStr = request.getParameter("gender");
 
             // Validate input
-            if (name == null || name.isEmpty() || email == null || email.isEmpty()
+            if (phone == null || name == null || name.isEmpty() || email == null || email.isEmpty()
                     || password == null || password.isEmpty() || birthdateStr == null || birthdateStr.isEmpty()) {
                 out.print("{\"success\": false, \"message\": \"All fields are required!\"}");
                 return;
@@ -43,7 +47,7 @@ public class RegisterServlet extends HttpServlet {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             Date birthdate;
             try {
-                birthdate = sdf.parse(birthdateStr);
+                birthdate = new Date(sdf.parse(birthdateStr).getTime());
             } catch (ParseException e) {
                 out.print("{\"success\": false, \"message\": \"Invalid date format! Please use YYYY-MM-DD.\"}");
                 return;
@@ -51,16 +55,19 @@ public class RegisterServlet extends HttpServlet {
 
             boolean gender = "1".equals(genderStr);
 
-            AccountDAO accountDAO = new AccountDAO();
+            //AccountDAO accountDAO = new AccountDAO();
 
-            if (accountDAO.checkEmailExist(email)) {
+            if (DAOWrapper.customerDAO.getCustomerByEmail(email) != null) {
                 out.print("{\"success\": false, \"message\": \"Email already exists!\"}");
                 return;
             }
-
-            boolean isSuccess = accountDAO.register(name, email, password, birthdate, gender);
-
-            if (isSuccess) {
+            
+            Role role = DAOWrapper.roleDAO.getRoleByName("customer");
+            boolean accountStatus = DAOWrapper.accountDAO.createAccount(phone, password, role.getRoleId());
+            Customer customer = new Customer(phone, name, email, birthdate, gender, true);
+            boolean customerStatus = DAOWrapper.customerDAO.insertCustomer(customer);
+            
+            if (accountStatus && customerStatus) {
                 out.print("{\"success\": true, \"message\": \"Registration successful! You can now login.\"}");
             } else {
                 out.print("{\"success\": false, \"message\": \"Registration failed due to server error. Please try again.\"}");
