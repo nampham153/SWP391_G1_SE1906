@@ -56,4 +56,16 @@ public class AccountDAO extends DBContext {
         }
         return false;
     }
+    
+    public void deleteAccount(String phone)
+    {
+        try {
+            String query = "DELETE FROM Account WHERE Phone = ?";
+            PreparedStatement stm = connection.prepareStatement(query);
+            stm.setString(1, phone);
+            stm.executeUpdate();
+        } catch (SQLException ex) {
+            Logger.getLogger(AccountDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 }

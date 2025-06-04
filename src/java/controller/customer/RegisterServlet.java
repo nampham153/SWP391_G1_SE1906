@@ -70,6 +70,8 @@ public class RegisterServlet extends HttpServlet {
             if (accountStatus && customerStatus) {
                 out.print("{\"success\": true, \"message\": \"Registration successful! You can now login.\"}");
             } else {
+                DAOWrapper.customerDAO.deleteCustomer(phone);
+                DAOWrapper.accountDAO.deleteAccount(phone);
                 out.print("{\"success\": false, \"message\": \"Registration failed due to server error. Please try again.\"}");
             }
         } catch (Exception e) {
