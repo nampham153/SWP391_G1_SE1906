@@ -8,6 +8,8 @@ import context.DBContext;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import model.Account;
@@ -17,16 +19,15 @@ import model.Account;
  * @author tuananh
  */
 public class AccountDAO extends DBContext {
-    public Account getAccount(String phone, String password)
-    {
+
+    public Account getAccount(String phone, String password) {
         try {
             String query = "SELECT * FROM Account WHERE Phone = ? AND Password = ?";
             PreparedStatement stm = connection.prepareStatement(query);
             stm.setString(1, phone);
             stm.setString(2, password);
             ResultSet rs = stm.executeQuery();
-            if(rs.next())
-            {
+            if (rs.next()) {
                 Account account = new Account();
                 account.setPhone(phone);
                 account.setPassword(password);
@@ -38,9 +39,8 @@ public class AccountDAO extends DBContext {
         }
         return null;
     }
-    
-    public boolean createAccount(String phone, String password, int roleId)
-    {
+
+    public boolean createAccount(String phone, String password, int roleId) {
         try {
             String query = "INSERT INTO Account "
                     + "(Phone, Password, RoleId) "
@@ -56,9 +56,8 @@ public class AccountDAO extends DBContext {
         }
         return false;
     }
-    
-    public void deleteAccount(String phone)
-    {
+
+    public void deleteAccount(String phone) {
         try {
             String query = "DELETE FROM Account WHERE Phone = ?";
             PreparedStatement stm = connection.prepareStatement(query);
@@ -68,4 +67,25 @@ public class AccountDAO extends DBContext {
             Logger.getLogger(AccountDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
+    public List<Account> getByRole(int roleId) {
+        List<Account> list = new ArrayList<>();
+        try {
+            String query = "SELECT Phone, Password, RoleId FROM Account WHERE RoleId = ?";
+            PreparedStatement stm = connection.prepareStatement(query);
+            stm.setInt(1, roleId);
+            ResultSet rs = stm.executeQuery();
+            while (rs.next()) {
+                Account acc = new Account();
+                acc.setPhone(rs.getString("Phone"));
+                acc.setPassword(rs.getString("Password"));
+                acc.setRoleId(rs.getInt("RoleId"));
+                list.add(acc);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(AccountDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return list;
+    }
+
 }

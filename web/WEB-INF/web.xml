@@ -2,15 +2,15 @@
 <web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
     <servlet>
         <servlet-name>ReviewServlet</servlet-name>
-        <servlet-class>controller.customer.ReviewServlet</servlet-class>
+        <servlet-class>controller.admin.ReviewServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>IndexServlet</servlet-name>
-        <servlet-class>controller.common.IndexServlet</servlet-class>
+        <servlet-class>controller.admin.IndexServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>LoginServlet</servlet-name>
-        <servlet-class>controller.common.LoginServlet</servlet-class>
+        <servlet-class>controller.admin.LoginServlet</servlet-class>
         <init-param>
             <param-name>valid</param-name>
             <param-value>1</param-value>
@@ -18,15 +18,15 @@
     </servlet>
     <servlet>
         <servlet-name>ContactServlet</servlet-name>
-        <servlet-class>controller.common.ContactServlet</servlet-class>
+        <servlet-class>controller.admin.ContactServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>CustomerServlet</servlet-name>
-        <servlet-class>controller.customer.CustomerServlet</servlet-class>
+        <servlet-class>controller.admin.CustomerServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>RegisterServlet</servlet-name>
-        <servlet-class>controller.customer.RegisterServlet</servlet-class>
+        <servlet-class>controller.admin.RegisterServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>ReviewServlet</servlet-name>
