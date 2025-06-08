@@ -134,6 +134,7 @@ public class CustomerDAO extends DBContext {
         return false;
     }
 
+    // Xóa cũ - không xóa bản ghi thật, nên có thể bỏ hoặc giữ làm tham khảo
     public boolean deleteCustomer(String id) {
         String query = "DELETE FROM Customer WHERE CustomerId = ?";
 
@@ -149,16 +150,41 @@ public class CustomerDAO extends DBContext {
         return false;
     }
 
-    public List<Customer> searchCustomerByName(String name) {
+    // Hàm đổi trạng thái active sang inactive nếu khách hàng đang active
+    public void changeStatusToInactiveIfActive(String id) {
+        String sql = "UPDATE Customer SET Status = 0 WHERE CustomerId = ? AND Status = 1";
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, id);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Tìm kiếm theo tên và trạng thái (có thể truyền null để bỏ qua điều kiện)
+    public List<Customer> searchCustomersByNameAndStatus(String name, Boolean status) {
         List<Customer> list = new ArrayList<>();
-        String query = "SELECT * FROM Customer WHERE CustomerName LIKE ?";
+        StringBuilder query = new StringBuilder("SELECT * FROM Customer WHERE 1=1");
+        if (name != null && !name.trim().isEmpty()) {
+            query.append(" AND CustomerName LIKE ?");
+        }
+        if (status != null) {
+            query.append(" AND Status = ?");
+        }
 
         try (Connection conn = new DBContext().getConnection();
-             PreparedStatement ps = conn.prepareStatement(query)) {
+             PreparedStatement ps = conn.prepareStatement(query.toString())) {
 
-            ps.setString(1, "%" + name + "%");
+            int index = 1;
+            if (name != null && !name.trim().isEmpty()) {
+                ps.setString(index++, "%" + name + "%");
+            }
+            if (status != null) {
+                ps.setBoolean(index++, status);
+            }
+
             ResultSet rs = ps.executeQuery();
-
             while (rs.next()) {
                 list.add(CustomerInfo(rs));
             }
@@ -176,29 +202,29 @@ public class CustomerDAO extends DBContext {
         c.setCustomerBirthDate(rs.getDate("CustomerBirthDate"));
         c.setCustomerGender(rs.getBoolean("CustomerGender"));
         c.setCustomerEmail(rs.getString("CustomerEmail"));
-        c.setStatus(rs.getBoolean("Status")); 
+        c.setStatus(rs.getBoolean("Status"));
         return c;
     }
+
     public boolean accountExists(String accountId) {
-    String query = "SELECT COUNT(*) FROM Account WHERE Phone = ?";
+        String query = "SELECT COUNT(*) FROM Account WHERE Phone = ?";
 
-    try (Connection conn = new DBContext().getConnection();
-         PreparedStatement ps = conn.prepareStatement(query)) {
+        try (Connection conn = new DBContext().getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
 
-        ps.setString(1, accountId);
-        ResultSet rs = ps.executeQuery();
+            ps.setString(1, accountId);
+            ResultSet rs = ps.executeQuery();
 
-        if(rs.next()){
-            int count =rs.getInt(1);
-            return count >0;
-        } // Tồn tại
-    } catch (Exception e) {
-        e.printStackTrace();
+            if (rs.next()) {
+                int count = rs.getInt(1);
+                return count > 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
     }
-
-    return false;
-}
-
 
     public static void main(String[] args) {
         CustomerDAO dao = new CustomerDAO();
