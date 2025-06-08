@@ -1,92 +1,75 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package dao;
 
 import context.DBContext;
-//import context.DbContext;
-import model.ProductCategory;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import model.ProductCategory;
 
-/**
- *
- * @author DELL
- */
-public class ProductCategoryDAO extends DBContext {
+public class ProductCategoryDAO {
+    private DBContext dbContext;
+
+    public ProductCategoryDAO() {
+        dbContext = new DBContext();
+    }
 
     public void createProductCategory(String categoryName) {
-        try {
-            String sql = "INSERT INTO [ProductCategory] (CategoryName) VALUES (?)";
-            PreparedStatement statement = connection.prepareStatement(sql);
+        String sql = "INSERT INTO ProductCategory (CategoryName) VALUES (?)";
+        try (Connection conn = dbContext.getConnection();
+             PreparedStatement statement = conn.prepareStatement(sql)) {
             statement.setString(1, categoryName);
             statement.executeUpdate();
-        } catch (SQLException ex) {
-            Logger.getLogger(ProductCategoryDAO.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException | SQLException ex) {
+            Logger.getLogger(ProductCategoryDAO.class.getName()).log(Level.SEVERE, "Lỗi khi tạo danh mục", ex);
         }
     }
 
-    public List<ProductCategory> getAllProductCategories() {
-        List<ProductCategory> list = new ArrayList<>();
-        try {
-            String sql = "SELECT CategoryId, CategoryName FROM [ProductCategory]";
-            PreparedStatement statement = connection.prepareStatement(sql);
-            ResultSet rs = statement.executeQuery();
+    public ArrayList<ProductCategory> getAllProductCategory() {
+        ArrayList<ProductCategory> list = new ArrayList<>();
+        String sql = "SELECT CategoryId, CategoryName FROM ProductCategory";
+        try (Connection conn = dbContext.getConnection();
+             PreparedStatement statement = conn.prepareStatement(sql);
+             ResultSet rs = statement.executeQuery()) {
             while (rs.next()) {
-                ProductCategory pc = new ProductCategory(
-                    rs.getInt("CategoryId"),
-                    rs.getString("CategoryName")
-                );
+                ProductCategory pc = new ProductCategory(rs.getInt("CategoryId"), rs.getString("CategoryName"));
                 list.add(pc);
             }
-        } catch (SQLException ex) {
-            Logger.getLogger(ProductCategoryDAO.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException | SQLException ex) {
+            Logger.getLogger(ProductCategoryDAO.class.getName()).log(Level.SEVERE, "Lỗi khi lấy danh sách danh mục", ex);
         }
         return list;
     }
 
-    public ProductCategory getProductCategoryById(int id) {
-        try {
-            String sql = "SELECT CategoryId, CategoryName FROM [ProductCategory] WHERE CategoryId = ?";
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setInt(1, id);
-            ResultSet rs = statement.executeQuery();
-            if (rs.next()) {
-                return new ProductCategory(
-                    rs.getInt("CategoryId"),
-                    rs.getString("CategoryName")
-                );
+    public void deleteProductCategory(int categoryId) {
+        String sql = "DELETE FROM ProductCategory WHERE CategoryId = ?";
+        try (Connection conn = dbContext.getConnection();
+             PreparedStatement statement = conn.prepareStatement(sql)) {
+            statement.setInt(1, categoryId);
+            statement.executeUpdate();
+        } catch (ClassNotFoundException | SQLException ex) {
+            Logger.getLogger(ProductCategoryDAO.class.getName()).log(Level.SEVERE, "Lỗi khi xóa danh mục", ex);
+        }
+    }
+
+    public ArrayList<ProductCategory> searchProductCategory(String keyword) {
+        ArrayList<ProductCategory> list = new ArrayList<>();
+        String sql = "SELECT CategoryId, CategoryName FROM ProductCategory WHERE CategoryName LIKE ?";
+        try (Connection conn = dbContext.getConnection();
+             PreparedStatement statement = conn.prepareStatement(sql)) {
+            statement.setString(1, "%" + keyword + "%");
+            try (ResultSet rs = statement.executeQuery()) {
+                while (rs.next()) {
+                    ProductCategory pc = new ProductCategory(rs.getInt("CategoryId"), rs.getString("CategoryName"));
+                    list.add(pc);
+                }
             }
-        } catch (SQLException ex) {
-            Logger.getLogger(ProductCategoryDAO.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException | SQLException ex) {
+            Logger.getLogger(ProductCategoryDAO.class.getName()).log(Level.SEVERE, "Lỗi khi tìm kiếm danh mục", ex);
         }
-        return null;
-    }
-
-    public void updateProductCategory(int id, String categoryName) {
-        try {
-            String sql = "UPDATE [ProductCategory] SET CategoryName = ? WHERE CategoryId = ?";
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setString(1, categoryName);
-            statement.setInt(2, id);
-            statement.executeUpdate();
-        } catch (SQLException ex) {
-            Logger.getLogger(ProductCategoryDAO.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    public void deleteProductCategory(int id) {
-        try {
-            String sql = "DELETE FROM [ProductCategory] WHERE CategoryId = ?";
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setInt(1, id);
-            statement.executeUpdate();
-        } catch (SQLException ex) {
-            Logger.getLogger(ProductCategoryDAO.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        return list;
     }
 }

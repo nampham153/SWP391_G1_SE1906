@@ -1,60 +1,64 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
-
 package controller1;
 
 import dao.ProductCategoryDAO;
-import jakarta.servlet.annotation.WebServlet;
-import model.ProductCategory;
 import java.io.IOException;
-import java.util.List;
+import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import model.ProductCategory;
 
-@WebServlet("/productCategory")
+@WebServlet("/ProductCategoryController")
 public class ProductCategoryController extends HttpServlet {
-    private ProductCategoryDAO dao = new ProductCategoryDAO();
+    private static final long serialVersionUID = 1L;
+    private ProductCategoryDAO dao;
 
-    @Override
+    public ProductCategoryController() {
+        super();
+        dao = new ProductCategoryDAO();
+    }
+
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String action = request.getParameter("action");
+        response.setContentType("text/html;charset=UTF-8");
+        try (PrintWriter out = response.getWriter()) {
+            String action = request.getParameter("action");
+            String keyword = request.getParameter("keyword");
 
-        if ("list".equals(action)) {
-            List<ProductCategory> list = dao.getAllProductCategories();
-            request.setAttribute("productCategories", list);
-            request.getRequestDispatcher("/productCategory.jsp").forward(request, response);
-        } else if ("edit".equals(action)) {
-            int id = Integer.parseInt(request.getParameter("id"));
-            ProductCategory pc = dao.getProductCategoryById(id);
-            request.setAttribute("productCategory", pc);
-            request.getRequestDispatcher("/productCategory.jsp").forward(request, response);
-        } else if ("delete".equals(action)) {
-            int id = Integer.parseInt(request.getParameter("id"));
-            dao.deleteProductCategory(id);
-            response.sendRedirect("productCategory?action=list");
-        } else {
-            request.getRequestDispatcher("/productCategory.jsp").forward(request, response);
+            if ("delete".equals(action)) {
+                String categoryIdStr = request.getParameter("categoryId");
+                if (categoryIdStr != null && !categoryIdStr.isEmpty()) {
+                    int categoryId = Integer.parseInt(categoryIdStr);
+                    dao.deleteProductCategory(categoryId);
+                }
+            }
+
+            ArrayList<ProductCategory> list;
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                list = dao.searchProductCategory(keyword);
+            } else {
+                list = dao.getAllProductCategory();
+            }
+            request.setAttribute("list", list);
+            request.getRequestDispatcher("productCategory.jsp").forward(request, response);
         }
     }
 
-    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String action = request.getParameter("action");
-
-        if ("create".equals(action)) {
-            String categoryName = request.getParameter("categoryName");
+        response.setContentType("text/html;charset=UTF-8");
+        String categoryName = request.getParameter("categoryName");
+        if (categoryName != null && !categoryName.trim().isEmpty()) {
             dao.createProductCategory(categoryName);
-        } else if ("update".equals(action)) {
-            int id = Integer.parseInt(request.getParameter("id"));
-            String categoryName = request.getParameter("categoryName");
-            dao.updateProductCategory(id, categoryName);
         }
-        response.sendRedirect("productCategory?action=list");
+        doGet(request, response); // Cập nhật lại danh sách sau khi thêm hoặc xóa
+    }
+
+    @Override
+    public String getServletInfo() {
+        return "Short description";
     }
 }
