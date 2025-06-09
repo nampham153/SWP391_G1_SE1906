@@ -150,7 +150,6 @@ public class CustomerDAO extends DBContext {
         return false;
     }
 
-    // Hàm đổi trạng thái active sang inactive nếu khách hàng đang active
     public void changeStatusToInactiveIfActive(String id) {
         String sql = "UPDATE Customer SET Status = 0 WHERE CustomerId = ? AND Status = 1";
         try (Connection conn = new DBContext().getConnection();
@@ -162,7 +161,6 @@ public class CustomerDAO extends DBContext {
         }
     }
 
-    // Tìm kiếm theo tên và trạng thái (có thể truyền null để bỏ qua điều kiện)
     public List<Customer> searchCustomersByNameAndStatus(String name, Boolean status) {
         List<Customer> list = new ArrayList<>();
         StringBuilder query = new StringBuilder("SELECT * FROM Customer WHERE 1=1");

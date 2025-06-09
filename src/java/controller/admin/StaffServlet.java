@@ -72,7 +72,7 @@ public class StaffServlet extends HttpServlet {
         try {
             StaffDAO dao = getStaffDao();
 
-            String action = request.getParameter("action");   // add | edit
+            String action = request.getParameter("action");
             boolean isEdit = "edit".equals(action);
             String staffId = request.getParameter("staffId");
 
@@ -137,8 +137,6 @@ System.out.println("staffId: " + staffId);
             throws ServletException, IOException {
         try {
             StaffDAO dao = getStaffDao();
-
-            // Luôn có staffList để bảng không trắng
             request.setAttribute("staffList", dao.getAll("", "all"));
 
             List<String> staffIdOptions = getAvailableStaffIdsFromCustomersWithRole2();

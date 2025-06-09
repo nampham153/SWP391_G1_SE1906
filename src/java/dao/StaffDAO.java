@@ -13,9 +13,6 @@ public class StaffDAO {
         this.conn = conn;
     }
 
-    // Các hàm khác như getAll, getById, insert, update, disableStaff giữ nguyên
-
-    // Thêm hàm kiểm tra 3 điều kiện trước khi insert:
     public boolean isAccountIdValid(String accountId) throws SQLException {
         // 1. Kiểm tra accountId tồn tại trong customer
         String sqlCustomer = "SELECT COUNT(*) FROM customer WHERE accountId = ?";
@@ -27,7 +24,6 @@ public class StaffDAO {
             }
         }
 
-        // 2. Kiểm tra accountId tồn tại trong account
         String sqlAccount = "SELECT COUNT(*) FROM account WHERE accountId = ?";
         try (PreparedStatement stmtAccount = conn.prepareStatement(sqlAccount)) {
             stmtAccount.setString(1, accountId);
@@ -37,7 +33,6 @@ public class StaffDAO {
             }
         }
 
-        // 3. Kiểm tra role = 2 trong account
         String sqlRole = "SELECT role FROM account WHERE accountId = ?";
         try (PreparedStatement stmtRole = conn.prepareStatement(sqlRole)) {
             stmtRole.setString(1, accountId);
@@ -155,7 +150,6 @@ public class StaffDAO {
         stmt.executeUpdate();
     }
 
-    // Hàm cũ có thể xóa hoặc giữ lại nếu cần
     public boolean hasCustomerOrAccount(String staffId) throws SQLException {
         String sqlCustomer = "SELECT COUNT(*) FROM customer WHERE staffId = ?";
         String sqlAccount = "SELECT COUNT(*) FROM account WHERE staffId = ?";
@@ -191,12 +185,12 @@ public class StaffDAO {
             Connection conn = new DBContext().getConnection();
             StaffDAO dao = new StaffDAO(conn);
 
-            List<Staff> list = dao.getAll("", "all");  // Lấy tất cả, không filter status
+            List<Staff> list = dao.getAll("", "all");
             for (Staff s : list) {
                 System.out.println(s.getStaffId() + " - " + s.getStaffName() + " - Status: " + (s.isStatus() ? "Hoạt động" : "Ngưng hoạt động"));
             }
 
-            conn.close(); // nhớ đóng kết nối khi xong
+            conn.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
