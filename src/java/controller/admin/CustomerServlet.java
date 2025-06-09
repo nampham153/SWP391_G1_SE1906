@@ -40,14 +40,17 @@ public class CustomerServlet extends HttpServlet {
                 if (statusStr != null && !statusStr.isEmpty()) statusFilter = "1".equals(statusStr);
                 List<Customer> filtered = dao.searchCustomersByNameAndStatus(name, statusFilter);
                 request.setAttribute("customers", filtered);
-                request.getRequestDispatcher("customer-manage.jsp").forward(request, response);
+                request.setAttribute("pageContent", "customer-manage1.jsp");
+                request.getRequestDispatcher("layout.jsp").forward(request, response);
                 return;
             default:
                 List<Customer> list = dao.getAllCustomers();
                 request.setAttribute("customers", list);
                 break;
         }
-        request.getRequestDispatcher("customer-manage.jsp").forward(request, response);
+
+        request.setAttribute("pageContent", "customer-manage1.jsp");
+        request.getRequestDispatcher("layout.jsp").forward(request, response);
     }
 
     @Override
@@ -78,7 +81,8 @@ public class CustomerServlet extends HttpServlet {
             if (id == null || id.trim().isEmpty()) {
                 request.setAttribute("error", "ID không được để trống.");
                 request.setAttribute("customers", dao.getAllCustomers());
-                request.getRequestDispatcher("customer-manage.jsp").forward(request, response);
+                request.setAttribute("pageContent", "customer-manage1.jsp");
+                request.getRequestDispatcher("layout.jsp").forward(request, response);
                 return;
             }
 
@@ -89,13 +93,15 @@ public class CustomerServlet extends HttpServlet {
                 if (existing != null) {
                     request.setAttribute("error", "Account ID này đã được đăng ký trong Customer.");
                     request.setAttribute("customers", dao.getAllCustomers());
-                    request.getRequestDispatcher("customer-manage.jsp").forward(request, response);
+                    request.setAttribute("pageContent", "customer-manage1.jsp");
+                    request.getRequestDispatcher("layout.jsp").forward(request, response);
                     return;
                 }
                 if (!dao.accountExists(id)) {
                     request.setAttribute("error", "Account ID không tồn tại trong hệ thống.");
                     request.setAttribute("customers", dao.getAllCustomers());
-                    request.getRequestDispatcher("customer-manage.jsp").forward(request, response);
+                    request.setAttribute("pageContent", "customer-manage1.jsp");
+                    request.getRequestDispatcher("layout.jsp").forward(request, response);
                     return;
                 }
                 dao.insertCustomer(customer);
@@ -103,7 +109,8 @@ public class CustomerServlet extends HttpServlet {
                 if (existing == null) {
                     request.setAttribute("error", "Không tìm thấy khách hàng để cập nhật.");
                     request.setAttribute("customers", dao.getAllCustomers());
-                    request.getRequestDispatcher("customer-manage.jsp").forward(request, response);
+                    request.setAttribute("pageContent", "customer-manage1.jsp");
+                    request.getRequestDispatcher("layout.jsp").forward(request, response);
                     return;
                 }
                 dao.updateCustomer(customer);
@@ -114,7 +121,8 @@ public class CustomerServlet extends HttpServlet {
         } catch (Exception e) {
             request.setAttribute("error", "Lỗi xử lý dữ liệu: " + e.getMessage());
             request.setAttribute("customers", dao.getAllCustomers());
-            request.getRequestDispatcher("customer-manage.jsp").forward(request, response);
+            request.setAttribute("pageContent", "customer-manage1.jsp");
+            request.getRequestDispatcher("layout.jsp").forward(request, response);
         }
     }
 }
