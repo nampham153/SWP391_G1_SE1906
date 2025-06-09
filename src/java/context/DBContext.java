@@ -12,14 +12,16 @@ public class DBContext {
     private final String dbName = "swp391";
     private final String portNumber = "3306";
     private final String userID = "root";
-    private final String password = "123456";
+    private final String password = "root";
     protected Connection connection;
 
     public DBContext() {
         try {
             String user = "root";
-            String pass = "123456";
-            String url = "jdbc:mysql://localhost:3306/swp391?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
+            String pass = "root";
+//            String url = "jdbc:mysql://localhost:3306/swp391?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
+            String url = "jdbc:mysql://localhost:3306/swp391?useUnicode=true&characterEncoding=UTF-8";
+            
             Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(url, user, pass);
         } catch (ClassNotFoundException | SQLException ex) {
@@ -41,14 +43,14 @@ public class DBContext {
         //return DriverManager.getConnection(url, userID, password);
     }
 
-    /* public static void main(String[] args) {
+     public static void main(String[] args) {
         try {
             Connection conn = new DBContext().getConnection();
             System.out.println("Kết nối thành công!");
         } catch (Exception e) {
             e.printStackTrace();
         }
-    } */
+    } 
 
     
     
