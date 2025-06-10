@@ -60,7 +60,9 @@ public class StaffServlet extends HttpServlet {
             }
             request.setAttribute("staffIdOptions", staffIdOptions);
 
-            request.getRequestDispatcher("staff-manage.jsp").forward(request, response);
+            // ✅ Sử dụng layout.jsp
+            request.setAttribute("pageContent", "staff-manage.jsp");
+            request.getRequestDispatcher("layout.jsp").forward(request, response);
         } catch (Exception e) {
             throw new ServletException(e);
         }
@@ -72,7 +74,7 @@ public class StaffServlet extends HttpServlet {
         try {
             StaffDAO dao = getStaffDao();
 
-            String action = request.getParameter("action");   // add | edit
+            String action = request.getParameter("action");
             boolean isEdit = "edit".equals(action);
             String staffId = request.getParameter("staffId");
 
@@ -118,15 +120,14 @@ public class StaffServlet extends HttpServlet {
             staff.setStaffGender(Boolean.parseBoolean(request.getParameter("staffGender")));
             staff.setDepartmentId(Integer.parseInt(request.getParameter("departmentId")));
             staff.setStatus(Boolean.parseBoolean(request.getParameter("status")));
+
             if (isEdit) {
                 dao.update(staff);
             } else {
                 dao.insert(staff);
             }
-            response.sendRedirect("staff");
-            System.out.println("Action: " + action);
-System.out.println("staffId: " + staffId);
 
+            response.sendRedirect("staff");
 
         } catch (Exception e) {
             throw new ServletException(e);
@@ -137,8 +138,6 @@ System.out.println("staffId: " + staffId);
             throws ServletException, IOException {
         try {
             StaffDAO dao = getStaffDao();
-
-            // Luôn có staffList để bảng không trắng
             request.setAttribute("staffList", dao.getAll("", "all"));
 
             List<String> staffIdOptions = getAvailableStaffIdsFromCustomersWithRole2();
@@ -147,11 +146,12 @@ System.out.println("staffId: " + staffId);
             }
             request.setAttribute("staffIdOptions", staffIdOptions);
 
-            request.getRequestDispatcher("staff-manage.jsp").forward(request, response);
+            // ✅ Sử dụng layout.jsp khi có lỗi
+            request.setAttribute("pageContent", "staff-manage.jsp");
+            request.getRequestDispatcher("layout.jsp").forward(request, response);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-
     }
 
     private List<String> getAvailableStaffIdsFromCustomersWithRole2() throws SQLException, ClassNotFoundException {
@@ -162,5 +162,4 @@ System.out.println("staffId: " + staffId);
         }
         return ids;
     }
-
 }
