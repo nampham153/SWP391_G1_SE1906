@@ -12,23 +12,9 @@ public class DBContext {
     private final String dbName = "swp391";
     private final String portNumber = "3306";
     private final String userID = "root";
-    private final String password = "root";
+    private final String password = "123456";
     protected Connection connection;
 
-    public DBContext() {
-        try {
-            String user = "root";
-            String pass = "root";
-//            String url = "jdbc:mysql://localhost:3306/swp391?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
-            String url = "jdbc:mysql://localhost:3306/swp391?useUnicode=true&characterEncoding=UTF-8";
-            
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            connection = DriverManager.getConnection(url, user, pass);
-        } catch (ClassNotFoundException | SQLException ex) {
-            Logger.getLogger(DBContext.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-    }
     
     public Connection getConnection() throws ClassNotFoundException, SQLException {
         // Load driver
@@ -37,7 +23,7 @@ public class DBContext {
         String url = "jdbc:mysql://" + serverName + ":" + portNumber + "/" + dbName
                 + "?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
         // Tạo kết nối
-        if(connection.isClosed())
+        if(connection == null ||connection.isClosed())
             return DriverManager.getConnection(url, userID, password);
         return connection;
         //return DriverManager.getConnection(url, userID, password);

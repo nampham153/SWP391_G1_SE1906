@@ -1,10 +1,9 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package dao;
 
 import context.DBContext;
+import model.Account;
+
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,18 +11,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import model.Account;
 
-/**
- *
- * @author tuananh
- */
 public class AccountDAO extends DBContext {
 
     public Account getAccount(String phone, String password) {
-        try {
+        try (Connection conn = getConnection()) {
             String query = "SELECT * FROM Account WHERE Phone = ? AND Password = ?";
-            PreparedStatement stm = connection.prepareStatement(query);
+            PreparedStatement stm = conn.prepareStatement(query);
             stm.setString(1, phone);
             stm.setString(2, password);
             ResultSet rs = stm.executeQuery();
@@ -34,45 +28,43 @@ public class AccountDAO extends DBContext {
                 account.setRoleId(rs.getInt("RoleId"));
                 return account;
             }
-        } catch (SQLException ex) {
+        } catch (Exception ex) {
             Logger.getLogger(AccountDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
     }
 
     public boolean createAccount(String phone, String password, int roleId) {
-        try {
-            String query = "INSERT INTO Account "
-                    + "(Phone, Password, RoleId) "
-                    + "VALUES (?, ?, ?)";
-            PreparedStatement stm = connection.prepareStatement(query);
+        try (Connection conn = getConnection()) {
+            String query = "INSERT INTO Account (Phone, Password, RoleId) VALUES (?, ?, ?)";
+            PreparedStatement stm = conn.prepareStatement(query);
             stm.setString(1, phone);
             stm.setString(2, password);
             stm.setInt(3, roleId);
             stm.executeUpdate();
             return true;
-        } catch (SQLException ex) {
+        } catch (Exception ex) {
             Logger.getLogger(AccountDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
         return false;
     }
 
     public void deleteAccount(String phone) {
-        try {
+        try (Connection conn = getConnection()) {
             String query = "DELETE FROM Account WHERE Phone = ?";
-            PreparedStatement stm = connection.prepareStatement(query);
+            PreparedStatement stm = conn.prepareStatement(query);
             stm.setString(1, phone);
             stm.executeUpdate();
-        } catch (SQLException ex) {
+        } catch (Exception ex) {
             Logger.getLogger(AccountDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
     public List<Account> getByRole(int roleId) {
         List<Account> list = new ArrayList<>();
-        try {
+        try (Connection conn = getConnection()) {
             String query = "SELECT Phone, Password, RoleId FROM Account WHERE RoleId = ?";
-            PreparedStatement stm = connection.prepareStatement(query);
+            PreparedStatement stm = conn.prepareStatement(query);
             stm.setInt(1, roleId);
             ResultSet rs = stm.executeQuery();
             while (rs.next()) {
@@ -82,10 +74,18 @@ public class AccountDAO extends DBContext {
                 acc.setRoleId(rs.getInt("RoleId"));
                 list.add(acc);
             }
-        } catch (SQLException ex) {
+        } catch (Exception ex) {
             Logger.getLogger(AccountDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
         return list;
     }
 
+    public static void main(String[] args) {
+        AccountDAO dao = new AccountDAO();
+        List<Account> accounts = dao.getByRole(2);
+        System.out.println("Accounts with role 2:");
+        for (Account acc : accounts) {
+            System.out.println("Phone: " + acc.getPhone() + ", Role: " + acc.getRoleId());
+        }
+    }
 }
