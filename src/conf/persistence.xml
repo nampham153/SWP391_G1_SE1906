@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.2" xmlns="http://xmlns.jcp.org/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence           http://xmlns.jcp.org/xml/ns/persistence/persistence_2_2.xsd">
+  <persistence-unit name="SWP391_nam4PU" transaction-type="RESOURCE_LOCAL">
+    <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+    <class>model.Product</class>
+    <class>model.Comment</class>
+    <class>model.Department</class>
+    <class>model.Customeraddress</class>
+    <class>model.Productspecdetail</class>
+    <class>model.Productcategory</class>
+    <class>model.Accesspath</class>
+    <class>model.Role</class>
+    <class>model.Review</class>
+    <class>model.Componentspec</class>
+    <class>model.Customerorder</class>
+    <class>model.Itemimage</class>
+    <class>model.Account</class>
+    <class>model.Wishlist</class>
+    <class>model.Supportticket</class>
+    <class>model.Componentspecdetail</class>
+    <class>model.Supportcategory</class>
+    <class>model.Item</class>
+    <class>model.Staff</class>
+    <class>model.Productspec</class>
+    <class>model.Productcomponent</class>
+    <class>model.Componentcategory</class>
+    <class>model.Itemorder</class>
+    <class>model.Brand</class>
+    <class>model.Customer</class>
+    <class>model.Component</class>
+    <exclude-unlisted-classes>false</exclude-unlisted-classes>
+    <properties>
+      <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/swp393?zeroDateTimeBehavior=CONVERT_TO_NULL"/>
+      <property name="javax.persistence.jdbc.user" value="root"/>
+      <property name="javax.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>
+      <property name="javax.persistence.jdbc.password" value="123456"/>
+    </properties>
+  </persistence-unit>
+</persistence>

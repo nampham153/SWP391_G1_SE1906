@@ -32,7 +32,7 @@
 </head><!--/head-->
     <body>
         <%@ include file="layout/header.jsp" %>
-        <jsp:include page="${pageContent}" />
+        <jsp:include page="${pageContent1}" />
         <%@ include file="layout/footer.jsp" %>
         <script src="${pageContext.request.contextPath}/js/jquery.js"></script>
 	<script src="${pageContext.request.contextPath}/js/bootstrap.min.js"></script>

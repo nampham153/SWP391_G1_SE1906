@@ -6,18 +6,18 @@ package model;
 
 /**
  *
- * @author tuananh
+ * @author namp0
  */
 public class AccessPath {
     private String path;
-    private int roleId;
+    
+    // constructors, getters, setters...
 
     public AccessPath() {
     }
 
-    public AccessPath(String path, int roleId) {
+    public AccessPath(String path) {
         this.path = path;
-        this.roleId = roleId;
     }
 
     public String getPath() {
@@ -28,13 +28,10 @@ public class AccessPath {
         this.path = path;
     }
 
-    public int getRoleId() {
-        return roleId;
+    @Override
+    public String toString() {
+        return "AccessPath{" + "path=" + path + '}';
     }
-
-    public void setRoleId(int roleId) {
-        this.roleId = roleId;
-    }
-    
     
 }
+

@@ -9,7 +9,7 @@ import jakarta.servlet.http.*;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.List;
+import java.util.*;
 
 @WebServlet("/admin/customer")
 public class CustomerServlet extends HttpServlet {
@@ -20,37 +20,56 @@ public class CustomerServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
         String id = request.getParameter("id");
-        if (action == null) action = "list";
+        if (action == null) {
+            action = "list";
+        }
+
+        int page = 1;
+        int recordsPerPage = 10;
+        try {
+            page = Integer.parseInt(request.getParameter("page"));
+        } catch (Exception ignored) {
+        }
+
+        int offset = (page - 1) * recordsPerPage;
+
+        String sort = request.getParameter("sort");
+        if (sort == null || sort.isEmpty()) {
+            sort = "asc";
+        }
 
         switch (action) {
             case "edit":
                 if (id != null) {
                     Customer c = dao.getCustomerById(id);
                     request.setAttribute("editCustomer", c);
+                    request.setAttribute("formAction", "edit");
                 }
-                break;
+                request.setAttribute("pageContent", "/admin/customer-form.jsp");
+                request.getRequestDispatcher("/admin/layout.jsp").forward(request, response);
+                return;
+
             case "delete":
-                if (id != null) dao.changeStatusToInactiveIfActive(id);
+                if (id != null) {
+                    dao.changeStatusToInactiveIfActive(id);
+                }
                 response.sendRedirect("customer");
                 return;
-            case "search":
-                String name = request.getParameter("name");
-                String statusStr = request.getParameter("status");
-                Boolean statusFilter = null;
-                if (statusStr != null && !statusStr.isEmpty()) statusFilter = "1".equals(statusStr);
-                List<Customer> filtered = dao.searchCustomersByNameAndStatus(name, statusFilter);
-                request.setAttribute("customers", filtered);
-                request.setAttribute("pageContent", "customer-manage1.jsp");
-                request.getRequestDispatcher("layout.jsp").forward(request, response);
-                return;
-            default:
-                List<Customer> list = dao.getAllCustomers();
-                request.setAttribute("customers", list);
-                break;
-        }
 
-        request.setAttribute("pageContent", "customer-manage1.jsp");
-        request.getRequestDispatcher("layout.jsp").forward(request, response);
+            case "add":
+                request.setAttribute("formAction", "add"); // thêm
+                request.setAttribute("pageContent", "/admin/customer-form.jsp");
+                request.getRequestDispatcher("/admin/layout.jsp").forward(request, response);
+                return;
+
+            default:
+                List<Customer> customers = dao.getAllCustomers();
+                request.setAttribute("customerList", customers);
+                request.setAttribute("customerCount", customers.size());
+                request.setAttribute("pageContent", "/admin/customer-manage.jsp");
+                request.getRequestDispatcher("/admin/layout.jsp").forward(request, response);
+
+        }
     }
 
     @Override
@@ -59,7 +78,9 @@ public class CustomerServlet extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
 
         String action = request.getParameter("action");
-        if (action == null) action = "add";
+        if (action == null) {
+            action = "add";
+        }
 
         String id = request.getParameter("id");
         String name = request.getParameter("name");
@@ -71,46 +92,80 @@ public class CustomerServlet extends HttpServlet {
         boolean gender = "1".equals(genderStr);
         boolean status = "1".equals(statusStr);
 
-        try {
-            java.sql.Date birthDate = null;
-            if (birthStr != null && !birthStr.isEmpty()) {
+        Map<String, String> errors = new HashMap<>();
+        if (id == null || id.trim().isEmpty()) {
+            errors.put("id", "ID (Số điện thoại) không được để trống.");
+        } else if (!id.matches("\\d{9,12}")) {
+            errors.put("id", "ID phải là số điện thoại hợp lệ (9-12 chữ số).");
+        }
+
+        if (name == null || name.trim().isEmpty()) {
+            errors.put("name", "Tên không được để trống.");
+        } else if (!name.matches("[\\p{L} ]{3,}")) {
+            errors.put("name", "Tên phải chứa ít nhất 3 ký tự và chỉ gồm chữ cái.");
+        }
+
+        if (email == null || email.trim().isEmpty()) {
+            errors.put("email", "Email không được để trống.");
+        } else if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
+            errors.put("email", "Email không hợp lệ.");
+        }
+
+        java.sql.Date birthDate = null;
+        if (birthStr != null && !birthStr.trim().isEmpty()) {
+            try {
                 java.util.Date utilDate = new SimpleDateFormat("yyyy-MM-dd").parse(birthStr);
-                birthDate = new java.sql.Date(utilDate.getTime());
+                if (utilDate.after(new java.util.Date())) {
+                    errors.put("birthDate", "Ngày sinh không được lớn hơn ngày hiện tại.");
+                } else {
+                    birthDate = new java.sql.Date(utilDate.getTime());
+                }
+            } catch (Exception e) {
+                errors.put("birthDate", "Ngày sinh không đúng định dạng yyyy-MM-dd.");
             }
+        }
 
-            if (id == null || id.trim().isEmpty()) {
-                request.setAttribute("error", "ID không được để trống.");
-                request.setAttribute("customers", dao.getAllCustomers());
-                request.setAttribute("pageContent", "customer-manage1.jsp");
-                request.getRequestDispatcher("layout.jsp").forward(request, response);
-                return;
-            }
+        Customer customer = new Customer(id, name, email, birthDate, gender, status);
 
-            Customer customer = new Customer(id, name, email, birthDate, gender, status);
+        if (!errors.isEmpty()) {
+            request.setAttribute("errors", errors);
+            request.setAttribute("editCustomer", customer);
+            request.setAttribute("formAction", action); // important!
+            request.setAttribute("pageContent", "/admin/customer-form.jsp");
+            request.getRequestDispatcher("/admin/layout.jsp").forward(request, response);
+            return;
+        }
+
+        try {
             Customer existing = dao.getCustomerById(id);
 
             if ("add".equals(action)) {
+                // Khi thêm mới: kiểm tra trùng ID
                 if (existing != null) {
-                    request.setAttribute("error", "Account ID này đã được đăng ký trong Customer.");
-                    request.setAttribute("customers", dao.getAllCustomers());
-                    request.setAttribute("pageContent", "customer-manage1.jsp");
-                    request.getRequestDispatcher("layout.jsp").forward(request, response);
+                    errors.put("id", "Customer ID này đã tồn tại.");
+                } else if (!dao.accountExists(id)) {
+                    errors.put("id", "Account ID không tồn tại trong hệ thống.");
+                }
+
+                if (!errors.isEmpty()) {
+                    request.setAttribute("errors", errors);
+                    request.setAttribute("editCustomer", customer);
+                    request.setAttribute("formAction", action);
+                    request.setAttribute("pageContent", "/admin/customer-form.jsp");
+                    request.getRequestDispatcher("/admin/layout.jsp").forward(request, response);
                     return;
                 }
-                if (!dao.accountExists(id)) {
-                    request.setAttribute("error", "Account ID không tồn tại trong hệ thống.");
-                    request.setAttribute("customers", dao.getAllCustomers());
-                    request.setAttribute("pageContent", "customer-manage1.jsp");
-                    request.getRequestDispatcher("layout.jsp").forward(request, response);
-                    return;
-                }
+
                 dao.insertCustomer(customer);
+
             } else if ("edit".equals(action)) {
                 if (existing == null) {
-                    request.setAttribute("error", "Không tìm thấy khách hàng để cập nhật.");
-                    request.setAttribute("customers", dao.getAllCustomers());
-                    request.setAttribute("pageContent", "customer-manage1.jsp");
-                    request.getRequestDispatcher("layout.jsp").forward(request, response);
+                    errors.put("id", "Không tìm thấy khách hàng để cập nhật.");
+                    request.setAttribute("errors", errors);
+                    request.setAttribute("editCustomer", customer);
+                    request.setAttribute("formAction", action); // important!
+                    request.setAttribute("pageContent", "/admin/customer-form.jsp");
+                    request.getRequestDispatcher("/admin/layout.jsp").forward(request, response);
                     return;
                 }
                 dao.updateCustomer(customer);
@@ -119,10 +174,12 @@ public class CustomerServlet extends HttpServlet {
             response.sendRedirect("customer");
 
         } catch (Exception e) {
-            request.setAttribute("error", "Lỗi xử lý dữ liệu: " + e.getMessage());
-            request.setAttribute("customers", dao.getAllCustomers());
-            request.setAttribute("pageContent", "customer-manage1.jsp");
-            request.getRequestDispatcher("layout.jsp").forward(request, response);
+            errors.put("general", "Lỗi xử lý dữ liệu: " + e.getMessage());
+            request.setAttribute("errors", errors);
+            request.setAttribute("editCustomer", customer);
+            request.setAttribute("formAction", action); // important!
+            request.setAttribute("pageContent", "/admin/customer-form.jsp");
+            request.getRequestDispatcher("/admin/layout.jsp").forward(request, response);
         }
     }
 }

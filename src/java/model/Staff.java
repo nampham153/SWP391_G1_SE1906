@@ -1,9 +1,16 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package model;
 
-import java.util.Date;
+/**
+ *
+ * @author namp0
+ */
+import java.sql.Date;
 
 public class Staff {
-
     private String staffId;
     private String staffName;
     private String staffTitle;
@@ -12,12 +19,13 @@ public class Staff {
     private boolean staffGender;
     private String supervisorId;
     private int departmentId;
-    private boolean status;
+    private Boolean status;
 
-    public Staff() {
-    }
+    public Staff() {}
 
-    public Staff(String staffId, String staffName, String staffTitle, String staffAddress, Date staffBirthDate, boolean staffGender, String supervisorId, int departmentId, boolean status) {
+    public Staff(String staffId, String staffName, String staffTitle, String staffAddress,
+                 Date staffBirthDate, boolean staffGender, String supervisorId,
+                 int departmentId, Boolean status) {
         this.staffId = staffId;
         this.staffName = staffName;
         this.staffTitle = staffTitle;
@@ -29,82 +37,75 @@ public class Staff {
         this.status = status;
     }
 
-    @Override
-    public String toString() {
-        return "Staff{" + "staffId=" + staffId + ", staffName=" + staffName + ", staffTitle=" + staffTitle + ", staffAddress=" + staffAddress + ", staffBirthDate=" + staffBirthDate + ", staffGender=" + staffGender + ", supervisorId=" + supervisorId + ", departmentId=" + departmentId + ", status=" + status + '}';
-    }
-
-    public boolean isStatus() {
-        return status;
-    }
-
-    public void setStatus(boolean status) {
-        this.status = status;
-    }
-
-
     public String getStaffId() {
         return staffId;
-    }
-
-    public String getStaffName() {
-        return staffName;
-    }
-
-    public String getStaffTitle() {
-        return staffTitle;
-    }
-
-    public String getStaffAddress() {
-        return staffAddress;
-    }
-
-    public Date getStaffBirthDate() {
-        return staffBirthDate;
-    }
-
-    public boolean isStaffGender() {
-        return staffGender;
-    }
-
-    public String getSupervisorId() {
-        return supervisorId;
-    }
-
-    public int getDepartmentId() {
-        return departmentId;
     }
 
     public void setStaffId(String staffId) {
         this.staffId = staffId;
     }
 
+    public String getStaffName() {
+        return staffName;
+    }
+
     public void setStaffName(String staffName) {
         this.staffName = staffName;
+    }
+
+    public String getStaffTitle() {
+        return staffTitle;
     }
 
     public void setStaffTitle(String staffTitle) {
         this.staffTitle = staffTitle;
     }
 
+    public String getStaffAddress() {
+        return staffAddress;
+    }
+
     public void setStaffAddress(String staffAddress) {
         this.staffAddress = staffAddress;
+    }
+
+    public Date getStaffBirthDate() {
+        return staffBirthDate;
     }
 
     public void setStaffBirthDate(Date staffBirthDate) {
         this.staffBirthDate = staffBirthDate;
     }
 
+    public boolean isStaffGender() {
+        return staffGender;
+    }
+
     public void setStaffGender(boolean staffGender) {
         this.staffGender = staffGender;
+    }
+
+    public String getSupervisorId() {
+        return supervisorId;
     }
 
     public void setSupervisorId(String supervisorId) {
         this.supervisorId = supervisorId;
     }
 
+    public int getDepartmentId() {
+        return departmentId;
+    }
+
     public void setDepartmentId(int departmentId) {
         this.departmentId = departmentId;
     }
 
+    public Boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(Boolean status) {
+        this.status = status;
+    }
 }

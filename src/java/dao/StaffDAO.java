@@ -7,15 +7,13 @@ import java.sql.*;
 import java.util.*;
 
 public class StaffDAO {
+
     private Connection conn;
 
     public StaffDAO(Connection conn) {
         this.conn = conn;
     }
 
-    // Các hàm khác như getAll, getById, insert, update, disableStaff giữ nguyên
-
-    // Thêm hàm kiểm tra 3 điều kiện trước khi insert:
     public boolean isAccountIdValid(String accountId) throws SQLException {
         // 1. Kiểm tra accountId tồn tại trong customer
         String sqlCustomer = "SELECT COUNT(*) FROM customer WHERE accountId = ?";
@@ -23,21 +21,22 @@ public class StaffDAO {
             stmtCustomer.setString(1, accountId);
             try (ResultSet rs = stmtCustomer.executeQuery()) {
                 rs.next();
-                if (rs.getInt(1) == 0) return false;
+                if (rs.getInt(1) == 0) {
+                    return false;
+                }
             }
         }
 
-        // 2. Kiểm tra accountId tồn tại trong account
         String sqlAccount = "SELECT COUNT(*) FROM account WHERE accountId = ?";
         try (PreparedStatement stmtAccount = conn.prepareStatement(sqlAccount)) {
             stmtAccount.setString(1, accountId);
             try (ResultSet rs = stmtAccount.executeQuery()) {
                 rs.next();
-                if (rs.getInt(1) == 0) return false;
+                if (rs.getInt(1) == 0) {
+                    return false;
+                }
             }
         }
-
-        // 3. Kiểm tra role = 2 trong account
         String sqlRole = "SELECT role FROM account WHERE accountId = ?";
         try (PreparedStatement stmtRole = conn.prepareStatement(sqlRole)) {
             stmtRole.setString(1, accountId);
@@ -52,38 +51,36 @@ public class StaffDAO {
     }
 
     public List<Staff> getAll(String keyword, String statusFilter) throws SQLException {
-    List<Staff> list = new ArrayList<>();
-    String sql = "SELECT * FROM staff WHERE staffName LIKE ?";
-    if (!"all".equals(statusFilter)) {
-        sql += " AND status = ?";
+        List<Staff> list = new ArrayList<>();
+        String sql = "SELECT * FROM staff WHERE staffName LIKE ?";
+        if (!"all".equals(statusFilter)) {
+            sql += " AND status = ?";
+        }
+
+        PreparedStatement stmt = conn.prepareStatement(sql);
+        stmt.setString(1, "%" + keyword + "%");
+
+        if (!"all".equals(statusFilter)) {
+            stmt.setBoolean(2, Boolean.parseBoolean(statusFilter));
+        }
+
+        ResultSet rs = stmt.executeQuery();
+        while (rs.next()) {
+            Staff s = new Staff(
+                    rs.getString("staffId"),
+                    rs.getString("staffName"),
+                    rs.getString("staffTitle"),
+                    rs.getString("staffAddress"),
+                    rs.getDate("staffBirthDate"),
+                    rs.getBoolean("staffGender"),
+                    rs.getString("supervisorId"),
+                    rs.getInt("departmentId"),
+                    rs.getBoolean("status")
+            );
+            list.add(s);
+        }
+        return list;
     }
-
-    PreparedStatement stmt = conn.prepareStatement(sql);
-    stmt.setString(1, "%" + keyword + "%");
-
-    if (!"all".equals(statusFilter)) {
-        stmt.setBoolean(2, Boolean.parseBoolean(statusFilter));
-    }
-
-    ResultSet rs = stmt.executeQuery();
-    while (rs.next()) {
-        Staff s = new Staff(
-            rs.getString("staffId"),
-            rs.getString("staffName"),
-            rs.getString("staffTitle"),
-            rs.getString("staffAddress"),
-            rs.getDate("staffBirthDate"),
-            rs.getBoolean("staffGender"),
-            rs.getString("supervisorId"),
-            rs.getInt("departmentId"),
-            rs.getBoolean("status")
-        );
-        list.add(s);
-    }
-    return list;
-}
-
-
 
     public Staff getById(String id) throws SQLException {
         String sql = "SELECT * FROM staff WHERE staffId = ?";
@@ -92,15 +89,15 @@ public class StaffDAO {
         ResultSet rs = stmt.executeQuery();
         if (rs.next()) {
             return new Staff(
-                rs.getString("staffId"),
-                rs.getString("staffName"),
-                rs.getString("staffTitle"),
-                rs.getString("staffAddress"),
-                rs.getDate("staffBirthDate"),
-                rs.getBoolean("staffGender"),
-                rs.getString("supervisorId"),
-                rs.getInt("departmentId"),
-                rs.getBoolean("status")
+                    rs.getString("staffId"),
+                    rs.getString("staffName"),
+                    rs.getString("staffTitle"),
+                    rs.getString("staffAddress"),
+                    rs.getDate("staffBirthDate"),
+                    rs.getBoolean("staffGender"),
+                    rs.getString("supervisorId"),
+                    rs.getInt("departmentId"),
+                    rs.getBoolean("status")
             );
         }
         return null;
@@ -115,15 +112,9 @@ public class StaffDAO {
         stmt.setString(4, s.getStaffAddress());
         stmt.setDate(5, new java.sql.Date(s.getStaffBirthDate().getTime()));
         stmt.setBoolean(6, s.isStaffGender());
-
-        if (s.getSupervisorId() == null || s.getSupervisorId().trim().isEmpty()) {
-            stmt.setNull(7, java.sql.Types.VARCHAR);
-        } else {
-            stmt.setString(7, s.getSupervisorId());
-        }
-
+        
         stmt.setInt(8, s.getDepartmentId());
-        stmt.setBoolean(9, s.isStatus());
+        stmt.setBoolean(9, s.getStatus());
         stmt.executeUpdate();
     }
 
@@ -143,7 +134,7 @@ public class StaffDAO {
         }
 
         stmt.setInt(7, s.getDepartmentId());
-        stmt.setBoolean(8, s.isStatus());
+        stmt.setBoolean(8, s.getStatus());
         stmt.setString(9, s.getStaffId());
         stmt.executeUpdate();
     }
@@ -155,7 +146,6 @@ public class StaffDAO {
         stmt.executeUpdate();
     }
 
-    // Hàm cũ có thể xóa hoặc giữ lại nếu cần
     public boolean hasCustomerOrAccount(String staffId) throws SQLException {
         String sqlCustomer = "SELECT COUNT(*) FROM customer WHERE staffId = ?";
         String sqlAccount = "SELECT COUNT(*) FROM account WHERE staffId = ?";
@@ -174,11 +164,12 @@ public class StaffDAO {
 
         return customerCount > 0 || accountCount > 0;
     }
-        public List<String> getCustomerIdsWithStaffRole() throws SQLException {
+
+    public List<String> getCustomerIdsWithStaffRole() throws SQLException {
         List<String> list = new ArrayList<>();
-        String sql = "SELECT c.customerId FROM customer c " +
-                     "JOIN account a ON c.customerId = a.accountId " +
-                     "WHERE a.role = 2 AND a.status = true";
+        String sql = "SELECT c.customerId FROM customer c "
+                + "JOIN account a ON c.customerId = a.accountId "
+                + "WHERE a.role = 2 AND a.status = true";
         PreparedStatement stmt = conn.prepareStatement(sql);
         ResultSet rs = stmt.executeQuery();
         while (rs.next()) {
@@ -186,17 +177,18 @@ public class StaffDAO {
         }
         return list;
     }
+
     public static void main(String[] args) {
         try {
             Connection conn = new DBContext().getConnection();
             StaffDAO dao = new StaffDAO(conn);
 
-            List<Staff> list = dao.getAll("", "all");  // Lấy tất cả, không filter status
+            List<Staff> list = dao.getAll("", "all");
             for (Staff s : list) {
-                System.out.println(s.getStaffId() + " - " + s.getStaffName() + " - Status: " + (s.isStatus() ? "Hoạt động" : "Ngưng hoạt động"));
+                System.out.println(s.getStaffId() + " - " + s.getStaffName() + " - Status: " + (s.getStatus()? "Hoạt động" : "Ngưng hoạt động"));
             }
 
-            conn.close(); // nhớ đóng kết nối khi xong
+            conn.close();
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -9,7 +9,7 @@ import java.util.logging.Logger;
 public class DBContext {
 
     private final String serverName = "localhost";
-    private final String dbName = "swp391";
+    private final String dbName = "swp393";
     private final String portNumber = "3306";
     private final String userID = "root";
     private final String password = "123456";
@@ -29,14 +29,14 @@ public class DBContext {
         //return DriverManager.getConnection(url, userID, password);
     }
 
-     public static void main(String[] args) {
-        try {
-            Connection conn = new DBContext().getConnection();
-            System.out.println("Kết nối thành công!");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    } 
+//     public static void main(String[] args) {
+//        try {
+//            Connection conn = new DBContext().getConnection();
+//            System.out.println("Kết nối thành công!");
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    } 
 
     
     

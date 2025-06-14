@@ -1,18 +1,26 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package model;
 
+/**
+ *
+ * @author namp0
+ */
 public class Account {
     private String phone;
     private String password;
     private int roleId;
+        private int status; 
 
-    // Constructors, getters and setters
-    public Account() {
-    }
+    public Account() {}
 
-    public Account(String phone, String password, int roleId) {
+    public Account(String phone, String password, int roleId,int status) {
         this.phone = phone;
         this.password = password;
         this.roleId = roleId;
+        this.status = status;
     }
 
     public String getPhone() {
@@ -39,9 +47,12 @@ public class Account {
         this.roleId = roleId;
     }
 
-    @Override
-    public String toString() {
-        return "Account{" + "phone=" + phone + ", password=" + password + ", roleId=" + roleId + '}';
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
     
 }

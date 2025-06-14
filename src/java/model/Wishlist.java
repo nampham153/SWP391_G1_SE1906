@@ -1,19 +1,29 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package model;
 
-public class Wishlist {
+/**
+ *
+ * @author namp0
+ */
+import java.sql.Date;
 
+public class Wishlist {
     private String userId;
     private String inventoryId;
-    private int rank;
-    private int dateAdded;
+    private int itemRank;
+    private Date dateAdded;
+    // constructors, getters, setters...
 
     public Wishlist() {
     }
 
-    public Wishlist(String userId, String inventoryId, int rank, int dateAdded) {
+    public Wishlist(String userId, String inventoryId, int itemRank, Date dateAdded) {
         this.userId = userId;
         this.inventoryId = inventoryId;
-        this.rank = rank;
+        this.itemRank = itemRank;
         this.dateAdded = dateAdded;
     }
 
@@ -21,32 +31,38 @@ public class Wishlist {
         return userId;
     }
 
-    public String getInventoryId() {
-        return inventoryId;
-    }
-
-    public int getRank() {
-        return rank;
-    }
-
-    public int getDateAdded() {
-        return dateAdded;
-    }
-
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public String getInventoryId() {
+        return inventoryId;
     }
 
     public void setInventoryId(String inventoryId) {
         this.inventoryId = inventoryId;
     }
 
-    public void setRank(int rank) {
-        this.rank = rank;
+    public int getItemRank() {
+        return itemRank;
     }
 
-    public void setDateAdded(int dateAdded) {
+    public void setItemRank(int itemRank) {
+        this.itemRank = itemRank;
+    }
+
+    public Date getDateAdded() {
+        return dateAdded;
+    }
+
+    public void setDateAdded(Date dateAdded) {
         this.dateAdded = dateAdded;
     }
 
+    @Override
+    public String toString() {
+        return "Wishlist{" + "userId=" + userId + ", inventoryId=" + inventoryId + ", itemRank=" + itemRank + ", dateAdded=" + dateAdded + '}';
+    }
+    
 }
+
