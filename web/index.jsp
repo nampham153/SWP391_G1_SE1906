@@ -5,6 +5,8 @@
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -32,7 +34,10 @@
 </head><!--/head-->
     <body>
         <%@ include file="layout/header.jsp" %>
+            <c:if test="${not empty pageContent1}">
         <jsp:include page="${pageContent1}" />
+    </c:if>
+
         <%@ include file="layout/footer.jsp" %>
         <script src="${pageContext.request.contextPath}/js/jquery.js"></script>
 	<script src="${pageContext.request.contextPath}/js/bootstrap.min.js"></script>

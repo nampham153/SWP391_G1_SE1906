@@ -52,9 +52,9 @@ public class ProductDAO {
             while (rs.next()) {
                 Product p = new Product(rs.getString("ProductId"), rs.getInt("CategoryId"));
                 // Gán thông tin Item nếu có
-                Item item = new Item(rs.getString("SerialNumber"), rs.getString("ItemName"), rs.getInt("Stock"),
-                        rs.getDouble("Price"), rs.getInt("Views"), 0); // categoryId tạm thời là 0
-                p.setItem(item); // Giả sử Product có phương thức setItem
+//                Item item = new Item(rs.getString("SerialNumber"), rs.getString("ItemName"), rs.getInt("Stock"),
+//                        rs.getDouble("Price"), rs.getInt("Views"), 0); // categoryId tạm thời là 0
+//                p.setItem(item); // Giả sử Product có phương thức setItem
                 list.add(p);
             }
         } catch (ClassNotFoundException | SQLException ex) {
@@ -72,10 +72,10 @@ public class ProductDAO {
             try (ResultSet rs = statement.executeQuery()) {
                 if (rs.next()) {
                     Product p = new Product(rs.getString("ProductId"), rs.getInt("CategoryId"));
-                    Item item = new Item(rs.getString("SerialNumber"), rs.getString("ItemName"), rs.getInt("Stock"),
-                            rs.getDouble("Price"), rs.getInt("Views"), 0); // categoryId tạm thời là 0
-                    p.setItem(item); // Giả sử có setItem
-                    return p;
+//                    Item item = new Item(rs.getString("SerialNumber"), rs.getString("ItemName"), rs.getInt("Stock"),
+//                            rs.getDouble("Price"), rs.getInt("Views"), 0); // categoryId tạm thời là 0
+//                    p.setItem(item); // Giả sử có setItem
+//                    return p;
                 }
             }
         } catch (ClassNotFoundException | SQLException ex) {
