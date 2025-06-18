@@ -11,11 +11,13 @@ package model;
 import java.math.BigDecimal;
 
 public class Item {
+
     private String serialNumber;
     private String itemName;
     private int stock;
     private BigDecimal price;
     private int views;
+    private ItemImage image;
     // constructors, getters, setters...
 
     public Item() {
@@ -69,10 +71,12 @@ public class Item {
         this.views = views;
     }
 
-    @Override
-    public String toString() {
-        return "Item{" + "serialNumber=" + serialNumber + ", itemName=" + itemName + ", stock=" + stock + ", price=" + price + ", views=" + views + '}';
+    public ItemImage getImage() {
+        return image;
     }
-    
-    
+
+    public void setImage(ItemImage image) {
+        this.image = image;
+    }
+
 }

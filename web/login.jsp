@@ -60,7 +60,7 @@
                 <div class="signup-form"><!--sign up form-->
                     <h2>New User?</h2>
                     <p>Create an account to enjoy all our services</p>
-                    <a href="register.jsp" class="btn btn-default">Register Now</a>
+                    <a href="${pageContext.request.contextPath}/register" class="btn btn-default">Register Now</a>
                 </div><!--/sign up form-->
             </div>
         </div>
