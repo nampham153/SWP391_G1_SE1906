@@ -12,7 +12,7 @@ public class Account {
     private String phone;
     private String password;
     private int roleId;
-        private int status; 
+    private int status; 
 
     public Account() {}
 

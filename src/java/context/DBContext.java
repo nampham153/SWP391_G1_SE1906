@@ -9,7 +9,7 @@ import java.util.logging.Logger;
 public class DBContext {
 
     private final String serverName = "localhost";
-    private final String dbName = "swp393";
+    private final String dbName = "swp392";
     private final String portNumber = "3306";
     private final String userID = "root";
     private final String password = "123456";

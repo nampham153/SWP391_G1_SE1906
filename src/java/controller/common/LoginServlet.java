@@ -33,7 +33,7 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response)
         session.setAttribute("role", account.getRoleId());
 
         int role = account.getRoleId();
-        System.out.println("Login success - role: " + role); // ✅ Luôn log để debug
+        System.out.println("Login success - role: " + role);
 
         switch (role) {
             case 2: // Admin
@@ -43,7 +43,7 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response)
                 response.sendRedirect(request.getContextPath() + "/index.jsp");
                 break;
             default: // Customer
-                response.sendRedirect(request.getContextPath() + "/index.jsp");
+                response.sendRedirect(request.getContextPath() + "/home");
                 break;
         }
 

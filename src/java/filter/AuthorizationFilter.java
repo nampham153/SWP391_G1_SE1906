@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package filter;
 
 import jakarta.servlet.*;
@@ -26,8 +22,30 @@ public class AuthorizationFilter implements Filter {
         String uri = req.getRequestURI();
         Integer role = (session != null) ? (Integer) session.getAttribute("role") : null;
 
-        // Cho phép các trang công khai
-        if (uri.endsWith("login") || uri.endsWith("register") || uri.endsWith("index.jsp") || uri.contains("/public/") || uri.endsWith(".css") || uri.endsWith(".js") || uri.endsWith(".png")) {
+        String[] publicPaths = {
+            "/home",
+            "/login",
+            "/register",
+            "/index.jsp",
+            "/css/",
+            "/js/",
+            "/img/",
+            "/images/",
+            "/fonts/",
+            "/vendor/",
+            "/public/"
+        };
+
+        // Cho phép nếu là tài nguyên tĩnh hoặc trong danh sách public
+        boolean isPublic = false;
+        for (String path : publicPaths) {
+            if (uri.contains(path)) {
+                isPublic = true;
+                break;
+            }
+        }
+
+        if (isPublic || uri.matches(".*\\.(css|js|png|jpg|jpeg|gif|svg|ico|woff2?)$")) {
             chain.doFilter(request, response);
             return;
         }
@@ -38,7 +56,7 @@ public class AuthorizationFilter implements Filter {
             return;
         }
 
-        // Phân quyền
+        // Phân quyền theo role
         if (uri.contains("/admin")) {
             if (role == 2) {
                 chain.doFilter(request, response);
@@ -66,7 +84,6 @@ public class AuthorizationFilter implements Filter {
             return;
         }
 
-        // Các trang không phân quyền rõ thì cho qua
         chain.doFilter(request, response);
     }
 }
