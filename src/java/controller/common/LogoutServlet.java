@@ -21,11 +21,12 @@ import jakarta.servlet.http.HttpSession;
 public class LogoutServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
+            throws IOException, ServletException {
         HttpSession session = request.getSession(false);
         if (session != null) {
             session.invalidate();
         }
-        response.sendRedirect("login.jsp");
+        request.setAttribute("pageContent1", "login.jsp");
+        request.getRequestDispatcher("index.jsp").forward(request, response);
     }
 }

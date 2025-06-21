@@ -33,13 +33,15 @@ public class AuthorizationFilter implements Filter {
             "/images/",
             "/fonts/",
             "/vendor/",
-            "/public/"
+            "/public/",
+            "/cart",
+            "/checkout"
         };
 
         // Cho phép nếu là tài nguyên tĩnh hoặc trong danh sách public
         boolean isPublic = false;
         for (String path : publicPaths) {
-            if (uri.contains(path)) {
+            if (uri.startsWith(req.getContextPath() + path)) {
                 isPublic = true;
                 break;
             }
