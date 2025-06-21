@@ -23,8 +23,8 @@
                         <div class="col-sm-6">
                             <div class="contactinfo">
                                 <ul class="nav nav-pills">
-                                    <li><a href="#"><i class="fa fa-phone"></i> +2 95 01 88 821</a></li>
-                                    <li><a href="#"><i class="fa fa-envelope"></i> info@domain.com</a></li>
+                                    <li><a href="#"><i class="fa fa-phone"></i> +84 0392 96 8548</a></li>
+                                    <li><a href="#"><i class="fa fa-envelope"></i> namp04464@gmail.com</a></li>
                                 </ul>
                             </div>
                         </div>
@@ -58,29 +58,28 @@
                                         <c:when test="${not empty sessionScope.account}">
                                             <li><a href="#"><i class="fa fa-user"></i> Xin chào, ${sessionScope.account.phone}</a></li>
 
-                                            <c:choose>
-                                                <c:when test="${sessionScope.account.roleId == 2}">
-                                                    <li><a href="${pageContext.request.contextPath}/admin/staff">
-                                                            <i class="fa fa-user-secret"></i> Trang quản lý (Admin)</a></li>
-                                                        </c:when>
-                                                        <c:when test="${sessionScope.account.roleId == 3}">
-                                                    <li><a href="${pageContext.request.contextPath}/staff/customer">
-                                                            <i class="fa fa-cogs"></i> Trang quản lý (Staff)</a></li>
-                                                        </c:when>
-                                                        <c:otherwise>
-                                                    <li><a href="${pageContext.request.contextPath}/customer/home">
-                                                            <i class="fa fa-user"></i> Your Profile</a></li>
-                                                        </c:otherwise>
-                                                    </c:choose>
+                                            <c:if test="${sessionScope.account.roleId == 2}">
+                                                <li><a href="${pageContext.request.contextPath}/admin/staff"><i class="fa fa-user-secret"></i> Trang quản lý (Admin)</a></li>
+                                                </c:if>
+                                                <c:if test="${sessionScope.account.roleId == 3}">
+                                                <li><a href="${pageContext.request.contextPath}/staff/customer"><i class="fa fa-cogs"></i> Trang quản lý (Staff)</a></li>
+                                                </c:if>
+                                                <c:if test="${sessionScope.account.roleId == 1}">
+                                                <li><a href="${pageContext.request.contextPath}/customer/home"><i class="fa fa-home"></i> Trang cá nhân</a></li>
+                                                </c:if>
+                                            <li><a href="${pageContext.request.contextPath}/checkout"><i class="fa fa-crosshairs"></i> Checkout</a></li>
+                                            <li><a href="${pageContext.request.contextPath}/cart"><i class="fa fa-shopping-cart"></i> Cart</a></li>
 
                                             <li><a href="${pageContext.request.contextPath}/logout"><i class="fa fa-unlock"></i> Logout</a></li>
                                             </c:when>
                                             <c:otherwise>
+                                            <li><a href="#"><i class="fa fa-user"></i> Xin chào, Khách</a></li>
+                                            <li><a href="${pageContext.request.contextPath}/checkout"><i class="fa fa-crosshairs"></i> Checkout</a></li>
+                                            <li><a href="${pageContext.request.contextPath}/cart"><i class="fa fa-shopping-cart"></i> Cart</a></li>
                                             <li><a href="${pageContext.request.contextPath}/login"><i class="fa fa-lock"></i> Login</a></li>
                                             </c:otherwise>
                                         </c:choose>
                                 </ul>
-
                             </div>
                         </div>
                     </div>
@@ -101,18 +100,7 @@
                             </div>
                             <div class="mainmenu pull-left">
                                 <ul class="nav navbar-nav collapse navbar-collapse">
-                                    <li><a href="${pageContext.request.contextPath}/home" class="active">Home</a></li>
-                                    <li class="dropdown"><a href="#">Shop<i class="fa fa-angle-down"></i></a>
-                                        <ul role="menu" class="sub-menu">
-                                            <li><a href="shop.html">Products</a></li>
-                                            <li><a href="product-details.html">Product Details</a></li> 
-                                            <li><a href="checkout.html">Checkout</a></li> 
-                                            <li><a href="cart.html">Cart</a></li> 
-                                                <c:if test="${empty sessionScope.account}">
-                                                <li><a href="login">Login</a></li> 
-                                                </c:if>
-                                        </ul>
-                                    </li> 
+                                    <li><a href="${pageContext.request.contextPath}/home" class="active">Home</a></li>                                   
                                     <li class="dropdown"><a href="#">Blog<i class="fa fa-angle-down"></i></a>
                                         <ul role="menu" class="sub-menu">
                                             <li><a href="blog.html">Blog List</a></li>

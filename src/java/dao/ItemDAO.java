@@ -20,10 +20,10 @@ public class ItemDAO extends DBContext {
 
     private List<Item> getItemsByPrefix(String prefix, int limit) {
         List<Item> list = new ArrayList<>();
-        String query = "SELECT i.SerialNumber, i.ItemName, i.Price, i.Views, img.ImageContent " +
-                       "FROM Item i LEFT JOIN ItemImage img ON i.SerialNumber = img.InventoryId " +
-                       "WHERE i.SerialNumber LIKE ? " +
-                       "ORDER BY i.Views DESC LIMIT ?";
+        String query = "SELECT i.SerialNumber, i.ItemName, i.Price, i.Views, img.ImageContent "
+                + "FROM Item i LEFT JOIN ItemImage img ON i.SerialNumber = img.InventoryId "
+                + "WHERE i.SerialNumber LIKE ? "
+                + "ORDER BY i.Views DESC LIMIT ?";
         try (java.sql.Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setString(1, prefix + "%");
             ps.setInt(2, limit);
@@ -34,8 +34,6 @@ public class ItemDAO extends DBContext {
                 item.setItemName(rs.getString("ItemName"));
                 item.setPrice(rs.getBigDecimal("Price"));
                 item.setViews(rs.getInt("Views"));
-
-                // Gán hình ảnh nếu có
                 String imageContent = rs.getString("ImageContent");
                 if (imageContent != null) {
                     ItemImage image = new ItemImage();
@@ -51,4 +49,34 @@ public class ItemDAO extends DBContext {
         }
         return list;
     }
+
+    public Item getItemById(String serialNumber) {
+        Item item = null;
+        String query = "SELECT i.SerialNumber, i.ItemName, i.Price, i.Views, img.ImageContent "
+                + "FROM Item i LEFT JOIN ItemImage img ON i.SerialNumber = img.InventoryId "
+                + "WHERE i.SerialNumber = ?";
+        try (java.sql.Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setString(1, serialNumber);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                item = new Item();
+                item.setSerialNumber(rs.getString("SerialNumber"));
+                item.setItemName(rs.getString("ItemName"));
+                item.setPrice(rs.getBigDecimal("Price"));
+                item.setViews(rs.getInt("Views"));
+
+                String imageContent = rs.getString("ImageContent");
+                if (imageContent != null) {
+                    ItemImage image = new ItemImage();
+                    image.setImageContent(imageContent);
+                    image.setInventoryId(serialNumber);
+                    item.setImage(image);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return item;
+    }
+
 }

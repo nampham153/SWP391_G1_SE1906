@@ -6,6 +6,8 @@
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<fmt:setLocale value="vi_VN"/>
 <!DOCTYPE html>
 <html>
     <head>
@@ -213,11 +215,6 @@
                                     <b class="pull-left">$ 0</b> <b class="pull-right">$ 600</b>
                                 </div>
                             </div><!--/price-range-->
-
-                            <div class="shipping text-center"><!--shipping-->
-                                <img src="images/home/shipping.jpg" alt="" />
-                            </div><!--/shipping-->
-
                         </div>
                     </div>
 
@@ -229,20 +226,30 @@
                                     <div class="product-image-wrapper">
                                         <div class="single-products">
                                             <div class="productinfo text-center">
-                                                <img src="${item.image.imageContent}" alt="${item.itemName}" style="width: 100%; height: 250px; object-fit: cover;" />
-                                                <h2>${item.price} VNĐ</h2>
+                                                <c:choose>
+                                                    <c:when test="${not empty item.image and not empty item.image.imageContent}">
+                                                        <img src="${pageContext.request.contextPath}/images/home/${item.image.imageContent}" 
+                                                             alt="${item.itemName}" 
+                                                             style="width: 100%; height: 250px; object-fit: cover;"
+                                                             onerror="this.src='${pageContext.request.contextPath}/images/default-product.jpg'" />
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <img src="${pageContext.request.contextPath}/images/default-product.jpg" 
+                                                             alt="No image available" 
+                                                             style="width: 100%; height: 250px; object-fit: cover;" />
+                                                    </c:otherwise>
+                                                </c:choose>
+                                                <h2><fmt:formatNumber value="${item.price}" type="number"/> $</h2>
                                                 <p>${item.itemName}</p>
-                                                <a href="#" class="btn btn-default add-to-cart">
-                                                    <i class="fa fa-shopping-cart"></i>Add to cart
-                                                </a>
                                             </div>
                                             <div class="product-overlay">
                                                 <div class="overlay-content">
-                                                    <h2>${item.price} VNĐ</h2>
+                                                    <h2><fmt:formatNumber value="${item.price}" type="number" groupingUsed="true" minFractionDigits="0" maxFractionDigits="0"/> $</h2>
                                                     <p>${item.itemName}</p>
-                                                    <a href="#" class="btn btn-default add-to-cart">
-                                                        <i class="fa fa-shopping-cart"></i>Add to cart
-                                                    </a>
+                                                    <button class="btn btn-default add-to-cart" onclick="addToCart('${item.serialNumber}')">
+                                                        <i class="fa fa-shopping-cart"></i> Add to cart
+                                                    </button>
+
                                                 </div>
                                             </div>
                                         </div>
@@ -253,7 +260,38 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
-</body>
+        </section>
+    </body>
+<script>
+    function addToCart(itemId) {
+        fetch('${pageContext.request.contextPath}/cart', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest' 
+            },
+            body: new URLSearchParams({
+                action: 'add',
+                itemId: itemId,
+                quantity: 1
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Lỗi mạng");
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.status === 'ok') {
+                alert("Đã thêm vào giỏ hàng!");
+            } else {
+                alert("Không thể thêm vào giỏ hàng.");
+            }
+        })
+        .catch(error => {
+            console.error("Lỗi khi thêm vào giỏ hàng:", error);
+        });
+    }
+</script>
 </html>
