@@ -104,7 +104,6 @@ public class CustomerDAO extends DBContext {
     c.setStatus(rs.getObject("Status") != null ? rs.getBoolean("Status") : null);
     return c;
 }
-        // Hàm đổi trạng thái active sang inactive nếu khách hàng đang active
     public void changeStatusToInactiveIfActive(String id) {
         String sql = "UPDATE Customer SET Status = 0 WHERE CustomerId = ? AND Status = 1";
         try (Connection conn = new DBContext().getConnection();

@@ -1,20 +1,21 @@
-<%-- 
-    Document   : checkout
-    Created on : Jun 21, 2025, 4:19:35 PM
-    Author     : namp0
---%>
-
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%
+    model.Account account = (model.Account) session.getAttribute("account");
+    boolean isLoggedIn = account != null;
+    pageContext.setAttribute("isLoggedIn", isLoggedIn);
+
+    model.Customer customer = (model.Customer) session.getAttribute("customer");
+    model.CustomerAddress customeraddress = (model.CustomerAddress) session.getAttribute("customerAddress");
+%>
+
 <!DOCTYPE html>
 <html>
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="description" content="">
-        <meta name="author" content="">
-        <title>Home | E-Shopper</title>
+        <title>Checkout | E-Shopper</title>
         <link href="${pageContext.request.contextPath}/css/bootstrap.min.css" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/css/font-awesome.min.css" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/css/prettyPhoto.css" rel="stylesheet">
@@ -22,220 +23,151 @@
         <link href="${pageContext.request.contextPath}/css/animate.css" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/css/main.css" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/css/responsive.css" rel="stylesheet">
-        <!--[if lt IE 9]>
-        <script src="js/html5shiv.js"></script>
-        <script src="js/respond.min.js"></script>
-        <![endif]-->       
         <link rel="shortcut icon" href="${pageContext.request.contextPath}/images/ico/favicon.ico">
-        <link rel="apple-touch-icon-precomposed" sizes="144x144" href="${pageContext.request.contextPath}/images/ico/apple-touch-icon-144-precomposed.png">
-        <link rel="apple-touch-icon-precomposed" sizes="114x114" href="${pageContext.request.contextPath}/images/ico/apple-touch-icon-114-precomposed.png">
-        <link rel="apple-touch-icon-precomposed" sizes="72x72" href="${pageContext.request.contextPath}/images/ico/apple-touch-icon-72-precomposed.png">
-        <link rel="apple-touch-icon-precomposed" href="${pageContext.request.contextPath}/images/ico/apple-touch-icon-57-precomposed.png">
-        <%
-            model.Customer customer = (model.Customer) session.getAttribute("customer");
-            model.CustomerAddress customeraddress = (model.CustomerAddress) session.getAttribute("customer");
-            boolean isLoggedIn = customer != null;
-        %>
-
-    </head><!--/head-->
+    </head>
     <body>
         <section id="cart_items">
             <div class="container">
                 <div class="breadcrumbs">
                     <ol class="breadcrumb">
-                        <li><a href="#">Home</a></li>
+                        <li><a href="${pageContext.request.contextPath}/">Home</a></li>
                         <li class="active">Check out</li>
                     </ol>
-                </div><!--/breadcrums-->
+                </div>
+
                 <div class="register-req">
-                    <p>Please use Register And Checkout to easily get access to your order history, or use Checkout as Guest</p>
-                </div><!--/register-req-->
+                    <p>Please use Register and Checkout to easily access your order history, or use Checkout as Guest</p>
+                </div>
 
-                <div class="shopper-informations">
-                    <div class="row">
-                        <div class="col-sm-8 clearfix">
-                            <div class="bill-to">
-                                <p>Bill To</p>
-                                <div class="form-one">
-                                    <form>
-                                        <% if (isLoggedIn) {%>
-                                        <input type="text" name="name" placeholder="Full Name" value="<%= customer.getCustomerName()%>" readonly>
-                                        <input type="text" name="email" placeholder="Email" value="<%= customer.getCustomerEmail()%>">
-                                        <input type="text" name="phone" placeholder="Phone" value="<%= customer.getCustomerId()%>" readonly>
-                                        <input type="text" name="address" placeholder="Address" value="<%= customeraddress.getCustomerAddress()%>">
-                                        <% } else { %>
-                                        <input type="text" name="firstName" placeholder="First Name *">
-                                        <input type="text" name="middleName" placeholder="Middle Name">
-                                        <input type="text" name="lastName" placeholder="Last Name *">
-                                        <input type="text" name="email" placeholder="Email*">
-                                        <input type="text" name="phone" placeholder="Phone *">
-                                        <input type="text" name="address" placeholder="Address 1 *">
-                                        <% }%>
-                                    </form>
-                                </div>
+                <form action="checkout" method="post">
+                    <div class="shopper-informations">
+                        <div class="row">
+                            <div class="col-sm-8 clearfix">
+                                <div class="bill-to">
+                                    <p>Bill To</p>
+                                    <div class="form-one">
+                                        <c:choose>
+                                            <c:when test="${isLoggedIn}">
+                                                <input type="email" name="email" placeholder="Email*" value="${customer.customerEmail}" required class="form-control">
+                                                <input type="text" name="title" placeholder="Title" class="form-control">
+                                                <input type="text" name="customerName" placeholder="CustomerName " value="${customer.customerName}" readonly class="form-control">
+                                                <input type="text" name="address" placeholder="Address *" value="${customeraddress.customerAddress}" required class="form-control">
+                                            </c:when>
+                                            <c:otherwise>
+                                                <input type="email" name="email" placeholder="Email *" required class="form-control">
+                                                <input type="text" name="title" placeholder="Title" class="form-control">
+                                                <input type="text" name="firstName" placeholder="First Name *" required class="form-control">
+                                                <input type="text" name="middleName" placeholder="Middle Name" class="form-control">
+                                                <input type="text" name="lastName" placeholder="Last Name *" required class="form-control">
+                                                <input type="text" name="address" placeholder="Address 1 *" required class="form-control">
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </div>
 
-                                <div class="form-two">
-                                    <form>
-                                        <input type="text" name="zipcode" placeholder="Zip / Postal Code *">
-                                        <select name="country">
+                                    <div class="form-two">
+                                        <input type="text" name="zipcode" placeholder="Zip / Postal Code *" class="form-control">
+                                        <select name="country" class="form-control">
                                             <option>-- Country --</option>
                                             <option>Vietnam</option>
                                             <option>United States</option>
                                             <option>UK</option>
-                                            <option>India</option>
                                         </select>
-                                        <select name="province">
+                                        <select name="province" class="form-control">
                                             <option>-- State / Province / Region --</option>
                                             <option>Hanoi</option>
                                             <option>Ho Chi Minh City</option>
                                             <option>Da Nang</option>
                                         </select>
-                                        <input type="text" name="fax" placeholder="Fax">
-                                    </form>
+                                        <input type="text" name="phone" placeholder="Phone *"
+                                               <c:if test="${isLoggedIn}">value="${customer.customerId}" readonly</c:if>
+                                                   required class="form-control">
+                                               <input type="text" name="fax" placeholder="Fax" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-4">
+                                    <div class="order-message">
+                                        <p>Shipping Order</p>
+                                        <textarea name="note" placeholder="Notes about your order, Special Notes for Delivery" rows="16" class="form-control"></textarea>
+                                        <label><input type="checkbox" name="sameAddress"> Shipping to bill address</label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="col-sm-4">
-                            <div class="order-message">
-                                <p>Shipping Order</p>
-                                <textarea name="note" placeholder="Notes about your order, Special Notes for Delivery" rows="16"></textarea>
-                                <label><input type="checkbox" name="sameAddress"> Shipping to bill address</label>
-                            </div>	
-                        </div>					
+                        <div class="review-payment">
+                            <h2>Review & Payment</h2>
+                        </div>
+
+                        <div class="table-responsive cart_info">
+                            <table class="table table-condensed">
+                                <thead>
+                                    <tr class="cart_menu">
+                                        <td class="image">Item</td>
+                                        <td class="description"></td>
+                                        <td class="price">Price</td>
+                                        <td class="quantity">Quantity</td>
+                                        <td class="total">Total</td>
+                                        <td></td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                <c:forEach var="ci" items="${cartItems}">
+                                    <c:set var="item" value="${ci.itemDetail}" />
+                                    <tr>
+                                        <td class="cart_product">
+                                            <c:choose>
+                                                <c:when test="${not empty item.image and not empty item.image.imageContent}">
+                                                    <img src="${pageContext.request.contextPath}/images/home/${item.image.imageContent}"
+                                                         alt="${item.itemName}"
+                                                         style="width: 100px; height: 100px; object-fit: cover;"
+                                                         onerror="this.src='${pageContext.request.contextPath}/images/default-product.jpg'" />
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <img src="${pageContext.request.contextPath}/images/default-product.jpg"
+                                                         alt="No image"
+                                                         style="width: 100px; height: 100px; object-fit: cover;" />
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </td>
+                                        <td class="cart_description">
+                                            <h4>${item.itemName}</h4>
+                                            <p>Web ID: ${item.serialNumber}</p>
+                                        </td>
+                                        <td class="cart_price">
+                                            <p><fmt:formatNumber value="${item.price}" type="number" /> $</p>
+                                        </td>
+                                        <td class="cart_quantity">
+                                            <p>${ci.quantity}</p>
+                                        </td>
+                                        <td class="cart_total">
+                                            <p class="cart_total_price">
+                                                <fmt:formatNumber value="${item.price * ci.quantity}" type="number" /> $
+                                            </p>
+                                        </td>
+                                        <td class="cart_delete"></td>
+                                    </tr>
+                                </c:forEach>
+
+                                <tr>
+                                    <td colspan="4" class="text-right"><strong>Total</strong></td>
+                                    <td><strong><fmt:formatNumber value="${cartTotal}" type="number"/> $</strong></td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
-                </div>
-                <div class="review-payment">
-                    <h2>Review & Payment</h2>
-                </div>
 
-                <div class="table-responsive cart_info">
-                    <table class="table table-condensed">
-                        <thead>
-                            <tr class="cart_menu">
-                                <td class="image">Item</td>
-                                <td class="description"></td>
-                                <td class="price">Price</td>
-                                <td class="quantity">Quantity</td>
-                                <td class="total">Total</td>
-                                <td></td>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td class="cart_product">
-                                    <a href=""><img src="images/cart/one.png" alt=""></a>
-                                </td>
-                                <td class="cart_description">
-                                    <h4><a href="">Colorblock Scuba</a></h4>
-                                    <p>Web ID: 1089772</p>
-                                </td>
-                                <td class="cart_price">
-                                    <p>$59</p>
-                                </td>
-                                <td class="cart_quantity">
-                                    <div class="cart_quantity_button">
-                                        <a class="cart_quantity_up" href=""> + </a>
-                                        <input class="cart_quantity_input" type="text" name="quantity" value="1" autocomplete="off" size="2">
-                                        <a class="cart_quantity_down" href=""> - </a>
-                                    </div>
-                                </td>
-                                <td class="cart_total">
-                                    <p class="cart_total_price">$59</p>
-                                </td>
-                                <td class="cart_delete">
-                                    <a class="cart_quantity_delete" href=""><i class="fa fa-times"></i></a>
-                                </td>
-                            </tr>
+                    <div class="payment-options">
+                        <span><label><input type="radio" name="payment" checked> Pay on Delivery</label></span>
+                    </div>
 
-                            <tr>
-                                <td class="cart_product">
-                                    <a href=""><img src="images/cart/two.png" alt=""></a>
-                                </td>
-                                <td class="cart_description">
-                                    <h4><a href="">Colorblock Scuba</a></h4>
-                                    <p>Web ID: 1089772</p>
-                                </td>
-                                <td class="cart_price">
-                                    <p>$59</p>
-                                </td>
-                                <td class="cart_quantity">
-                                    <div class="cart_quantity_button">
-                                        <a class="cart_quantity_up" href=""> + </a>
-                                        <input class="cart_quantity_input" type="text" name="quantity" value="1" autocomplete="off" size="2">
-                                        <a class="cart_quantity_down" href=""> - </a>
-                                    </div>
-                                </td>
-                                <td class="cart_total">
-                                    <p class="cart_total_price">$59</p>
-                                </td>
-                                <td class="cart_delete">
-                                    <a class="cart_quantity_delete" href=""><i class="fa fa-times"></i></a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="cart_product">
-                                    <a href=""><img src="images/cart/three.png" alt=""></a>
-                                </td>
-                                <td class="cart_description">
-                                    <h4><a href="">Colorblock Scuba</a></h4>
-                                    <p>Web ID: 1089772</p>
-                                </td>
-                                <td class="cart_price">
-                                    <p>$59</p>
-                                </td>
-                                <td class="cart_quantity">
-                                    <div class="cart_quantity_button">
-                                        <a class="cart_quantity_up" href=""> + </a>
-                                        <input class="cart_quantity_input" type="text" name="quantity" value="1" autocomplete="off" size="2">
-                                        <a class="cart_quantity_down" href=""> - </a>
-                                    </div>
-                                </td>
-                                <td class="cart_total">
-                                    <p class="cart_total_price">$59</p>
-                                </td>
-                                <td class="cart_delete">
-                                    <a class="cart_quantity_delete" href=""><i class="fa fa-times"></i></a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td colspan="4">&nbsp;</td>
-                                <td colspan="2">
-                                    <table class="table table-condensed total-result">
-                                        <tr>
-                                            <td>Cart Sub Total</td>
-                                            <td>$59</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Exo Tax</td>
-                                            <td>$2</td>
-                                        </tr>
-                                        <tr class="shipping-cost">
-                                            <td>Shipping Cost</td>
-                                            <td>Free</td>										
-                                        </tr>
-                                        <tr>
-                                            <td>Total</td>
-                                            <td><span>$61</span></td>
-                                        </tr>
-                                    </table>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="payment-options">
-                    <span>
-                        <label><input type="checkbox"> Direct Bank Transfer</label>
-                    </span>
-                    <span>
-                        <label><input type="checkbox"> Check Payment</label>
-                    </span>
-                    <span>
-                        <label><input type="checkbox"> Paypal</label>
-                    </span>
-                </div>
+                    <div class="text-right mb-5">
+                        <button type="submit" class="btn btn-success">Confirm Order</button>
+                    </div>
+                </form>
             </div>
-        </section> <!--/#cart_items-->
+        </section>
     </body>
 </html>
