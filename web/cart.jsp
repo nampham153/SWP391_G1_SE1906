@@ -126,7 +126,19 @@
                                 </li>
                             </ul>
 
-                            <a class="btn btn-default check_out" href="#">Check Out</a>
+                            <c:choose>
+                                <c:when test="${not empty cartItems}">
+                                    <form action="${pageContext.request.contextPath}/checkout" method="get">
+                                        <button type="submit" class="btn btn-default check_out">Check Out</button>
+                                    </form>
+                                </c:when>
+                                <c:otherwise>
+                                    <button type="button" class="btn btn-default check_out" onclick="alert('Giỏ hàng trống! Vui lòng thêm sản phẩm trước khi thanh toán.')" disabled>
+                                        Check Out
+                                    </button>
+                                </c:otherwise>
+                            </c:choose>
+
                         </div>
 
                     </div>
@@ -150,87 +162,89 @@
             </tbody>
         </table>
     </c:if>
-        <script>
-            document.addEventListener("DOMContentLoaded", function () {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
 
-                window.updateQuantity = function (itemId, delta) {
-                    fetch('${pageContext.request.contextPath}/cart', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        },
-                        body: new URLSearchParams({
-                            action: delta > 0 ? 'add' : 'removeOne',
-                            itemId: itemId
+            window.updateQuantity = function (itemId, delta) {
+                fetch('${pageContext.request.contextPath}/cart', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: new URLSearchParams({
+                        action: delta > 0 ? 'add' : 'removeOne',
+                        itemId: itemId
+                    })
+                })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.status === 'ok') {
+                                const qtyInput = document.getElementById('qty-' + itemId);
+                                let qty = parseInt(qtyInput.value) + delta;
+                                if (qty < 1)
+                                    qty = 1;
+                                qtyInput.value = qty;
+
+                                updateCartTotal(); // Chỉ cần gọi hàm cập nhật lại toàn bộ
+                            }
                         })
+                        .catch(err => console.error("Lỗi:", err));
+            };
+
+            window.removeItem = function (itemId) {
+                fetch('${pageContext.request.contextPath}/cart', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: new URLSearchParams({
+                        action: 'remove',
+                        itemId: itemId
                     })
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.status === 'ok') {
-                            const qtyInput = document.getElementById('qty-' + itemId);
-                            let qty = parseInt(qtyInput.value) + delta;
-                            if (qty < 1) qty = 1;
-                            qtyInput.value = qty;
+                })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.status === 'ok') {
+                                const row = document.getElementById('row-' + itemId);
+                                if (row)
+                                    row.remove();
+                                updateCartTotal();
+                            }
+                        });
+            };
 
-                            updateCartTotal(); // Chỉ cần gọi hàm cập nhật lại toàn bộ
-                        }
-                    })
-                    .catch(err => console.error("Lỗi:", err));
-                };
+            function formatCurrency(amount) {
+                return new Intl.NumberFormat('vi-VN', {
+                    style: 'decimal',
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0
+                }).format(amount) + " $";
+            }
 
-                window.removeItem = function (itemId) {
-                    fetch('${pageContext.request.contextPath}/cart', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        },
-                        body: new URLSearchParams({
-                            action: 'remove',
-                            itemId: itemId
-                        })
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.status === 'ok') {
-                            const row = document.getElementById('row-' + itemId);
-                            if (row) row.remove();
-                            updateCartTotal();
-                        }
-                    });
-                };
+            function updateCartTotal() {
+                let total = 0;
 
-                function formatCurrency(amount) {
-                    return new Intl.NumberFormat('vi-VN', {
-                        style: 'decimal',
-                        minimumFractionDigits: 0,
-                        maximumFractionDigits: 0
-                    }).format(amount) + " VNĐ";
-                }
+                document.querySelectorAll('[id^="qty-"]').forEach(qtyInput => {
+                    const itemId = qtyInput.id.replace('qty-', '');
+                    const qty = parseInt(qtyInput.value);
+                    const priceText = document.getElementById('price-' + itemId).innerText;
+                    const price = parseFloat(priceText.replace(/[^0-9]/g, ''));
 
-                function updateCartTotal() {
-                    let total = 0;
+                    const itemTotal = price * qty;
 
-                    document.querySelectorAll('[id^="qty-"]').forEach(qtyInput => {
-                        const itemId = qtyInput.id.replace('qty-', '');
-                        const qty = parseInt(qtyInput.value);
-                        const priceText = document.getElementById('price-' + itemId).innerText;
-                        const price = parseFloat(priceText.replace(/[^0-9]/g, ''));
+                    document.getElementById('total-' + itemId).innerText = formatCurrency(itemTotal);
+                    total += itemTotal;
+                });
 
-                        const itemTotal = price * qty;
+                document.getElementById('grand-total').innerText = formatCurrency(total);
+                document.getElementById('grand-total-2').innerText = formatCurrency(total);
+            }
 
-                        document.getElementById('total-' + itemId).innerText = formatCurrency(itemTotal);
-                        total += itemTotal;
-                    });
-
-                    document.getElementById('grand-total').innerText = formatCurrency(total);
-                    document.getElementById('grand-total-2').innerText = formatCurrency(total);
-                }
-
-                // Khởi tạo tổng ngay từ khi load
-                updateCartTotal();
-            });
-        </script>
-    </body>
+            // Khởi tạo tổng ngay từ khi load
+            updateCartTotal();
+        });
+    </script>
+</body>
 </html>

@@ -1,87 +1,160 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package controller.customer;
 
+import dao.CartDAO;
+import dao.CartItemDAO;
+import dao.ItemDAO;
+import dao.CustomerAddressDAO;
+import dao.CustomerOrderDAO;
+
 import java.io.IOException;
-import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.*;
+import java.math.BigDecimal;
+import java.util.*;
 
-/**
- *
- * @author namp0
- */
-@WebServlet(name = "CheckoutServlet", urlPatterns = {"/CheckoutServlet"})
+import model.*;
+
+@WebServlet("/checkout")
 public class CheckoutServlet extends HttpServlet {
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet CheckoutServlet</title>");
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet CheckoutServlet at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        }
-    }
+    private final CartDAO cartDAO = new CartDAO();
+    private final CartItemDAO cartItemDAO = new CartItemDAO();
+    private final ItemDAO itemDAO = new ItemDAO();
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+
+        HttpSession session = request.getSession();
+        Account acc = (Account) session.getAttribute("account");
+
+        List<CartItem> items = new ArrayList<>();
+        BigDecimal total = BigDecimal.ZERO;
+
+        if (acc == null) {
+            // Guest cart
+            Map<String, CartItem> cart = (Map<String, CartItem>) session.getAttribute("cart");
+            if (cart != null) {
+                for (CartItem cartItem : cart.values()) {
+                    Item fullItem = itemDAO.getItemById(cartItem.getItemId());
+                    cartItem.setItemDetail(fullItem);
+                    BigDecimal itemTotal = fullItem.getPrice()
+                            .multiply(BigDecimal.valueOf(cartItem.getQuantity()));
+                    total = total.add(itemTotal);
+                    items.add(cartItem);
+                }
+            }
+        } else {
+            Cart cart = cartDAO.getCartByCustomerId(acc.getPhone());
+            if (cart != null) {
+                List<CartItem> cartItems = cartItemDAO.getItemsInCart(cart.getCartId());
+                for (CartItem item : cartItems) {
+                    Item fullItem = itemDAO.getItemById(item.getItemId());
+                    item.setItemDetail(fullItem);
+                    BigDecimal itemTotal = fullItem.getPrice()
+                            .multiply(BigDecimal.valueOf(item.getQuantity()));
+                    total = total.add(itemTotal);
+                    items.add(item);
+                }
+            }
+        }
+
+        request.setAttribute("cartItems", items);
+        request.setAttribute("cartTotal", total);
+        request.setAttribute("pageContent1", "checkout.jsp");
+        request.getRequestDispatcher("index.jsp").forward(request, response);
     }
 
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        processRequest(request, response);
+@Override
+protected void doPost(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
+
+    HttpSession session = request.getSession();
+    Account account = (Account) session.getAttribute("account");
+
+    List<CartItem> cartItems = new ArrayList<>();
+    BigDecimal total = BigDecimal.ZERO;
+
+    // Lấy giỏ hàng
+    if (account == null) {
+        // Guest cart
+        Map<String, CartItem> guestCart = (Map<String, CartItem>) session.getAttribute("cart");
+        if (guestCart == null || guestCart.isEmpty()) {
+            response.sendRedirect(request.getContextPath() + "/cart");
+            return;
+        }
+
+        for (CartItem cartItem : guestCart.values()) {
+            Item fullItem = itemDAO.getItemById(cartItem.getItemId());
+            cartItem.setItemDetail(fullItem);
+            BigDecimal itemTotal = fullItem.getPrice()
+                    .multiply(BigDecimal.valueOf(cartItem.getQuantity()));
+            total = total.add(itemTotal);
+            cartItems.add(cartItem);
+        }
+
+    } else {
+        // Logged-in cart
+        Cart cart = cartDAO.getCartByCustomerId(account.getPhone());
+        if (cart == null) {
+            response.sendRedirect(request.getContextPath() + "/cart");
+            return;
+        }
+
+        cartItems = cartItemDAO.getItemsInCart(cart.getCartId());
+        if (cartItems == null || cartItems.isEmpty()) {
+            response.sendRedirect(request.getContextPath() + "/cart");
+            return;
+        }
+
+        for (CartItem item : cartItems) {
+            Item fullItem = itemDAO.getItemById(item.getItemId());
+            item.setItemDetail(fullItem);
+            BigDecimal itemTotal = fullItem.getPrice()
+                    .multiply(BigDecimal.valueOf(item.getQuantity()));
+            total = total.add(itemTotal);
+        }
     }
 
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
-    @Override
-    public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
+    // Lấy thông tin form
+    String address = request.getParameter("address");
+    String phone = request.getParameter("phone");
+    String email = request.getParameter("email");
+    String note = request.getParameter("note");
 
+    // Tạo đơn hàng
+    CustomerOrder order = new CustomerOrder();
+    order.setOrderDate(new java.sql.Date(System.currentTimeMillis()));
+    order.setOrderAddress(address);
+    order.setOrderPhone(phone);
+    order.setOrderEmail(email);
+    order.setShippingFee(BigDecimal.ZERO);
+    order.setAdditionalFee(BigDecimal.ZERO);
+    order.setNote(note);
+    order.setOrderStatus(true);
+    order.setCustomerId(account != null && account.getRoleId() == 1 ? account.getPhone() : null);
+    order.setTotal(total);
+
+    new CustomerOrderDAO().insertCustomerOrder(order);
+
+    // Nếu là người dùng, lưu địa chỉ nếu chưa có
+    if (account != null && account.getRoleId() == 1) {
+        CustomerAddressDAO addrDAO = new CustomerAddressDAO();
+        if (!addrDAO.hasAddress(account.getPhone())) {
+            CustomerAddress addr = new CustomerAddress();
+            addr.setCustomerAddress(address);
+            addr.setCustomerId(account.getPhone());
+            addrDAO.insert(addr);
+        }
+    }
+
+    // Xoá giỏ hàng khỏi session nếu là guest
+    if (account == null) {
+        session.removeAttribute("cart");
+    }
+
+    response.sendRedirect("order-success.jsp");
 }
+}
+

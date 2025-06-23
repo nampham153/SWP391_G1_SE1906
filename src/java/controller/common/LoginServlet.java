@@ -7,6 +7,7 @@ import java.io.IOException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
+import model.Customer;
 
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
@@ -31,6 +32,8 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response)
         HttpSession session = request.getSession();
         session.setAttribute("account", account);
         session.setAttribute("role", account.getRoleId());
+        Customer customer = DAOWrapper.customerDAO.getCustomerById(phone);
+        session.setAttribute("customer", customer);
 
         int role = account.getRoleId();
         System.out.println("Login success - role: " + role);
