@@ -20,7 +20,7 @@ public class CustomerOrder {
     private BigDecimal shippingFee;
     private BigDecimal additionalFee;
     private BigDecimal total;
-    private boolean orderStatus;
+    private int orderStatus;
     private String note;
     private String customerId;
     // constructors, getters, setters...
@@ -28,7 +28,7 @@ public class CustomerOrder {
     public CustomerOrder() {
     }
 
-    public CustomerOrder(int orderId, Date orderDate, String orderAddress, String orderPhone, String orderEmail, BigDecimal shippingFee, BigDecimal additionalFee, BigDecimal total, boolean orderStatus, String note, String customerId) {
+    public CustomerOrder(int orderId, Date orderDate, String orderAddress, String orderPhone, String orderEmail, BigDecimal shippingFee, BigDecimal additionalFee, BigDecimal total, int orderStatus, String note, String customerId) {
         this.orderId = orderId;
         this.orderDate = orderDate;
         this.orderAddress = orderAddress;
@@ -106,11 +106,11 @@ public class CustomerOrder {
         this.total = total;
     }
 
-    public boolean isOrderStatus() {
+    public int getOrderStatus() {
         return orderStatus;
     }
 
-    public void setOrderStatus(boolean orderStatus) {
+    public void setOrderStatus(int orderStatus) {
         this.orderStatus = orderStatus;
     }
 
@@ -129,11 +129,8 @@ public class CustomerOrder {
     public void setCustomerId(String customerId) {
         this.customerId = customerId;
     }
-
-    @Override
-    public String toString() {
-        return "CustomerOrder{" + "orderId=" + orderId + ", orderDate=" + orderDate + ", orderAddress=" + orderAddress + ", orderPhone=" + orderPhone + ", orderEmail=" + orderEmail + ", shippingFee=" + shippingFee + ", additionalFee=" + additionalFee + ", total=" + total + ", orderStatus=" + orderStatus + ", note=" + note + ", customerId=" + customerId + '}';
-    }
+    
+    
     
 }
 

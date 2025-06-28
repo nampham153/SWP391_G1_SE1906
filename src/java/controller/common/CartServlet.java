@@ -1,4 +1,4 @@
-package controller.customer;
+package controller.common;
 
 import dao.CartDAO;
 import dao.CartItemDAO;
