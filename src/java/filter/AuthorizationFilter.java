@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 @WebFilter("/*")
 public class AuthorizationFilter implements Filter {
@@ -19,15 +20,19 @@ public class AuthorizationFilter implements Filter {
         HttpServletResponse res = (HttpServletResponse) response;
         HttpSession session = req.getSession(false);
 
-        String uri = req.getRequestURI();
+        // Cắt bỏ contextPath để so sánh URI chính xác
+        String uri = req.getRequestURI().substring(req.getContextPath().length());
         Integer role = (session != null) ? (Integer) session.getAttribute("role") : null;
 
+        // Các đường dẫn công khai cho cả khách
         String[] publicPaths = {
+            "/",
             "/home",
             "/login",
             "/register",
             "/index.jsp",
             "/css/",
+            "/assets/",
             "/js/",
             "/img/",
             "/images/",
@@ -38,16 +43,11 @@ public class AuthorizationFilter implements Filter {
             "/checkout"
         };
 
-        // Cho phép nếu là tài nguyên tĩnh hoặc trong danh sách public
-        boolean isPublic = false;
-        for (String path : publicPaths) {
-            if (uri.startsWith(req.getContextPath() + path)) {
-                isPublic = true;
-                break;
-            }
-        }
+        // Cho phép nếu là file tĩnh hoặc trong danh sách public
+        boolean isPublic = Arrays.stream(publicPaths).anyMatch(uri::startsWith)
+                || uri.matches(".*\\.(css|js|png|jpg|jpeg|gif|svg|ico|woff2?)$");
 
-        if (isPublic || uri.matches(".*\\.(css|js|png|jpg|jpeg|gif|svg|ico|woff2?)$")) {
+        if (isPublic) {
             chain.doFilter(request, response);
             return;
         }
@@ -58,7 +58,7 @@ public class AuthorizationFilter implements Filter {
             return;
         }
 
-        // Phân quyền theo role
+        // Phân quyền
         if (uri.contains("/admin")) {
             if (role == 2) {
                 chain.doFilter(request, response);

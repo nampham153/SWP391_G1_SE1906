@@ -160,10 +160,12 @@
                     </div>
 
                     <div class="payment-options">
-                        <span><label><input type="radio" name="payment" checked> Pay on Delivery</label></span>
+                        <span><label><input type="radio" name="payment" value="cod"checked> Pay on Delivery</label></span>
+                        <span><label><input type="radio" name="payment" value="vnpay"checked> Bank Online</label></span>
                     </div>
 
-                    <div class="text-right mb-5">
+                    <div class="text-right mb-5" >
+                        <input type="hidden" name="totalBill" value="${cartTotal}">
                         <button type="submit" class="btn btn-success">Confirm Order</button>
                     </div>
                 </form>
