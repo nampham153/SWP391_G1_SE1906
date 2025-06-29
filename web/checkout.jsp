@@ -63,8 +63,6 @@
                                             </c:otherwise>
                                         </c:choose>
                                     </div>
-
-                                    <div class="form-two">
                                         <input type="text" name="zipcode" placeholder="Zip / Postal Code *" class="form-control">
                                         <select name="country" class="form-control">
                                             <option>-- Country --</option>
@@ -84,7 +82,6 @@
                                                <input type="text" name="fax" placeholder="Fax" class="form-control">
                                         </div>
                                     </div>
-                                </div>
 
                                 <div class="col-sm-4">
                                     <div class="order-message">

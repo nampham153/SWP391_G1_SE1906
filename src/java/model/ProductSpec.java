@@ -1,33 +1,21 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package model;
 
-/**
- *
- * @author namp0
- */
 public class ProductSpec {
-    private int specId;
+    private String specId;
     private String specName;
-    private int categoryId;
-    // constructors, getters, setters...
 
-    public ProductSpec() {
-    }
+    public ProductSpec() {}
 
-    public ProductSpec(int specId, String specName, int categoryId) {
+    public ProductSpec(String specId, String specName) {
         this.specId = specId;
         this.specName = specName;
-        this.categoryId = categoryId;
     }
 
-    public int getSpecId() {
+    public String getSpecId() {
         return specId;
     }
 
-    public void setSpecId(int specId) {
+    public void setSpecId(String specId) {
         this.specId = specId;
     }
 
@@ -38,19 +26,4 @@ public class ProductSpec {
     public void setSpecName(String specName) {
         this.specName = specName;
     }
-
-    public int getCategoryId() {
-        return categoryId;
-    }
-
-    public void setCategoryId(int categoryId) {
-        this.categoryId = categoryId;
-    }
-
-    @Override
-    public String toString() {
-        return "ProductSpec{" + "specId=" + specId + ", specName=" + specName + ", categoryId=" + categoryId + '}';
-    }
-    
 }
-
