@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import model.ProductCategory;
@@ -69,6 +70,23 @@ public class ProductCategoryDAO {
             }
         } catch (ClassNotFoundException | SQLException ex) {
             Logger.getLogger(ProductCategoryDAO.class.getName()).log(Level.SEVERE, "Lỗi khi tìm kiếm danh mục", ex);
+        }
+        return list;
+    }
+        public List<ProductCategory> getAll() {
+        List<ProductCategory> list = new ArrayList<>();
+        String sql = "SELECT * FROM ProductCategory";
+        try (Connection conn = dbContext.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                ProductCategory c = new ProductCategory();
+                c.setCategoryId(rs.getInt("CategoryId"));
+                c.setCategoryName(rs.getString("CategoryName"));
+                list.add(c);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return list;
     }

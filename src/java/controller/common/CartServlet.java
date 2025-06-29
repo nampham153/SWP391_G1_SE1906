@@ -3,11 +3,13 @@ package controller.common;
 import dao.CartDAO;
 import dao.CartItemDAO;
 import dao.ItemDAO;
+import dao.ProductComponentDAO;
 import model.*;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
@@ -15,9 +17,10 @@ import java.util.*;
 @WebServlet("/cart")
 public class CartServlet extends HttpServlet {
 
-    private CartDAO cartDAO = new CartDAO();
-    private CartItemDAO cartItemDAO = new CartItemDAO();
-    private ItemDAO itemDAO = new ItemDAO();
+    private final CartDAO cartDAO = new CartDAO();
+    private final CartItemDAO cartItemDAO = new CartItemDAO();
+    private final ItemDAO itemDAO = new ItemDAO();
+    private final ProductComponentDAO productComponentDAO = new ProductComponentDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -37,6 +40,12 @@ public class CartServlet extends HttpServlet {
 
                 for (CartItem cartItem : sessionCart.values()) {
                     Item fullItem = itemDAO.getItemById(cartItem.getItemId());
+
+                    if (cartItem.getItemId().startsWith("P")) {
+                        BigDecimal pcTotal = productComponentDAO.getTotalPriceOfProduct(cartItem.getItemId());
+                        fullItem.setPrice(pcTotal);
+                    }
+
                     cartItem.setItemDetail(fullItem);
                     BigDecimal itemTotal = fullItem.getPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity()));
                     total = total.add(itemTotal);
@@ -59,6 +68,12 @@ public class CartServlet extends HttpServlet {
 
                 for (CartItem item : items) {
                     Item fullItem = itemDAO.getItemById(item.getItemId());
+
+                    if (item.getItemId().startsWith("P")) {
+                        BigDecimal pcTotal = productComponentDAO.getTotalPriceOfProduct(item.getItemId());
+                        fullItem.setPrice(pcTotal);
+                    }
+
                     item.setItemDetail(fullItem);
                     BigDecimal itemTotal = fullItem.getPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
                     total = total.add(itemTotal);
@@ -100,6 +115,11 @@ public class CartServlet extends HttpServlet {
                         existingItem.setQuantity(existingItem.getQuantity() + 1);
                     } else {
                         Item item = itemDAO.getItemById(itemId);
+                        if (itemId.startsWith("P")) {
+                            BigDecimal pcTotal = productComponentDAO.getTotalPriceOfProduct(itemId);
+                            item.setPrice(pcTotal);
+                        }
+
                         CartItem newItem = new CartItem();
                         newItem.setItemId(itemId);
                         newItem.setQuantity(1);

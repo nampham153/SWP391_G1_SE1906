@@ -1,10 +1,12 @@
 package controller.common;
 
+import com.vnpay.common.VNPayUtil;
 import dao.CartDAO;
 import dao.CartItemDAO;
-import dao.ItemDAO;
 import dao.CustomerAddressDAO;
 import dao.CustomerOrderDAO;
+import dao.ItemDAO;
+import dao.ProductComponentDAO;
 import model.*;
 
 import java.io.IOException;
@@ -20,6 +22,7 @@ public class CheckoutServlet extends HttpServlet {
     private final CartDAO cartDAO = new CartDAO();
     private final CartItemDAO cartItemDAO = new CartItemDAO();
     private final ItemDAO itemDAO = new ItemDAO();
+    private final ProductComponentDAO productComponentDAO = new ProductComponentDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -36,6 +39,12 @@ public class CheckoutServlet extends HttpServlet {
             if (cart != null) {
                 for (CartItem cartItem : cart.values()) {
                     Item fullItem = itemDAO.getItemById(cartItem.getItemId());
+
+                    if (cartItem.getItemId().startsWith("P")) {
+                        BigDecimal pcTotal = productComponentDAO.getTotalPriceOfProduct(cartItem.getItemId());
+                        fullItem.setPrice(pcTotal);
+                    }
+
                     cartItem.setItemDetail(fullItem);
                     BigDecimal itemTotal = fullItem.getPrice()
                             .multiply(BigDecimal.valueOf(cartItem.getQuantity()));
@@ -49,6 +58,12 @@ public class CheckoutServlet extends HttpServlet {
                 List<CartItem> cartItems = cartItemDAO.getItemsInCart(cart.getCartId());
                 for (CartItem item : cartItems) {
                     Item fullItem = itemDAO.getItemById(item.getItemId());
+
+                    if (item.getItemId().startsWith("P")) {
+                        BigDecimal pcTotal = productComponentDAO.getTotalPriceOfProduct(item.getItemId());
+                        fullItem.setPrice(pcTotal);
+                    }
+
                     item.setItemDetail(fullItem);
                     BigDecimal itemTotal = fullItem.getPrice()
                             .multiply(BigDecimal.valueOf(item.getQuantity()));
@@ -83,6 +98,12 @@ public class CheckoutServlet extends HttpServlet {
 
             for (CartItem cartItem : guestCart.values()) {
                 Item fullItem = itemDAO.getItemById(cartItem.getItemId());
+
+                if (cartItem.getItemId().startsWith("P")) {
+                    BigDecimal pcTotal = productComponentDAO.getTotalPriceOfProduct(cartItem.getItemId());
+                    fullItem.setPrice(pcTotal);
+                }
+
                 cartItem.setItemDetail(fullItem);
                 BigDecimal itemTotal = fullItem.getPrice()
                         .multiply(BigDecimal.valueOf(cartItem.getQuantity()));
@@ -105,6 +126,12 @@ public class CheckoutServlet extends HttpServlet {
 
             for (CartItem item : cartItems) {
                 Item fullItem = itemDAO.getItemById(item.getItemId());
+
+                if (item.getItemId().startsWith("P")) {
+                    BigDecimal pcTotal = productComponentDAO.getTotalPriceOfProduct(item.getItemId());
+                    fullItem.setPrice(pcTotal);
+                }
+
                 item.setItemDetail(fullItem);
                 BigDecimal itemTotal = fullItem.getPrice()
                         .multiply(BigDecimal.valueOf(item.getQuantity()));
@@ -133,7 +160,7 @@ public class CheckoutServlet extends HttpServlet {
         order.setOrderStatus(status);
 
         CustomerOrderDAO orderDAO = new CustomerOrderDAO();
-        int orderId = orderDAO.insertCustomerOrderReturnId(order); // Thêm và lấy orderId
+        int orderId = orderDAO.insertCustomerOrderReturnId(order); // Lưu đơn và lấy ID
 
         if (account != null && account.getRoleId() == 1) {
             CustomerAddressDAO addrDAO = new CustomerAddressDAO();
@@ -152,8 +179,8 @@ public class CheckoutServlet extends HttpServlet {
         if ("cod".equals(paymentMethod)) {
             response.sendRedirect("order-success.jsp");
         } else {
-            BigDecimal amount = total.multiply(BigDecimal.valueOf(100)); // VNPAY tính bằng đơn vị nhỏ
-            response.sendRedirect("vnpay_pay.jsp?orderId=" + orderId + "&amount=" + amount.intValue());
+            String paymentUrl = VNPayUtil.buildRedirectUrl(request, orderId, total.longValue());
+            response.sendRedirect(paymentUrl);
         }
     }
 }
