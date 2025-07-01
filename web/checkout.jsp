@@ -14,7 +14,6 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Checkout | E-Shopper</title>
         <link href="${pageContext.request.contextPath}/css/bootstrap.min.css" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/css/font-awesome.min.css" rel="stylesheet">
@@ -26,6 +25,7 @@
         <link rel="shortcut icon" href="${pageContext.request.contextPath}/images/ico/favicon.ico">
     </head>
     <body>
+
         <section id="cart_items">
             <div class="container">
                 <div class="breadcrumbs">
@@ -39,7 +39,7 @@
                     <p>Please use Register and Checkout to easily access your order history, or use Checkout as Guest</p>
                 </div>
 
-                <form action="checkout" method="post">
+                <form id="checkoutForm" action="checkout" method="post">
                     <div class="shopper-informations">
                         <div class="row">
                             <div class="col-sm-8 clearfix">
@@ -50,8 +50,8 @@
                                             <c:when test="${isLoggedIn}">
                                                 <input type="email" name="email" placeholder="Email*" value="${customer.customerEmail}" required class="form-control">
                                                 <input type="text" name="title" placeholder="Title" class="form-control">
-                                                <input type="text" name="customerName" placeholder="CustomerName " value="${customer.customerName}" readonly class="form-control">
-                                                <input type="text" name="address" placeholder="Address *" value="${customeraddress.customerAddress}" required class="form-control">
+                                                <input type="text" name="customerName" value="${customer.customerName}" readonly class="form-control">
+                                                <input type="text" name="address" value="${customeraddress.customerAddress}" required class="form-control">
                                             </c:when>
                                             <c:otherwise>
                                                 <input type="email" name="email" placeholder="Email *" required class="form-control">
@@ -62,7 +62,6 @@
                                                 <input type="text" name="address" placeholder="Address 1 *" required class="form-control">
                                             </c:otherwise>
                                         </c:choose>
-                                    </div>
                                         <input type="text" name="zipcode" placeholder="Zip / Postal Code *" class="form-control">
                                         <select name="country" class="form-control">
                                             <option>-- Country --</option>
@@ -77,12 +76,13 @@
                                             <option>Da Nang</option>
                                         </select>
                                         <input type="text" name="phone" placeholder="Phone *"
-                                               <c:if test="${isLoggedIn}">value="${customer.customerId}" readonly</c:if>
-                                                   required class="form-control">
+                                               required class="form-control"
+                                               <c:if test="${isLoggedIn}">value="${customer.customerId}" readonly</c:if>>
+
                                                <input type="text" name="fax" placeholder="Fax" class="form-control">
                                         </div>
                                     </div>
-
+                                </div>
                                 <div class="col-sm-4">
                                     <div class="order-message">
                                         <p>Shipping Order</p>
@@ -133,14 +133,14 @@
                                             <p>Web ID: ${item.serialNumber}</p>
                                         </td>
                                         <td class="cart_price">
-                                            <p><fmt:formatNumber value="${item.price}" type="number" /> $</p>
+                                            <p><fmt:formatNumber value="${item.price}" type="number" /> VNĐ</p>
                                         </td>
                                         <td class="cart_quantity">
                                             <p>${ci.quantity}</p>
                                         </td>
                                         <td class="cart_total">
                                             <p class="cart_total_price">
-                                                <fmt:formatNumber value="${item.price * ci.quantity}" type="number" /> $
+                                                <fmt:formatNumber value="${item.price * ci.quantity}" type="number" /> VNĐ
                                             </p>
                                         </td>
                                         <td class="cart_delete"></td>
@@ -149,7 +149,7 @@
 
                                 <tr>
                                     <td colspan="4" class="text-right"><strong>Total</strong></td>
-                                    <td><strong><fmt:formatNumber value="${cartTotal}" type="number"/> $</strong></td>
+                                    <td><strong><fmt:formatNumber value="${cartTotal}" type="number" /> VNĐ</strong></td>
                                     <td></td>
                                 </tr>
                             </tbody>
@@ -157,16 +157,74 @@
                     </div>
 
                     <div class="payment-options">
-                        <span><label><input type="radio" name="payment" value="cod"checked> Pay on Delivery</label></span>
-                        <span><label><input type="radio" name="payment" value="vnpay"checked> Bank Online</label></span>
+                        <span><label><input type="radio" name="payment" value="cod" checked> Pay on Delivery</label></span>
+                        <span><label><input type="radio" name="payment" value="vnpay"> Bank Online</label></span>
                     </div>
 
-                    <div class="text-right mb-5" >
+                    <div class="text-right mb-5">
                         <input type="hidden" name="totalBill" value="${cartTotal}">
                         <button type="submit" class="btn btn-success">Confirm Order</button>
                     </div>
                 </form>
             </div>
         </section>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const form = document.getElementById("checkoutForm");
+                const radios = document.querySelectorAll("input[name='payment']");
+
+                form.addEventListener("submit", function (e) {
+                    e.preventDefault();
+
+                    let paymentMethod = "cod";
+                    radios.forEach(r => {
+                        if (r.checked)
+                            paymentMethod = r.value;
+                    });
+
+                    // Chuyển form data sang URLSearchParams để gửi dạng x-www-form-urlencoded
+                    const formData = new URLSearchParams(new FormData(form));
+
+                    fetch("checkout", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded"
+                        },
+                        body: formData.toString()
+                    })
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.error) {
+                                    alert(data.error);
+                                } else if (paymentMethod === "vnpay") {
+                                    const params = new URLSearchParams();
+                                    params.append('amount', data.amount);
+                                    params.append('orderId', data.orderId);
+                                    params.append('language', 'vn');
+
+                                    fetch("ajaxServlet", {
+                                        method: "POST",
+                                        headers: {
+                                            "Content-Type": "application/x-www-form-urlencoded"
+                                        },
+                                        body: params.toString()
+                                    })
+                                            .then(res => res.json())
+                                            .then(vnpRes => {
+                                                if (vnpRes.code === "00") {
+                                                    window.location.href = vnpRes.data;
+                                                } else {
+                                                    alert("VNPay Error: " + (vnpRes.message || "Không tạo được link thanh toán"));
+                                                }
+                                            });
+                                } else {
+                                    window.location.href = "checkout-success?orderId=" + data.orderId;
+                                }
+                            });
+                });
+            });
+
+        </script>
+
     </body>
 </html>

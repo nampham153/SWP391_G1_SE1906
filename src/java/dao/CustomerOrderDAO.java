@@ -3,10 +3,8 @@ package dao;
 import context.DBContext;
 import model.CustomerOrder;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.math.BigDecimal;
+import java.sql.*;
 
 public class CustomerOrderDAO extends DBContext {
 
@@ -23,7 +21,13 @@ public class CustomerOrderDAO extends DBContext {
             ps.setBigDecimal(7, order.getTotal());
             ps.setInt(8, order.getOrderStatus());
             ps.setString(9, order.getNote());
-            ps.setString(10, order.getCustomerId());
+
+            if (order.getCustomerId() == null) {
+                ps.setNull(10, Types.VARCHAR);
+            } else {
+                ps.setString(10, order.getCustomerId());
+            }
+
             ps.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
@@ -34,8 +38,9 @@ public class CustomerOrderDAO extends DBContext {
         int orderId = -1;
         String query = "INSERT INTO CustomerOrder (orderDate, orderAddress, orderPhone, orderEmail, shippingFee, additionalFee, total, orderStatus, note, customerId) "
                      + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        try (Connection conn = getConnection(); 
+        try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+
             ps.setDate(1, order.getOrderDate());
             ps.setString(2, order.getOrderAddress());
             ps.setString(3, order.getOrderPhone());
@@ -45,29 +50,90 @@ public class CustomerOrderDAO extends DBContext {
             ps.setBigDecimal(7, order.getTotal());
             ps.setInt(8, order.getOrderStatus());
             ps.setString(9, order.getNote());
-            ps.setString(10, order.getCustomerId());
 
-            ps.executeUpdate();
+            if (order.getCustomerId() == null) {
+                ps.setNull(10, Types.VARCHAR);
+            } else {
+                ps.setString(10, order.getCustomerId());
+            }
+
+            int rowsAffected = ps.executeUpdate();
+            System.out.println("✅ Rows affected: " + rowsAffected);
 
             ResultSet rs = ps.getGeneratedKeys();
             if (rs.next()) {
                 orderId = rs.getInt(1);
+                System.out.println("✅ Generated OrderId: " + orderId);
+            } else {
+                System.out.println("❌ No generated key returned.");
             }
+
         } catch (Exception e) {
+            System.err.println("❌ Exception when inserting CustomerOrder:");
             e.printStackTrace();
         }
         return orderId;
     }
 
+public void updateOrderStatus(CustomerOrder order) {
+    String sql = "UPDATE CustomerOrder SET OrderStatus = ? WHERE OrderId = ?";
+    try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setInt(1, order.getOrderStatus());
+        ps.setInt(2, order.getOrderId());
+        int rows = ps.executeUpdate();
+        System.out.println("✅ Rows affected = " + rows);
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
 
-    public void updateOrderStatus(int orderId, int newStatus) {
-        String query = "UPDATE CustomerOrder SET orderStatus = ? WHERE orderId = ?";
-        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
-            ps.setInt(1, newStatus);
-            ps.setInt(2, orderId);
-            ps.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
+    public CustomerOrder getOrderById(int orderId) {
+    String sql = "SELECT * FROM CustomerOrder WHERE OrderId = ?";
+    try (Connection conn = getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        ps.setInt(1, orderId);
+        ResultSet rs = ps.executeQuery();
+
+        if (rs.next()) {
+            CustomerOrder order = new CustomerOrder();
+            order.setOrderId(rs.getInt("OrderId"));
+            order.setOrderDate(rs.getDate("OrderDate"));
+            order.setOrderAddress(rs.getString("OrderAddress"));
+            order.setOrderPhone(rs.getString("OrderPhone"));
+            order.setOrderEmail(rs.getString("OrderEmail"));
+            order.setShippingFee(rs.getBigDecimal("ShippingFee"));
+            order.setAdditionalFee(rs.getBigDecimal("AdditionalFee"));
+            order.setNote(rs.getString("Note"));
+            order.setCustomerId(rs.getString("CustomerId"));
+            order.setTotal(rs.getBigDecimal("Total"));
+            order.setOrderStatus(rs.getInt("OrderStatus"));
+            return order;
         }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return null;
+}
+
+
+    public static void main(String[] args) {
+        CustomerOrderDAO dao = new CustomerOrderDAO();
+
+        CustomerOrder order = new CustomerOrder();
+        order.setOrderDate(new java.sql.Date(System.currentTimeMillis()));
+        order.setOrderAddress("123 Test Street");
+        order.setOrderPhone("0909123456");
+        order.setOrderEmail("guest@example.com");
+        order.setShippingFee(BigDecimal.ZERO);
+        order.setAdditionalFee(BigDecimal.ZERO);
+        order.setTotal(new BigDecimal("12850000")); // ví dụ: 12.850.000 VNĐ
+        order.setOrderStatus(0);
+        order.setNote("Test đơn hàng");
+        order.setCustomerId(null); // test guest
+
+        int orderId = dao.insertCustomerOrderReturnId(order);
+        System.out.println("🔍 Inserted orderId = " + orderId);
     }
 }

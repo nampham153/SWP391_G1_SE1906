@@ -12,6 +12,7 @@ import context.DBContext;
 import model.Cart;
 
 import java.sql.*;
+import model.CartItem;
 
 public class CartDAO extends DBContext {
 
@@ -49,5 +50,6 @@ public class CartDAO extends DBContext {
         }
         return -1;
     }
+
 }
 

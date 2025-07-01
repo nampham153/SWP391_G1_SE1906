@@ -5,6 +5,7 @@ import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import model.Account;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -20,72 +21,84 @@ public class AuthorizationFilter implements Filter {
         HttpServletResponse res = (HttpServletResponse) response;
         HttpSession session = req.getSession(false);
 
-        // Cắt bỏ contextPath để so sánh URI chính xác
         String uri = req.getRequestURI().substring(req.getContextPath().length());
-        Integer role = (session != null) ? (Integer) session.getAttribute("role") : null;
 
-        // Các đường dẫn công khai cho cả khách
-        String[] publicPaths = {
-            "/",
+        Account acc = (session != null) ? (Account) session.getAttribute("account") : null;
+        Integer role = (acc != null) ? acc.getRoleId() : null;
+
+        System.out.println(">>> AuthorizationFilter is running");
+        System.out.println("URI: " + uri);
+        System.out.println("Role: " + role);
+
+        String[] exactPublicPaths = {
             "/home",
             "/login",
             "/register",
-            "/index.jsp",
-            "/css/",
-            "/assets/",
-            "/js/",
-            "/img/",
-            "/images/",
-            "/fonts/",
-            "/vendor/",
-            "/public/",
+            "/index",
+            "/product-detail",
             "/cart",
-            "/checkout"
+            "/checkout",
+            "/checkout-success" ,
+            "/ajaxServlet" ,
+             "/vnpay_return", 
+            "/vnpay_return.jsp" ,
+            "/cart-size"
         };
 
-        // Cho phép nếu là file tĩnh hoặc trong danh sách public
-        boolean isPublic = Arrays.stream(publicPaths).anyMatch(uri::startsWith)
-                || uri.matches(".*\\.(css|js|png|jpg|jpeg|gif|svg|ico|woff2?)$");
+        String[] prefixPublicPaths = {
+            "/css/", "/js/", "/assets/", "/img/", "/images/",
+            "/fonts/", "/vendor/", "/public/"
+        };
+
+        boolean isExactPublic = Arrays.stream(exactPublicPaths).anyMatch(uri::equals);
+        boolean isPrefixPublic = Arrays.stream(prefixPublicPaths).anyMatch(uri::startsWith);
+        boolean isStaticResource = uri.matches(".*\\.(css|js|png|jpg|jpeg|gif|svg|ico|woff2?)$");
+
+        boolean isPublic = isExactPublic || isPrefixPublic || isStaticResource;
 
         if (isPublic) {
             chain.doFilter(request, response);
             return;
         }
 
-        // Nếu chưa đăng nhập
         if (role == null) {
+            System.out.println(">>> Not logged in. Redirecting to login.");
             res.sendRedirect(req.getContextPath() + "/login");
             return;
         }
 
-        // Phân quyền
-        if (uri.contains("/admin")) {
+        if (uri.startsWith("/admin")) {
             if (role == 2) {
                 chain.doFilter(request, response);
             } else {
+                System.out.println(">>> Access denied to admin page");
                 res.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied.");
             }
             return;
         }
-
-        if (uri.contains("/staff")) {
+if (uri.startsWith("/api/") || uri.endsWith("Servlet")) {
+    chain.doFilter(request, response);
+    return;
+}
+        if (uri.startsWith("/staff")) {
             if (role == 2 || role == 3) {
                 chain.doFilter(request, response);
             } else {
+                System.out.println(">>> Access denied to staff page");
                 res.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied.");
             }
             return;
         }
 
-        if (uri.contains("/customer")) {
+        if (uri.startsWith("/customer")) {
             if (role == 1 || role == 2 || role == 3) {
                 chain.doFilter(request, response);
             } else {
+                System.out.println(">>> Access denied to customer page");
                 res.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied.");
             }
             return;
         }
-
         chain.doFilter(request, response);
     }
 }

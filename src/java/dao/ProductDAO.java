@@ -19,21 +19,17 @@ public class ProductDAO {
     }
 
     public void createProduct(String id, int categoryId, String itemName, int stock, double price, int views) {
-        // Thêm Item trước
         String sqlItem = "INSERT INTO Item (SerialNumber, ItemName, Stock, Price, Views) VALUES (?, ?, ?, ?, ?)";
-        // Thêm Product
         String sqlProduct = "INSERT INTO Product (ProductId, CategoryId) VALUES (?, ?)";
         try (Connection conn = dbContext.getConnection();
              PreparedStatement psItem = conn.prepareStatement(sqlItem);
              PreparedStatement psProduct = conn.prepareStatement(sqlProduct)) {
-            // Thêm Item
             psItem.setString(1, id);
             psItem.setString(2, itemName);
             psItem.setInt(3, stock);
             psItem.setDouble(4, price);
             psItem.setInt(5, views);
             psItem.executeUpdate();
-            // Thêm Product
             psProduct.setString(1, id);
             psProduct.setInt(2, categoryId);
             psProduct.executeUpdate();
@@ -51,10 +47,6 @@ public class ProductDAO {
              ResultSet rs = statement.executeQuery()) {
             while (rs.next()) {
                 Product p = new Product(rs.getString("ProductId"), rs.getInt("CategoryId"));
-                // Gán thông tin Item nếu có
-//                Item item = new Item(rs.getString("SerialNumber"), rs.getString("ItemName"), rs.getInt("Stock"),
-//                        rs.getDouble("Price"), rs.getInt("Views"), 0); // categoryId tạm thời là 0
-//                p.setItem(item); // Giả sử Product có phương thức setItem
                 list.add(p);
             }
         } catch (ClassNotFoundException | SQLException ex) {
@@ -72,10 +64,6 @@ public class ProductDAO {
             try (ResultSet rs = statement.executeQuery()) {
                 if (rs.next()) {
                     Product p = new Product(rs.getString("ProductId"), rs.getInt("CategoryId"));
-//                    Item item = new Item(rs.getString("SerialNumber"), rs.getString("ItemName"), rs.getInt("Stock"),
-//                            rs.getDouble("Price"), rs.getInt("Views"), 0); // categoryId tạm thời là 0
-//                    p.setItem(item); // Giả sử có setItem
-//                    return p;
                 }
             }
         } catch (ClassNotFoundException | SQLException ex) {
@@ -90,11 +78,9 @@ public class ProductDAO {
         try (Connection conn = dbContext.getConnection();
              PreparedStatement psProduct = conn.prepareStatement(sqlProduct);
              PreparedStatement psItem = conn.prepareStatement(sqlItem)) {
-            // Cập nhật Product
             psProduct.setInt(1, categoryId);
             psProduct.setString(2, id);
             psProduct.executeUpdate();
-            // Cập nhật Item
             psItem.setString(1, itemName);
             psItem.setInt(2, stock);
             psItem.setDouble(3, price);
@@ -112,10 +98,8 @@ public class ProductDAO {
         try (Connection conn = dbContext.getConnection();
              PreparedStatement psProduct = conn.prepareStatement(sqlProduct);
              PreparedStatement psItem = conn.prepareStatement(sqlItem)) {
-            // Xóa Item trước
             psItem.setString(1, productId);
             psItem.executeUpdate();
-            // Xóa Product
             psProduct.setString(1, productId);
             psProduct.executeUpdate();
         } catch (ClassNotFoundException | SQLException ex) {

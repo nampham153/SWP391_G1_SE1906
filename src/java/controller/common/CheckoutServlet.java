@@ -1,6 +1,5 @@
 package controller.common;
 
-import com.vnpay.common.VNPayUtil;
 import dao.CartDAO;
 import dao.CartItemDAO;
 import dao.CustomerAddressDAO;
@@ -39,16 +38,12 @@ public class CheckoutServlet extends HttpServlet {
             if (cart != null) {
                 for (CartItem cartItem : cart.values()) {
                     Item fullItem = itemDAO.getItemById(cartItem.getItemId());
-
                     if (cartItem.getItemId().startsWith("P")) {
                         BigDecimal pcTotal = productComponentDAO.getTotalPriceOfProduct(cartItem.getItemId());
                         fullItem.setPrice(pcTotal);
                     }
-
                     cartItem.setItemDetail(fullItem);
-                    BigDecimal itemTotal = fullItem.getPrice()
-                            .multiply(BigDecimal.valueOf(cartItem.getQuantity()));
-                    total = total.add(itemTotal);
+                    total = total.add(fullItem.getPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity())));
                     items.add(cartItem);
                 }
             }
@@ -58,20 +53,20 @@ public class CheckoutServlet extends HttpServlet {
                 List<CartItem> cartItems = cartItemDAO.getItemsInCart(cart.getCartId());
                 for (CartItem item : cartItems) {
                     Item fullItem = itemDAO.getItemById(item.getItemId());
-
                     if (item.getItemId().startsWith("P")) {
                         BigDecimal pcTotal = productComponentDAO.getTotalPriceOfProduct(item.getItemId());
                         fullItem.setPrice(pcTotal);
                     }
-
                     item.setItemDetail(fullItem);
-                    BigDecimal itemTotal = fullItem.getPrice()
-                            .multiply(BigDecimal.valueOf(item.getQuantity()));
-                    total = total.add(itemTotal);
+                    total = total.add(fullItem.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
                     items.add(item);
                 }
             }
         }
+System.out.println("🟡 Số lượng item trong checkout: " + items.size());
+for (CartItem ci : items) {
+    System.out.println("➡️ " + ci.getItemId() + " x " + ci.getQuantity());
+}
 
         request.setAttribute("cartItems", items);
         request.setAttribute("cartTotal", total);
@@ -85,65 +80,94 @@ public class CheckoutServlet extends HttpServlet {
 
         HttpSession session = request.getSession();
         Account account = (Account) session.getAttribute("account");
-
+        
         List<CartItem> cartItems = new ArrayList<>();
         BigDecimal total = BigDecimal.ZERO;
 
         if (account == null) {
             Map<String, CartItem> guestCart = (Map<String, CartItem>) session.getAttribute("cart");
             if (guestCart == null || guestCart.isEmpty()) {
-                response.sendRedirect(request.getContextPath() + "/cart");
+                response.setContentType("application/json");
+                response.setCharacterEncoding("UTF-8");
+                response.getWriter().write("{\"error\":\"Giỏ hàng trống.\"}");
                 return;
             }
 
             for (CartItem cartItem : guestCart.values()) {
                 Item fullItem = itemDAO.getItemById(cartItem.getItemId());
-
                 if (cartItem.getItemId().startsWith("P")) {
                     BigDecimal pcTotal = productComponentDAO.getTotalPriceOfProduct(cartItem.getItemId());
                     fullItem.setPrice(pcTotal);
                 }
-
                 cartItem.setItemDetail(fullItem);
-                BigDecimal itemTotal = fullItem.getPrice()
-                        .multiply(BigDecimal.valueOf(cartItem.getQuantity()));
-                total = total.add(itemTotal);
+                total = total.add(fullItem.getPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity())));
                 cartItems.add(cartItem);
             }
 
         } else {
             Cart cart = cartDAO.getCartByCustomerId(account.getPhone());
             if (cart == null) {
-                response.sendRedirect(request.getContextPath() + "/cart");
+                response.setContentType("application/json");
+                response.setCharacterEncoding("UTF-8");
+                response.getWriter().write("{\"error\":\"Không tìm thấy giỏ hàng.\"}");
                 return;
             }
 
             cartItems = cartItemDAO.getItemsInCart(cart.getCartId());
             if (cartItems == null || cartItems.isEmpty()) {
-                response.sendRedirect(request.getContextPath() + "/cart");
+                response.setContentType("application/json");
+                response.setCharacterEncoding("UTF-8");
+                response.getWriter().write("{\"error\":\"Giỏ hàng đang trống.\"}");
                 return;
             }
 
             for (CartItem item : cartItems) {
                 Item fullItem = itemDAO.getItemById(item.getItemId());
-
-                if (item.getItemId().startsWith("P")) {
+                if (item.getItemId().startsWith("PC")) {
                     BigDecimal pcTotal = productComponentDAO.getTotalPriceOfProduct(item.getItemId());
                     fullItem.setPrice(pcTotal);
                 }
-
                 item.setItemDetail(fullItem);
-                BigDecimal itemTotal = fullItem.getPrice()
-                        .multiply(BigDecimal.valueOf(item.getQuantity()));
-                total = total.add(itemTotal);
+                total = total.add(fullItem.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
             }
         }
 
+        // Lấy thông tin khách
         String address = request.getParameter("address");
         String phone = request.getParameter("phone");
         String email = request.getParameter("email");
-        String note = request.getParameter("note");
-        String paymentMethod = request.getParameter("payment"); // "cod" hoặc "bank"
+        String noteInput = request.getParameter("note");
+
+        // Lấy các thông tin phụ để ghi vào note
+        String title = request.getParameter("title");
+        String firstName = request.getParameter("firstName");
+        String middleName = request.getParameter("middleName");
+        String lastName = request.getParameter("lastName");
+        String zipcode = request.getParameter("zipcode");
+        String country = request.getParameter("country");
+        String province = request.getParameter("province");
+        String fax = request.getParameter("fax");
+        System.out.println("📦 Address from form = " + address);
+        StringBuilder noteBuilder = new StringBuilder();
+        if (account == null) {
+            noteBuilder.append("Khách vãng lai: ")
+                .append(title != null ? title + " " : "")
+                .append(firstName != null ? firstName + " " : "")
+                .append(middleName != null ? middleName + " " : "")
+                .append(lastName != null ? lastName : "")
+                .append("\nĐịa chỉ: ").append(address != null ? address : "")
+                .append("\nMã bưu điện: ").append(zipcode != null ? zipcode : "")
+                .append("\nQuốc gia: ").append(country != null ? country : "")
+                .append("\nTỉnh/thành: ").append(province != null ? province : "")
+                .append("\nSố fax: ").append(fax != null ? fax : "");
+        }
+
+        if (noteInput != null && !noteInput.trim().isEmpty()) {
+            if (noteBuilder.length() > 0) noteBuilder.append("\n\n");
+            noteBuilder.append("Ghi chú khách: ").append(noteInput.trim());
+        }
+
+        String note = noteBuilder.toString();
 
         CustomerOrder order = new CustomerOrder();
         order.setOrderDate(new java.sql.Date(System.currentTimeMillis()));
@@ -155,12 +179,10 @@ public class CheckoutServlet extends HttpServlet {
         order.setNote(note);
         order.setCustomerId(account != null && account.getRoleId() == 1 ? account.getPhone() : null);
         order.setTotal(total);
-
-        int status = "cod".equals(paymentMethod) ? 1 : 0;
-        order.setOrderStatus(status);
+        order.setOrderStatus(0);
 
         CustomerOrderDAO orderDAO = new CustomerOrderDAO();
-        int orderId = orderDAO.insertCustomerOrderReturnId(order); // Lưu đơn và lấy ID
+        int orderId = orderDAO.insertCustomerOrderReturnId(order);
 
         if (account != null && account.getRoleId() == 1) {
             CustomerAddressDAO addrDAO = new CustomerAddressDAO();
@@ -176,11 +198,8 @@ public class CheckoutServlet extends HttpServlet {
             session.removeAttribute("cart");
         }
 
-        if ("cod".equals(paymentMethod)) {
-            response.sendRedirect("order-success.jsp");
-        } else {
-            String paymentUrl = VNPayUtil.buildRedirectUrl(request, orderId, total.longValue());
-            response.sendRedirect(paymentUrl);
-        }
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write("{\"orderId\":" + orderId + ", \"amount\":" + total.longValue() + "}");
     }
 }

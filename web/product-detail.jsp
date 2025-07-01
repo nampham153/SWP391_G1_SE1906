@@ -72,36 +72,49 @@
         <div class="col-md-7">
             <h2>${pcItem.itemName}</h2>
             <h4>
-                Tổng giá: <span id="totalPrice"></span>
-                <input type="hidden" id="fixedPrice" value="${fixedComponentPrice}"/>
-            </h4>
-            <form id="buildForm">
-                <c:forEach var="entry" items="${specMap}">
-                    <div class="form-group">
-                        <label><strong>${entry.key.specName}</strong></label>
-                        <div class="row" style="display: flex; flex-wrap: wrap; gap: 12px;">
-                            <c:forEach var="item" items="${entry.value}">
-                                <div class="mb-3">
-                                    <div class="swatch-element">
-                                        <input type="radio"
-                                               class="spec-radio"
-                                               name="${entry.key.specName}"
-                                               id="${entry.key.specName}-${item.serialNumber}"
-                                               value="${item.serialNumber}"
-                                               data-price="${item.price}"
-                                               <c:if test="${item.serialNumber == defaultMap[entry.key.specName].serialNumber}">checked</c:if>>
-                                        <label for="${entry.key.specName}-${item.serialNumber}" class="sd">
-                                            <span>${item.itemName}</span>
-                                            <small><fmt:formatNumber value="${item.price}" type="number" groupingUsed="true"/> VNĐ</small>
-                                        </label>
-                                    </div>
-                                </div>
-                            </c:forEach>
+    Tổng giá: 
+    <c:choose>
+        <c:when test="${not empty specMap}">
+            <span id="totalPrice"></span>
+            <input type="hidden" id="fixedPrice" value="${fixedComponentPrice}" />
+        </c:when>
+        <c:otherwise>
+            <fmt:formatNumber value="${totalPrice}" type="currency" currencySymbol="VNĐ" />
+        </c:otherwise>
+    </c:choose>
+</h4>
+
+            <form id="buildForm" action="cart" method="post">
+    <input type="hidden" name="itemId" value="${pcItem.serialNumber}" />
+    <input type="hidden" name="action" value="add" />
+
+    <c:forEach var="entry" items="${specMap}">
+        <div class="form-group">
+            <label><strong>${entry.key.specName}</strong></label>
+            <div class="row" style="display: flex; flex-wrap: wrap; gap: 12px;">
+                <c:forEach var="item" items="${entry.value}">
+                    <div class="mb-3">
+                        <div class="swatch-element">
+                            <input type="radio"
+                                   class="spec-radio"
+                                   name="${entry.key.specName}"
+                                   id="${entry.key.specName}-${item.serialNumber}"
+                                   value="${item.serialNumber}"
+                                   data-price="${item.price}"
+                                   <c:if test="${item.serialNumber == defaultMap[entry.key.specName].serialNumber}">checked</c:if>>
+                            <label for="${entry.key.specName}-${item.serialNumber}" class="sd">
+                                <span>${item.itemName}</span>
+                                <small><fmt:formatNumber value="${item.price}" type="number" groupingUsed="true"/> VNĐ</small>
+                            </label>
                         </div>
                     </div>
                 </c:forEach>
-                <button type="submit" class="btn btn-primary mt-3">Thêm vào giỏ hàng</button>
-            </form>
+            </div>
+        </div>
+    </c:forEach>
+    <button type="submit" class="btn btn-primary mt-3">Thêm vào giỏ hàng</button>
+</form>
+
         </div>
     </div>
 </div>
