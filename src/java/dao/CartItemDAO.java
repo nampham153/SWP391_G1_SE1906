@@ -97,4 +97,27 @@ public class CartItemDAO extends DBContext {
         }
         return null;
     }
+    public int countItemsByCustomerId(String customerId) {
+    String sql = """
+        SELECT SUM(Quantity) AS TotalQuantity
+        FROM CartItem ci
+        JOIN Cart c ON ci.CartId = c.CartId
+        WHERE c.CustomerId = ?
+    """;
+    try (Connection conn = getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        ps.setString(1, customerId);
+        ResultSet rs = ps.executeQuery();
+
+        if (rs.next()) {
+            return rs.getInt("TotalQuantity");
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return 0;
+}
+
 }

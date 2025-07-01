@@ -14,7 +14,7 @@ public class CartItem {
     private int cartId;
     private String itemId;
     private int quantity;
-    private Item itemDetail; // Thêm trường này để chứa thông tin sản phẩm
+    private Item itemDetail;
 
     public CartItem() {}
 

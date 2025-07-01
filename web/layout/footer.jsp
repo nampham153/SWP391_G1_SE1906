@@ -37,8 +37,8 @@
 				<div class="row">
 					<div class="col-sm-2">
 						<div class="companyinfo">
-							<h2><span>e</span>-shopper</h2>
-							<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit,sed do eiusmod tempor</p>
+							<h2><span>PC</span>-shopper</h2>
+							<p>PC siêu khỏe , giá tầm tay, rinh ngay về nhà</p>
 						</div>
 					</div>
 					<div class="col-sm-7">
@@ -105,7 +105,7 @@
 					<div class="col-sm-3">
 						<div class="address">
 							<img src="images/home/map.png" alt="" />
-							<p>505 S Atlantic Ave Virginia Beach, VA(Virginia)</p>
+							<p>392 thôn 4 thạch thất hòa lạc</p>
 						</div>
 					</div>
 				</div>
@@ -129,13 +129,10 @@
 					</div>
 					<div class="col-sm-2">
 						<div class="single-widget">
-							<h2>Quock Shop</h2>
+							<h2> Shop</h2>
 							<ul class="nav nav-pills nav-stacked">
-								<li><a href="#">T-Shirt</a></li>
-								<li><a href="#">Mens</a></li>
-								<li><a href="#">Womens</a></li>
-								<li><a href="#">Gift Cards</a></li>
-								<li><a href="#">Shoes</a></li>
+								<li><a href="#">PC</a></li>
+								<li><a href="#">Phụ kiện</a></li>
 							</ul>
 						</div>
 					</div>
@@ -169,7 +166,7 @@
 							<form action="#" class="searchform">
 								<input type="text" placeholder="Your email address" />
 								<button type="submit" class="btn btn-default"><i class="fa fa-arrow-circle-o-right"></i></button>
-								<p>Get the most recent updates from <br />our site and be updated your self...</p>
+								<p>Hãy cho cùng tôi được cập nhật với những thông báo mới mất <br />chúng tôi luôn bên ban</p>
 							</form>
 						</div>
 					</div>

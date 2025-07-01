@@ -34,6 +34,15 @@
 </head><!--/head-->
     <body>
         <%@ include file="layout/header.jsp" %>
+        <script>
+function updateCartSize() {
+    fetch('${pageContext.request.contextPath}/cart-size')
+        .then(res => res.text())
+        .then(size => {
+            document.getElementById("cart-size").textContent = size;
+        });
+}
+</script>
             <c:if test="${not empty pageContent1}">
         <jsp:include page="${pageContent1}" />
     </c:if>

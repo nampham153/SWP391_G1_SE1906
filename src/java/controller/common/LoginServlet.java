@@ -40,10 +40,10 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response)
 
         switch (role) {
             case 2: // Admin
-                response.sendRedirect(request.getContextPath() + "/index.jsp");
+                response.sendRedirect(request.getContextPath() + "/home");
                 break;
             case 3: // Staff
-                response.sendRedirect(request.getContextPath() + "/index.jsp");
+                response.sendRedirect(request.getContextPath() + "/home");
                 break;
             default: // Customer
                 response.sendRedirect(request.getContextPath() + "/home");

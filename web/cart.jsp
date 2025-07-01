@@ -75,7 +75,7 @@
                                     </td>
                                     <td class="cart_price">
                                         <p id="price-${item.serialNumber}">
-                                            <fmt:formatNumber value="${item.price}" type="number"/> $
+                                            <fmt:formatNumber value="${item.price}" type="number"/> VNĐ
                                         </p>
                                     </td>
                                     <td class="cart_quantity">
@@ -87,7 +87,7 @@
                                     </td>
                                     <td class="cart_total">
                                         <p id="total-${item.serialNumber}" class="cart_total_price">
-                                            <fmt:formatNumber value="${item.price * ci.quantity}" type="number"/> $
+                                            <fmt:formatNumber value="${item.price * ci.quantity}" type="number"/> VNĐ
                                         </p>
                                     </td>
                                     <td class="cart_delete">
@@ -115,13 +115,13 @@
                             <ul>
                                 <li>Cart Sub Total 
                                     <span id="grand-total">
-                                        <fmt:formatNumber value="${cartTotal}" type="number" groupingUsed="true" minFractionDigits="0"/> $
+                                        <fmt:formatNumber value="${cartTotal}" type="number" groupingUsed="true" minFractionDigits="0"/> VNĐ
                                     </span>
                                 </li>
                                 <li>Shipping Cost <span>Free</span></li>
                                 <li>Total 
                                     <span id="grand-total-2">
-                                        <fmt:formatNumber value="${cartTotal}" type="number" groupingUsed="true" minFractionDigits="0"/> $
+                                        <fmt:formatNumber value="${cartTotal}" type="number" groupingUsed="true" minFractionDigits="0"/> VNĐ
                                     </span>
                                 </li>
                             </ul>
@@ -186,7 +186,7 @@
                                     qty = 1;
                                 qtyInput.value = qty;
 
-                                updateCartTotal(); // Chỉ cần gọi hàm cập nhật lại toàn bộ
+                                updateCartTotal();
                             }
                         })
                         .catch(err => console.error("Lỗi:", err));
@@ -220,7 +220,7 @@
                     style: 'decimal',
                     minimumFractionDigits: 0,
                     maximumFractionDigits: 0
-                }).format(amount) + " $";
+                }).format(amount) + " VNĐ";
             }
 
             function updateCartTotal() {
@@ -241,8 +241,6 @@
                 document.getElementById('grand-total').innerText = formatCurrency(total);
                 document.getElementById('grand-total-2').innerText = formatCurrency(total);
             }
-
-            // Khởi tạo tổng ngay từ khi load
             updateCartTotal();
         });
     </script>
