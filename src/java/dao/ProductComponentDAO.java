@@ -74,7 +74,8 @@ public class ProductComponentDAO extends DBContext {
                         rs.getString("ItemName"),
                         rs.getInt("Stock"),
                         rs.getBigDecimal("Price"),
-                        rs.getInt("Views")
+                        rs.getInt("Views"),
+                        rs.getString("Description")
                 );
                 result.put(item, rs.getInt("Quantity"));
             }

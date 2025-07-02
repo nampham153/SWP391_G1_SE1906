@@ -52,7 +52,7 @@
                                         <button type="button" class="btn btn-default get">Get it now</button>
                                     </div>
                                     <div class="col-sm-6">
-                                        <img src="images/home/banner_top_1_img_large.jpg" class="girl img-responsive" alt="" />
+                                        <img src="images/home/banner2.png" class="girl img-responsive" alt="" />
                                     </div>
                                 </div>
                                 <div class="item">
@@ -63,7 +63,7 @@
                                         <button type="button" class="btn btn-default get">Get it now</button>
                                     </div>
                                     <div class="col-sm-6">
-                                        <img src="images/home/categorybanner_3_img.jpg" class="girl img-responsive" alt="" />
+                                        <img src="images/home/banner1.png" class="girl img-responsive" alt="" />
                                     </div>
                                 </div>
 
@@ -75,7 +75,7 @@
                                         <button type="button" class="btn btn-default get">Get it now</button>
                                     </div>
                                     <div class="col-sm-6">
-                                        <img src="images/home/pc-amd-gaming.jpg" class="girl img-responsive" alt="" />
+                                        <img src="images/home/banner3.png" class="girl img-responsive" alt="" />
                                     </div>
                                 </div>
 
@@ -169,7 +169,7 @@
                                                                  style="width: 100%; height: 250px; object-fit: cover;" />
                                                         </c:otherwise>
                                                     </c:choose>
-                                                    <h2><fmt:formatNumber value="${item.price}" type="number"/> $</h2>
+                                                    <h2><fmt:formatNumber value="${item.price}" type="number"/> VNĐ</h2>
                                                     <p>${item.itemName}</p>
                                                 </div>
                                                 <div class="product-overlay">
@@ -277,7 +277,7 @@
                     })
                     .then(data => {
                         if (data.status === 'ok') {
-                            updateCartSize(); // ✅ gọi cập nhật số giỏ
+                            updateCartSize(); 
                             alert("Đã thêm vào giỏ hàng!");
                         } else {
                             alert("Không thể thêm vào giỏ hàng.");

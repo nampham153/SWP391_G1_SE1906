@@ -64,7 +64,7 @@ public class CustomerServlet extends HttpServlet {
 
             default:
                 List<Customer> customers = dao.getAllCustomers();
-                request.setAttribute("customerList", customers);
+                request.setAttribute("customers", customers);
                 request.setAttribute("customerCount", customers.size());
                 request.setAttribute("pageContent", "/admin/customer-manage.jsp");
                 request.getRequestDispatcher("/admin/layout.jsp").forward(request, response);

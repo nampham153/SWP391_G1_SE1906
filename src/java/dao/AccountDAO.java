@@ -14,31 +14,30 @@ import java.util.logging.Logger;
 
 public class AccountDAO extends DBContext {
 
-    public Account getAccount(String phone, String password) {
-        try (Connection conn = getConnection()) {
-            String query = "SELECT a.Phone, a.Password, a.RoleId, r.RoleName FROM Account a INNER JOIN Role r ON a.RoleId = r.RoleId WHERE a.Phone = ? AND a.Password = ?";
-            PreparedStatement stm = conn.prepareStatement(query);
-            stm.setString(1, phone);
-            stm.setString(2, password);
-            ResultSet rs = stm.executeQuery();
-            if (rs.next()) {
-                Account account = new Account();
-                account.setPhone(rs.getString("Phone"));
-                account.setPassword(rs.getString("Password"));
-
-                Role role = new Role();
-                role.setRoleId(rs.getInt("RoleId"));
-                role.setRoleName(rs.getString("RoleName"));
-                account.setRoleId(role.getRoleId());
-                account.setStatus(1);
-
-                return account;
-            }
-        } catch (Exception ex) {
-            Logger.getLogger(AccountDAO.class.getName()).log(Level.SEVERE, null, ex);
+public Account getAccount(String phone, String password) {
+    try (Connection conn = getConnection()) {
+        String query = "SELECT a.Phone, a.Password, a.RoleId, a.Status, a.IsVerified, r.RoleName " +
+                       "FROM Account a INNER JOIN Role r ON a.RoleId = r.RoleId " +
+                       "WHERE a.Phone = ? AND a.Password = ?";
+        PreparedStatement stm = conn.prepareStatement(query);
+        stm.setString(1, phone);
+        stm.setString(2, password);
+        ResultSet rs = stm.executeQuery();
+        if (rs.next()) {
+            Account account = new Account();
+            account.setPhone(rs.getString("Phone"));
+            account.setPassword(rs.getString("Password"));
+            account.setRoleId(rs.getInt("RoleId"));
+            account.setStatus(rs.getInt("Status"));
+            account.setVerified(rs.getBoolean("IsVerified"));
+            return account;
         }
-        return null;
+    } catch (Exception ex) {
+        Logger.getLogger(AccountDAO.class.getName()).log(Level.SEVERE, null, ex);
     }
+    return null;
+}
+
 
     // ✅ Hàm createAccount mặc định status = 1
     public boolean createAccount(String phone, String password, int roleId) {
@@ -133,4 +132,27 @@ public class AccountDAO extends DBContext {
             return false;
         }
     }
+    public boolean setAccountVerified(String phone) {
+    String sql = "UPDATE Account SET IsVerified = TRUE WHERE Phone = ?";
+    try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setString(1, phone);
+        return ps.executeUpdate() > 0;
+    } catch (Exception e) {
+        e.printStackTrace();
+        return false;
+    }
+}
+
+public boolean isVerified(String phone) {
+    String sql = "SELECT IsVerified FROM Account WHERE Phone = ?";
+    try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setString(1, phone);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) return rs.getBoolean("IsVerified");
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return false;
+}
+
 }

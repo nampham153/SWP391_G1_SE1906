@@ -178,6 +178,37 @@ public List<Item> searchItemsByName(String keyword) {
 
     return list;
 }
+public Item getDefaultItemByCategory(int categoryId) {
+    String sql = """
+        SELECT i.SerialNumber, i.ItemName, i.Price, img.ImageContent
+        FROM Item i
+        JOIN Component c ON i.SerialNumber = c.ComponentId
+        LEFT JOIN ItemImage img ON i.SerialNumber = img.InventoryId
+        WHERE c.CategoryId = ?
+        ORDER BY i.Price ASC LIMIT 1
+    """;
+    try (java.sql.Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setInt(1, categoryId);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            Item item = new Item();
+            item.setSerialNumber(rs.getString("SerialNumber"));
+            item.setItemName(rs.getString("ItemName"));
+            item.setPrice(rs.getBigDecimal("Price"));
+            String img = rs.getString("ImageContent");
+            if (img != null) {
+                ItemImage image = new ItemImage();
+                image.setImageContent(img);
+                item.setImage(image);
+            }
+            return item;
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return null;
+}
+
 
 public static void main(String[] args) {
     ItemDAO dao = new ItemDAO();

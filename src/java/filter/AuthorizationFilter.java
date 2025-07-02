@@ -40,9 +40,12 @@ public class AuthorizationFilter implements Filter {
             "/checkout",
             "/checkout-success" ,
             "/ajaxServlet" ,
-             "/vnpay_return", 
-            "/vnpay_return.jsp" ,
-            "/cart-size"
+            "/vnpay_return", 
+            "/cart-size",
+            "/verify",
+            "/build-pc",
+            "/contact",
+            "/getComponentList"
         };
 
         String[] prefixPublicPaths = {

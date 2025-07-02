@@ -19,6 +19,7 @@ import jakarta.mail.internet.*;
  *
  * @author namp0
  */
+@WebServlet("/contact")
 public class ContactServlet extends HttpServlet {
 
     /**
@@ -59,15 +60,12 @@ public class ContactServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        //processRequest(request, response);
+        request.setAttribute("pageContent1", "contact-us.jsp");
+        request.getRequestDispatcher("index.jsp").forward(request, response);
     }
 
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+        protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         //        processRequest(request, response);
         String name = request.getParameter("name");
@@ -76,7 +74,7 @@ public class ContactServlet extends HttpServlet {
         String message = request.getParameter("message");
 
         final String yourEmail = "namp04464@gmail.com";
-        final String yourPassword = "bytb qsow teds bzxh";
+        final String yourPassword = "kwmd zcjs aruj soot";
 
         Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
@@ -102,19 +100,10 @@ public class ContactServlet extends HttpServlet {
 
             response.getWriter().write("success");
         } catch (MessagingException e) {
+            e.printStackTrace();
             response.getWriter().write("error");
         }
     }
-
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
     @Override
     public String getServletInfo() {
         return "Short description";

@@ -10,7 +10,7 @@
     <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0">Quản lý khách hàng</h5>
         <!-- Nút chuyển sang trang thêm -->
-        <a href="${pageContext.request.contextPath}/admin/customer?action=add" class="btn btn-primary">+ Thêm mới</a>
+        <a href="${pageContext.request.contextPath}/staff/customer?action=add" class="btn btn-primary">+ Thêm mới</a>
     </div>
     <div class="card-body">
         <table id="customerTable" class="table table-bordered align-middle">
@@ -37,11 +37,11 @@
                         <td><%= c.getStatus() ? "Hoạt động" : "Ngưng" %></td>
                         <td>
                             <a class="btn btn-warning btn-sm" 
-                               href="${pageContext.request.contextPath}/admin/customer?action=edit&id=<%= c.getCustomerId() %>">
+                               href="${pageContext.request.contextPath}/staff/customer?action=edit&id=<%= c.getCustomerId() %>">
                                Sửa
                             </a>
                             <a class="btn btn-danger btn-sm"
-                               href="${pageContext.request.contextPath}/admin/customer?action=delete&id=<%= c.getCustomerId() %>"
+                               href="${pageContext.request.contextPath}/staff/customer?action=delete&id=<%= c.getCustomerId() %>"
                                onclick="return confirm('Bạn có chắc muốn vô hiệu hóa khách hàng này?')">
                                 Xoá
                             </a>

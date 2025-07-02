@@ -17,18 +17,20 @@ public class Item {
     private int stock;
     private BigDecimal price;
     private int views;
+    private String description;
     private ItemImage image;
     // constructors, getters, setters...
 
     public Item() {
     }
 
-    public Item(String serialNumber, String itemName, int stock, BigDecimal price, int views) {
+    public Item(String serialNumber, String itemName, int stock, BigDecimal price, int views, String description) {
         this.serialNumber = serialNumber;
         this.itemName = itemName;
         this.stock = stock;
         this.price = price;
         this.views = views;
+        this.description = description;
     }
 
     public String getSerialNumber() {
@@ -77,6 +79,14 @@ public class Item {
 
     public void setImage(ItemImage image) {
         this.image = image;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
 }

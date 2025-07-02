@@ -46,11 +46,19 @@
                         <button type="submit" class="btn btn-default">Login</button>
                     </form>
 
-                    <c:if test="${valid == false}">
-                        <div id="loginMessage" style="color: red; margin-top: 10px;">
-                            Invalid phone number or password. Please try again.
-                        </div>
-                    </c:if>
+                    <c:if test="${valid == false || not empty message}">
+    <div id="loginMessage" style="color: red; margin-top: 10px;">
+        <c:choose>
+            <c:when test="${not empty message}">
+                ${message}
+            </c:when>
+            <c:otherwise>
+                Invalid phone number or password.
+            </c:otherwise>
+        </c:choose>
+    </div>
+</c:if>
+
                 </div><!--/login form-->
             </div>
             <div class="col-sm-1">

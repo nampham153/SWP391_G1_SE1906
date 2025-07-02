@@ -76,7 +76,7 @@
                                 <i class="fa fa-angle-left pull-right"></i>
                             </a>
                             <ul class="treeview-menu">
-                                <li><a href="/SWP391_G1/admin/customer"><i class="fa fa-circle-o"></i> Customer</a></li>
+                                <li><a href="/SWP391_G1/staff/customer"><i class="fa fa-circle-o"></i> Customer</a></li>
                                 <li><a href="/SWP391_G1/admin/staff"><i class="fa fa-circle-o"></i> Staff</a></li>
                                 <li><a href="general-reports.html"><i class="fa fa-circle-o"></i> Reports</a></li>
                             </ul>

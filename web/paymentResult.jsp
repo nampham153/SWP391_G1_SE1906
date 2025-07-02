@@ -19,6 +19,7 @@
                         <div class="alert alert-success">
                             ✅ Thanh toán thành công!
                         </div>
+                        <p>Mã đơn hàng: <strong>${param.vnp_TxnRef}</strong></p>
                         <p>Mã giao dịch: <strong>${param.vnp_TransactionNo}</strong></p>
                         <p>Số tiền: <strong><fmt:formatNumber value="${param.vnp_Amount / 100}" type="number" groupingUsed="true" maxFractionDigits="0"/> VNĐ</strong></p>
                         <p>Thời gian: <strong>${param.vnp_PayDate}</strong></p>

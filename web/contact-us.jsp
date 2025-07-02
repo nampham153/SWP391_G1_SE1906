@@ -73,7 +73,7 @@
                                     const statusDiv = document.getElementById("statusMessage");
                                             statusDiv.innerHTML = ""; 
 
-                                    fetch("/SWP391_G1_1906/contact", {
+                                    fetch("${pageContext.request.contextPath}/contact", {
                                         method: "POST",
                                         headers: {
                                             "Content-Type": "application/x-www-form-urlencoded"

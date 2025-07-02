@@ -13,14 +13,16 @@ public class Account {
     private String password;
     private int roleId;
     private int status; 
+    private boolean isVerified;
 
     public Account() {}
 
-    public Account(String phone, String password, int roleId,int status) {
+    public Account(String phone, String password, int roleId,int status,boolean isVerified) {
         this.phone = phone;
         this.password = password;
         this.roleId = roleId;
         this.status = status;
+        this.isVerified = isVerified;
     }
 
     public String getPhone() {
@@ -53,6 +55,13 @@ public class Account {
 
     public void setStatus(int status) {
         this.status = status;
+    }
+        public boolean isVerified() {
+        return isVerified;
+    }
+
+    public void setVerified(boolean isVerified) {
+        this.isVerified = isVerified;
     }
     
 }

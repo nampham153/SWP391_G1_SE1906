@@ -81,7 +81,9 @@ public void updateOrderStatus(CustomerOrder order) {
         ps.setInt(1, order.getOrderStatus());
         ps.setInt(2, order.getOrderId());
         int rows = ps.executeUpdate();
-        System.out.println("✅ Rows affected = " + rows);
+        System.out.println("🛠️ UPDATE orderId = " + order.getOrderId() + ", status = " + order.getOrderStatus());
+System.out.println("✅ Rows affected = " + rows);
+
     } catch (Exception e) {
         e.printStackTrace();
     }
@@ -118,22 +120,15 @@ public void updateOrderStatus(CustomerOrder order) {
 }
 
 
-    public static void main(String[] args) {
-        CustomerOrderDAO dao = new CustomerOrderDAO();
+public static void main(String[] args) {
+    CustomerOrderDAO dao = new CustomerOrderDAO();
 
-        CustomerOrder order = new CustomerOrder();
-        order.setOrderDate(new java.sql.Date(System.currentTimeMillis()));
-        order.setOrderAddress("123 Test Street");
-        order.setOrderPhone("0909123456");
-        order.setOrderEmail("guest@example.com");
-        order.setShippingFee(BigDecimal.ZERO);
-        order.setAdditionalFee(BigDecimal.ZERO);
-        order.setTotal(new BigDecimal("12850000")); // ví dụ: 12.850.000 VNĐ
-        order.setOrderStatus(0);
-        order.setNote("Test đơn hàng");
-        order.setCustomerId(null); // test guest
+    // ⚠️ Đảm bảo đơn hàng với OrderId = 44 đã tồn tại trong DB
+    CustomerOrder testOrder = new CustomerOrder();
+    testOrder.setOrderId(44);         // ID của đơn cần update
+    testOrder.setOrderStatus(1);      // 1 = đã thanh toán, bạn có thể thử 2 = thất bại
 
-        int orderId = dao.insertCustomerOrderReturnId(order);
-        System.out.println("🔍 Inserted orderId = " + orderId);
-    }
+    dao.updateOrderStatus(testOrder); // Gọi hàm cập nhật
+}
+
 }
