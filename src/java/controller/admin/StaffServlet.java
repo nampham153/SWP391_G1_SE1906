@@ -56,7 +56,7 @@ public class StaffServlet extends HttpServlet {
             }
             List<String> staffIdOptions = getAvailableStaffIdsFromCustomersWithRole2();
             for (Staff st : staffList) {
-                staffIdOptions.remove(st.getStaffId()); // loại id đã đăng ký
+                staffIdOptions.remove(st.getStaffId()); 
             }
             request.setAttribute("staffIdOptions", staffIdOptions);
 

@@ -177,7 +177,7 @@ public class CustomerServlet extends HttpServlet {
             errors.put("general", "Lỗi xử lý dữ liệu: " + e.getMessage());
             request.setAttribute("errors", errors);
             request.setAttribute("editCustomer", customer);
-            request.setAttribute("formAction", action); // important!
+            request.setAttribute("formAction", action); 
             request.setAttribute("pageContent", "/admin/customer-form.jsp");
             request.getRequestDispatcher("/admin/layout.jsp").forward(request, response);
         }

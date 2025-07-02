@@ -26,6 +26,7 @@ public class ComponentCategoryDAO extends DBContext {
                 ComponentCategory c = new ComponentCategory();
                 c.setCategoryId(rs.getInt("CategoryId"));
                 c.setCategoryName(rs.getString("CategoryName"));
+                c.setImage(rs.getString("Image"));
                 list.add(c);
             }
         } catch (Exception e) {

@@ -11,14 +11,15 @@ package model;
 public class ComponentCategory {
     private int categoryId;
     private String categoryName;
-    // constructors, getters, setters...
+    private String image;
 
     public ComponentCategory() {
     }
 
-    public ComponentCategory(int categoryId, String categoryName) {
+    public ComponentCategory(int categoryId, String categoryName , String image) {
         this.categoryId = categoryId;
         this.categoryName = categoryName;
+        this.image = image;
     }
 
     public int getCategoryId() {
@@ -37,9 +38,13 @@ public class ComponentCategory {
         this.categoryName = categoryName;
     }
 
-    @Override
-    public String toString() {
-        return "ComponentCategory{" + "categoryId=" + categoryId + ", categoryName=" + categoryName + '}';
+    public String getImage() {
+        return image;
     }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
     
 }

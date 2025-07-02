@@ -2,19 +2,23 @@ package controller.common;
 
 import dao.AccountDAO;
 import dao.CustomerDAO;
+import dao.AccountVerificationDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import model.Customer;
+import Until.EmailUtil;
 
 import java.io.IOException;
 import java.sql.Date;
+import java.sql.Timestamp;
 
 @WebServlet("/register")
 public class RegisterServlet extends HttpServlet {
 
     private final AccountDAO accountDao = new AccountDAO();
     private final CustomerDAO customerDao = new CustomerDAO();
+    private final AccountVerificationDAO verificationDao = new AccountVerificationDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -34,21 +38,18 @@ public class RegisterServlet extends HttpServlet {
         String birthdate = request.getParameter("birthdate");
         String genderStr = request.getParameter("gender");
 
-        // Validate phone
         if (phone == null || !phone.matches("0\\d{10}")) {
             request.setAttribute("message", "Số điện thoại không hợp lệ (bắt đầu bằng 0 và đủ 11 chữ số).");
             forwardWithFormData(request, response);
             return;
         }
 
-        // Validate password
         if (password == null || password.trim().length() < 6 || password.contains(" ")) {
             request.setAttribute("message", "Mật khẩu phải có ít nhất 6 ký tự và không chứa khoảng trắng.");
             forwardWithFormData(request, response);
             return;
         }
 
-        // Validate name
         if (name == null || name.trim().length() < 3) {
             request.setAttribute("message", "Tên phải có ít nhất 3 ký tự.");
             forwardWithFormData(request, response);
@@ -69,14 +70,12 @@ public class RegisterServlet extends HttpServlet {
             return;
         }
 
-        // Validate email
         if (email == null || !email.matches("^\\S+@\\S+\\.\\S+$")) {
             request.setAttribute("message", "Email không hợp lệ.");
             forwardWithFormData(request, response);
             return;
         }
 
-        // Validate birthdate
         if (birthdate == null || birthdate.trim().isEmpty()) {
             request.setAttribute("message", "Vui lòng nhập ngày sinh.");
             forwardWithFormData(request, response);
@@ -98,7 +97,6 @@ public class RegisterServlet extends HttpServlet {
             return;
         }
 
-        // Validate gender
         if (!"0".equals(genderStr) && !"1".equals(genderStr)) {
             request.setAttribute("message", "Giới tính không hợp lệ.");
             forwardWithFormData(request, response);
@@ -106,7 +104,6 @@ public class RegisterServlet extends HttpServlet {
         }
         boolean gender = "1".equals(genderStr);
 
-        // Create account
         boolean accountCreated = accountDao.createAccount(phone, password, 1);
         if (!accountCreated) {
             request.setAttribute("message", "Số điện thoại đã tồn tại.");
@@ -130,7 +127,24 @@ public class RegisterServlet extends HttpServlet {
             return;
         }
 
-        response.sendRedirect("login");
+        String otp = String.valueOf((int) (Math.random() * 900000 + 100000));
+        Timestamp expireAt = new Timestamp(System.currentTimeMillis() + 5 * 60 * 1000); 
+
+        boolean saved = verificationDao.saveVerificationCode(phone, otp, expireAt);
+        if (!saved) {
+            request.setAttribute("message", "Lỗi hệ thống khi lưu mã xác minh.");
+            forwardWithFormData(request, response);
+            return;
+        }
+
+        boolean sent = EmailUtil.sendOTP(email, otp);
+        if (!sent) {
+            request.setAttribute("message", "Không thể gửi mã xác thực đến email.");
+            forwardWithFormData(request, response);
+            return;
+        }
+        request.getSession().setAttribute("pendingPhone", phone);
+        response.sendRedirect("verify");
     }
 
     private void forwardWithFormData(HttpServletRequest request, HttpServletResponse response)
