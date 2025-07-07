@@ -45,7 +45,7 @@ public class ProductDetailServlet extends HttpServlet {
                 for (Item item : items) {
                     for (ProductComponent pc : pcList) {
                         if (item.getSerialNumber().equals(pc.getComponentId())) {
-                            defaultMap.put(spec.getSpecName(), item); // ✅ chọn đúng default
+                            defaultMap.put(spec.getSpecName(), item); 
                             break;
                         }
                     }

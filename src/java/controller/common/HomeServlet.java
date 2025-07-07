@@ -21,22 +21,14 @@ public class HomeServlet extends HttpServlet {
 
         ItemDAO dao = new ItemDAO();
         BrandDAO brandDAO = new BrandDAO();
-
-        // Lấy danh sách PC (giới hạn 10 sản phẩm)
         List<Item> pcItems = dao.getPCItems(10);
-
-        // Lấy danh sách các danh mục linh kiện (CPU, RAM,...)
         ComponentCategoryDAO categoryDAO = new ComponentCategoryDAO();
         List<ComponentCategory> componentCategories = categoryDAO.getAll();
-
-        // Map<CategoryId, List<Item>> — mỗi loại 6 sản phẩm
         Map<Integer, List<Item>> componentItemsByCategory = new HashMap<>();
         for (ComponentCategory cat : componentCategories) {
             List<Item> items = dao.getItemsByComponentCategory(cat.getCategoryId(), 6);
             componentItemsByCategory.put(cat.getCategoryId(), items);
         }
-
-        // Xử lý lọc theo Brand (giữ nguyên)
         int minPrice = 0;
         int maxPrice = Integer.MAX_VALUE;
         String productCid = request.getParameter("productCid");
@@ -46,7 +38,6 @@ public class HomeServlet extends HttpServlet {
 
         List<Brand> productBrands;
         List<Brand> componentBrands;
-        // Lấy từ khóa tìm kiếm nếu có
 String searchKeyword = request.getParameter("search");
 List<Item> searchResults = null;
 
@@ -87,7 +78,6 @@ if (searchKeyword != null && !searchKeyword.trim().isEmpty()) {
             componentBrands = brandDAO.getAllComponentBrands();
         }
 
-        // Gửi dữ liệu qua JSP
         request.setAttribute("pcItems", pcItems);
         request.setAttribute("componentCategories", componentCategories);
         request.setAttribute("componentItemsByCategory", componentItemsByCategory);

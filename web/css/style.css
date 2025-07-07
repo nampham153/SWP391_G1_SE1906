@@ -697,17 +697,21 @@ body > .header .navbar .nav > li > a:hover > .label {
 body > .header .logo {
   float: left;
   font-size: 20px;
-  line-height: 50px;
+  line-height: 30px;
   text-align: center;
   padding: 0 10px;
   width: 220px;
   font-family: 'Kaushan Script', cursive;
   font-weight: 500;
-  height: 50px;
+  height: 30px;
   display: block;
 }
 body > .header .logo .icon {
-  margin-right: 10px;
+  width: 148px;
+  height: 58px;
+  margin-right: 4px;
+  vertical-align: middle;
+  object-fit: contain;
 }
 .right-side > .content-header {
   position: relative;

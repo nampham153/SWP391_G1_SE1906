@@ -1,3 +1,4 @@
+// ProductDAO.java
 package dao;
 
 import context.DBContext;
@@ -18,8 +19,8 @@ public class ProductDAO {
         dbContext = new DBContext();
     }
 
-    public void createProduct(String id, int categoryId, String itemName, int stock, double price, int views) {
-        String sqlItem = "INSERT INTO Item (SerialNumber, ItemName, Stock, Price, Views) VALUES (?, ?, ?, ?, ?)";
+    public void createProduct(String id, int categoryId, String itemName, int stock, double price, int views, String description) {
+        String sqlItem = "INSERT INTO Item (SerialNumber, ItemName, Stock, Price, Views, Description) VALUES (?, ?, ?, ?, ?, ?)";
         String sqlProduct = "INSERT INTO Product (ProductId, CategoryId) VALUES (?, ?)";
         try (Connection conn = dbContext.getConnection();
              PreparedStatement psItem = conn.prepareStatement(sqlItem);
@@ -29,6 +30,7 @@ public class ProductDAO {
             psItem.setInt(3, stock);
             psItem.setDouble(4, price);
             psItem.setInt(5, views);
+            psItem.setString(6, description);
             psItem.executeUpdate();
             psProduct.setString(1, id);
             psProduct.setInt(2, categoryId);
@@ -56,14 +58,14 @@ public class ProductDAO {
     }
 
     public Product getProductById(String productId) {
-        String sql = "SELECT p.ProductId, p.CategoryId, i.SerialNumber, i.ItemName, i.Stock, i.Price, i.Views " +
+        String sql = "SELECT p.ProductId, p.CategoryId, i.SerialNumber, i.ItemName, i.Stock, i.Price, i.Views, i.Description " +
                      "FROM Product p LEFT JOIN Item i ON p.ProductId = i.SerialNumber WHERE p.ProductId = ?";
         try (Connection conn = dbContext.getConnection();
              PreparedStatement statement = conn.prepareStatement(sql)) {
             statement.setString(1, productId);
             try (ResultSet rs = statement.executeQuery()) {
                 if (rs.next()) {
-                    Product p = new Product(rs.getString("ProductId"), rs.getInt("CategoryId"));
+                    return new Product(rs.getString("ProductId"), rs.getInt("CategoryId"));
                 }
             }
         } catch (ClassNotFoundException | SQLException ex) {
@@ -72,9 +74,9 @@ public class ProductDAO {
         return null;
     }
 
-    public void updateProduct(String id, int categoryId, String itemName, int stock, double price, int views) {
+    public void updateProduct(String id, int categoryId, String itemName, int stock, double price, int views, String description) {
         String sqlProduct = "UPDATE Product SET CategoryId = ? WHERE ProductId = ?";
-        String sqlItem = "UPDATE Item SET ItemName = ?, Stock = ?, Price = ?, Views = ? WHERE SerialNumber = ?";
+        String sqlItem = "UPDATE Item SET ItemName = ?, Stock = ?, Price = ?, Views = ?, Description = ? WHERE SerialNumber = ?";
         try (Connection conn = dbContext.getConnection();
              PreparedStatement psProduct = conn.prepareStatement(sqlProduct);
              PreparedStatement psItem = conn.prepareStatement(sqlItem)) {
@@ -85,7 +87,8 @@ public class ProductDAO {
             psItem.setInt(2, stock);
             psItem.setDouble(3, price);
             psItem.setInt(4, views);
-            psItem.setString(5, id);
+            psItem.setString(5, description);
+            psItem.setString(6, id);
             psItem.executeUpdate();
         } catch (ClassNotFoundException | SQLException ex) {
             Logger.getLogger(ProductDAO.class.getName()).log(Level.SEVERE, "Lỗi khi cập nhật sản phẩm", ex);

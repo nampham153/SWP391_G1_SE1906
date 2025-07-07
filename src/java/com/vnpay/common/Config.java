@@ -14,6 +14,7 @@ import java.util.Random;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import jakarta.servlet.http.HttpServletRequest;
+import java.net.URLEncoder;
 
 /**
  *
@@ -22,7 +23,7 @@ import jakarta.servlet.http.HttpServletRequest;
 public class Config {
 
     public static String vnp_PayUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-    public static String vnp_ReturnUrl = "https://c30a-171-224-28-80.ngrok-free.app/SWP391_G1/vnpay_return";
+    public static String vnp_ReturnUrl = "https://cc21-58-186-76-110.ngrok-free.app/SWP391_G1/vnpay_return";
     public static String vnp_TmnCode = "UCNHR6J7";
     public static String secretKey = "3O4VXO15KDPHZ1TW1O3CPRCSBCWT5QOA";
     public static String vnp_ApiUrl = "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction";
@@ -63,26 +64,30 @@ public class Config {
         return digest;
     }
 
-    //Util for VNPAY
-    public static String hashAllFields(Map fields) {
-        List fieldNames = new ArrayList(fields.keySet());
-        Collections.sort(fieldNames);
-        StringBuilder sb = new StringBuilder();
-        Iterator itr = fieldNames.iterator();
-        while (itr.hasNext()) {
-            String fieldName = (String) itr.next();
-            String fieldValue = (String) fields.get(fieldName);
-            if ((fieldValue != null) && (fieldValue.length() > 0)) {
-                sb.append(fieldName);
-                sb.append("=");
-                sb.append(fieldValue);
-            }
-            if (itr.hasNext()) {
-                sb.append("&");
+public static String hashAllFields(Map<String, String> fields) {
+    List<String> fieldNames = new ArrayList<>(fields.keySet());
+    Collections.sort(fieldNames);
+
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < fieldNames.size(); i++) {
+        String fieldName = fieldNames.get(i);
+        String fieldValue = fields.get(fieldName);
+        if (fieldValue != null && !fieldValue.isEmpty()) {
+            try {
+                sb.append(fieldName).append("=")
+                  .append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII.toString()));
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
             }
         }
-        return hmacSHA512(secretKey,sb.toString());
+        if (i != fieldNames.size() - 1) {
+            sb.append("&");
+        }
     }
+
+    return hmacSHA512(secretKey, sb.toString());
+}
+
     
     public static String hmacSHA512(final String key, final String data) {
         try {
@@ -129,4 +134,5 @@ public class Config {
         }
         return sb.toString();
     }
+
 }
