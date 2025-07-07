@@ -5,6 +5,9 @@ import model.CustomerOrder;
 
 import java.math.BigDecimal;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+import model.CartItem;
 
 public class CustomerOrderDAO extends DBContext {
 
@@ -118,17 +121,40 @@ System.out.println("✅ Rows affected = " + rows);
     }
     return null;
 }
+public List<CartItem> getCartItemsOfOrder(int orderId) {
+    List<CartItem> list = new ArrayList<>();
+    String sql = "SELECT ItemId, Quantity FROM OrderDetail WHERE OrderId = ?";
+
+    try (Connection conn = getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        ps.setInt(1, orderId);
+        ResultSet rs = ps.executeQuery();
+
+        while (rs.next()) {
+            CartItem item = new CartItem();
+            item.setItemId(rs.getString("ItemId"));
+            item.setQuantity(rs.getInt("Quantity"));
+            list.add(item);
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return list;
+}
+
+
 
 
 public static void main(String[] args) {
     CustomerOrderDAO dao = new CustomerOrderDAO();
-
-    // ⚠️ Đảm bảo đơn hàng với OrderId = 44 đã tồn tại trong DB
     CustomerOrder testOrder = new CustomerOrder();
-    testOrder.setOrderId(44);         // ID của đơn cần update
-    testOrder.setOrderStatus(1);      // 1 = đã thanh toán, bạn có thể thử 2 = thất bại
+    testOrder.setOrderId(44);  
+    testOrder.setOrderStatus(1); 
 
-    dao.updateOrderStatus(testOrder); // Gọi hàm cập nhật
+    dao.updateOrderStatus(testOrder); 
 }
 
 }

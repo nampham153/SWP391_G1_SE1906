@@ -17,8 +17,8 @@
     <link href="${pageContext.request.contextPath}/css/prettyPhoto.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/price-range.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/animate.css" rel="stylesheet">
-	<link href="${pageContext.request.contextPath}/css/main.css" rel="stylesheet">
-	<link href="${pageContext.request.contextPath}/css/responsive.css" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/main.css" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/css/responsive.css" rel="stylesheet">
     <!--[if lt IE 9]>
     <script src="js/html5shiv.js"></script>
     <script src="js/respond.min.js"></script>
@@ -29,9 +29,13 @@
     <link rel="apple-touch-icon-precomposed" sizes="72x72" href="${pageContext.request.contextPath}/images/ico/apple-touch-icon-72-precomposed.png">
     <link rel="apple-touch-icon-precomposed" href="${pageContext.request.contextPath}/images/ico/apple-touch-icon-57-precomposed.png">
 </head><!--/head-->
-
+<style>
+    #loginContainer {
+    margin-top: 30px;
+}
+</style>
 <section id="form"><!--form-->
-    <div class="container">
+    <div class="container" id="loginContainer">
         <div class="row">
             <div class="col-sm-4 col-sm-offset-1">
                 <div class="login-form"><!--login form-->
@@ -47,30 +51,29 @@
                     </form>
 
                     <c:if test="${valid == false || not empty message}">
-    <div id="loginMessage" style="color: red; margin-top: 10px;">
-        <c:choose>
-            <c:when test="${not empty message}">
-                ${message}
-            </c:when>
-            <c:otherwise>
-                Invalid phone number or password.
-            </c:otherwise>
-        </c:choose>
-    </div>
-</c:if>
-
-                </div><!--/login form-->
+                        <div id="loginMessage" style="color: red; margin-top: 10px;">
+                            <c:choose>
+                                <c:when test="${not empty message}">
+                                    ${message}
+                                </c:when>
+                                <c:otherwise>
+                                    Invalid phone number or password.
+                                </c:otherwise>
+                            </c:choose>
+                        </div>
+                    </c:if>
+                </div>
             </div>
             <div class="col-sm-1">
                 <h2 class="or">OR</h2>
             </div>
             <div class="col-sm-4">
-                <div class="signup-form"><!--sign up form-->
+                <div class="signup-form">
                     <h2>New User?</h2>
                     <p>Create an account to enjoy all our services</p>
                     <a href="${pageContext.request.contextPath}/register" class="btn btn-default">Register Now</a>
-                </div><!--/sign up form-->
+                </div>
             </div>
         </div>
     </div>
-</section><!--/form-->
+</section>

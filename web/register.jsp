@@ -79,19 +79,16 @@ function validateForm() {
     const birthdate = document.forms[0]["birthdate"].value;
     const today = new Date().toISOString().split("T")[0];
 
-    // Phone: bắt đầu bằng 0, đúng 11 số
     if (!/^0\d{10}$/.test(phone)) {
         alert("Số điện thoại phải bắt đầu bằng 0 và có 11 chữ số.");
         return false;
     }
 
-    // Password: ít nhất 6 ký tự, không có khoảng trắng
     if (password.length < 6 || password.includes(" ")) {
         alert("Mật khẩu phải có ít nhất 6 ký tự và không chứa khoảng trắng.");
         return false;
     }
 
-    // Name: tối thiểu 3 ký tự, không toàn khoảng trắng, không quá 5 khoảng trắng, không ký tự đặc biệt
     if (name.length < 3) {
         alert("Tên phải có ít nhất 3 ký tự.");
         return false;
@@ -107,14 +104,11 @@ function validateForm() {
         alert("Tên chỉ được chứa chữ cái và khoảng trắng.");
         return false;
     }
-
-    // Email
     if (!/^\S+@\S+\.\S+$/.test(email)) {
         alert("Email không hợp lệ.");
         return false;
     }
 
-    // Birthdate
     if (!birthdate) {
         alert("Vui lòng nhập ngày sinh.");
         return false;
