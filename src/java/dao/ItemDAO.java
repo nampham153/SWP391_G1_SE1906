@@ -220,7 +220,6 @@ public class ItemDAO extends DBContext {
         }
         return null;
     }
-    // ✅ Bổ sung trong ItemDAO.java
     public boolean decreaseStockTransactional(Connection conn, String serialNumber, int quantity) throws SQLException {
         String sql = "UPDATE Item SET Stock = Stock - ? WHERE SerialNumber = ? AND Stock >= ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -231,6 +230,22 @@ public class ItemDAO extends DBContext {
             return affectedRows > 0;
         }
     }
+    public Item getItemByIdForUpdate(Connection conn, String itemId) throws SQLException {
+    String sql = "SELECT * FROM Item WHERE serialNumber = ? FOR UPDATE";
+    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setString(1, itemId);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            Item item = new Item();
+            item.setSerialNumber(rs.getString("serialNumber"));
+            item.setItemName(rs.getString("itemName"));
+            item.setStock(rs.getInt("stock"));
+            item.setPrice(rs.getBigDecimal("price"));
+            return item;
+        }
+    }
+    return null;
+}
 public static void main(String[] args) {
     ItemDAO dao = new ItemDAO();
     String testSerial = "PC001";  
@@ -238,17 +253,17 @@ public static void main(String[] args) {
     Item item = dao.getItemById(testSerial);
 
     if (item != null) {
-        System.out.println("🔍 Thông tin sản phẩm:");
-        System.out.println("🆔 Serial Number: " + item.getSerialNumber());
-        System.out.println("📦 Tên: " + item.getItemName());
-        System.out.println("💲 Giá: " + item.getPrice());
-        System.out.println("👀 Lượt xem: " + item.getViews());
-        System.out.println("📝 Mô tả: " + item.getDescription());
-        System.out.println("📉 Số lượng tồn kho: " + item.getStock());
+        System.out.println(" Thông tin sản phẩm:");
+        System.out.println(" Serial Number: " + item.getSerialNumber());
+        System.out.println(" Tên: " + item.getItemName());
+        System.out.println(" Giá: " + item.getPrice());
+        System.out.println(" Lượt xem: " + item.getViews());
+        System.out.println(" Mô tả: " + item.getDescription());
+        System.out.println(" Số lượng tồn kho: " + item.getStock());
         if (item.getImage() != null) {
-            System.out.println("🖼️ Ảnh: " + item.getImage().getImageContent());
+            System.out.println("️ Ảnh: " + item.getImage().getImageContent());
         } else {
-            System.out.println("🖼️ Ảnh: (không có)");
+            System.out.println("️ Ảnh: (không có)");
         }
     } else {
         System.out.println("❌ Không tìm thấy sản phẩm với mã: " + testSerial);

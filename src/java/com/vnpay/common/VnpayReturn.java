@@ -1,14 +1,18 @@
 package com.vnpay.common;
 
+import context.DBContext;
+import dao.CartDAO;
+import dao.CartItemDAO;
 import dao.CustomerOrderDAO;
 import dao.ItemDAO;
+import model.Cart;
 import model.CartItem;
 import model.CustomerOrder;
 
-import java.io.IOException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
@@ -22,12 +26,10 @@ public class VnpayReturn extends HttpServlet {
             throws ServletException, IOException {
 
         response.setContentType("text/html;charset=UTF-8");
-
         System.out.println(" [VNPayReturn] Servlet triggered.");
 
-        // Lấy các tham số từ VNPay
         Map<String, String> fields = new HashMap<>();
-        for (Enumeration<String> params = request.getParameterNames(); params.hasMoreElements(); ) {
+        for (Enumeration<String> params = request.getParameterNames(); params.hasMoreElements();) {
             String fieldName = params.nextElement();
             String fieldValue = request.getParameter(fieldName);
             if (fieldValue != null && !fieldValue.isEmpty()) {
@@ -41,13 +43,10 @@ public class VnpayReturn extends HttpServlet {
         fields.remove("vnp_SecureHashType");
 
         String signValue = Config.hashAllFields(fields);
-        System.out.println(" Calculated sign = " + signValue);
-        System.out.println(" Received sign   = " + vnp_SecureHash);
-
         boolean isSuccess = false;
 
         if (signValue.equals(vnp_SecureHash)) {
-            System.out.println(" [Signature OK] Processing transaction...");
+            System.out.println("✅ [Signature OK]");
 
             String orderIdStr = request.getParameter("vnp_TxnRef");
             String vnpStatus = request.getParameter("vnp_TransactionStatus");
@@ -58,40 +57,52 @@ public class VnpayReturn extends HttpServlet {
                 order.setOrderId(orderId);
 
                 if ("00".equals(vnpStatus)) {
-                    order.setOrderStatus(1);
-                    isSuccess = true;
-                    System.out.println(" Transaction Success: OrderId = " + orderId);
-                    try (Connection conn = orderDao.getConnection()) {
-                        conn.setAutoCommit(false); 
+                    try (Connection conn = new DBContext().getConnection()) {
+                        conn.setAutoCommit(false);
 
-                        List<CartItem> items = orderDao.getCartItemsOfOrder(orderId); 
-                        ItemDAO itemDAO = new ItemDAO();
+                        List<CartItem> items = orderDao.getCartItemsOfOrder(orderId);
 
-                        for (CartItem item : items) {
-                            boolean success = itemDAO.decreaseStockTransactional(conn, item.getItemId(), item.getQuantity());
-                            if (!success) {
-                                throw new SQLException("Không đủ hàng cho sản phẩm: " + item.getItemId());
+                        boolean success = orderDao.decreaseStockIfEnough(conn, items);
+                        if (!success) {
+                            conn.rollback();
+                            throw new SQLException(" Không đủ hàng cho đơn hàng #" + orderId);
+                        }
+
+                        String customerId = orderDao.getOrderById(orderId).getCustomerId();
+                        if (customerId != null) {
+                            CartDAO cartDAO = new CartDAO();
+                            CartItemDAO cartItemDAO = new CartItemDAO();
+                            Cart cart = cartDAO.getCartByCustomerId(customerId);
+                            if (cart != null) {
+                                cartItemDAO.clearCart(cart.getCartId());
+                                System.out.println("🧹 Đã xóa giỏ hàng của KH đăng nhập: " + customerId);
+                            }
+                        } else {
+                            HttpSession session = request.getSession(false);
+                            if (session != null) {
+                                session.removeAttribute("cart");
+                                System.out.println("🧹 Đã xóa giỏ hàng session của guest");
                             }
                         }
 
                         conn.commit();
-                        System.out.println("✅ Đã trừ kho thành công cho đơn hàng: " + orderId);
-
+                        order.setOrderStatus(1);
+                        isSuccess = true;
+                        System.out.println(" Đã xử lý đơn hàng VNPay #" + orderId);
                     } catch (Exception e) {
                         e.printStackTrace();
-                        System.err.println("❌ Lỗi khi trừ kho. Rollback...");
+                        System.err.println(" Lỗi khi xử lý đơn hàng, rollback...");
+                        order.setOrderStatus(2); 
                     }
-
                 } else {
-                    order.setOrderStatus(2); // Thất bại
-                    System.out.println(" Transaction Failed: OrderId = " + orderId + ", Status = " + vnpStatus);
+                    order.setOrderStatus(2); 
+                    System.out.println(" VNPay trả về lỗi: OrderId = " + orderId + ", Status = " + vnpStatus);
                 }
 
-                System.out.println("️ Updating Order: " + order.getOrderId() + " → Status = " + order.getOrderStatus());
                 orderDao.updateOrderStatus(order);
 
             } catch (NumberFormatException e) {
-                System.err.println("️ Lỗi parse orderId: " + orderIdStr);
+                System.err.println(" Lỗi định dạng OrderId: " + request.getParameter("vnp_TxnRef"));
                 e.printStackTrace();
             }
 

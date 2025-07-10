@@ -2,12 +2,13 @@ package dao;
 
 import context.DBContext;
 import model.CustomerOrder;
+import model.CartItem;
+import model.Item;
 
 import java.math.BigDecimal;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import model.CartItem;
 
 public class CustomerOrderDAO extends DBContext {
 
@@ -61,14 +62,14 @@ public class CustomerOrderDAO extends DBContext {
             }
 
             int rowsAffected = ps.executeUpdate();
-            System.out.println("✅ Rows affected: " + rowsAffected);
+            System.out.println(" Rows affected: " + rowsAffected);
 
             ResultSet rs = ps.getGeneratedKeys();
             if (rs.next()) {
                 orderId = rs.getInt(1);
-                System.out.println("✅ Generated OrderId: " + orderId);
+                System.out.println(" Generated OrderId: " + orderId);
             } else {
-                System.out.println("❌ No generated key returned.");
+                System.out.println(" No generated key returned.");
             }
 
         } catch (Exception e) {
@@ -78,83 +79,143 @@ public class CustomerOrderDAO extends DBContext {
         return orderId;
     }
 
-public void updateOrderStatus(CustomerOrder order) {
-    String sql = "UPDATE CustomerOrder SET OrderStatus = ? WHERE OrderId = ?";
-    try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-        ps.setInt(1, order.getOrderStatus());
-        ps.setInt(2, order.getOrderId());
-        int rows = ps.executeUpdate();
-        System.out.println("🛠️ UPDATE orderId = " + order.getOrderId() + ", status = " + order.getOrderStatus());
-System.out.println("✅ Rows affected = " + rows);
+    public void updateOrderStatus(CustomerOrder order) {
+        String sql = "UPDATE CustomerOrder SET OrderStatus = ? WHERE OrderId = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, order.getOrderStatus());
+            ps.setInt(2, order.getOrderId());
+            int rows = ps.executeUpdate();
+            System.out.println("️ UPDATE orderId = " + order.getOrderId() + ", status = " + order.getOrderStatus());
+            System.out.println(" Rows affected = " + rows);
 
-    } catch (Exception e) {
-        e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
-}
 
     public CustomerOrder getOrderById(int orderId) {
-    String sql = "SELECT * FROM CustomerOrder WHERE OrderId = ?";
-    try (Connection conn = getConnection();
+        String sql = "SELECT * FROM CustomerOrder WHERE OrderId = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, orderId);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                CustomerOrder order = new CustomerOrder();
+                order.setOrderId(rs.getInt("OrderId"));
+                order.setOrderDate(rs.getDate("OrderDate"));
+                order.setOrderAddress(rs.getString("OrderAddress"));
+                order.setOrderPhone(rs.getString("OrderPhone"));
+                order.setOrderEmail(rs.getString("OrderEmail"));
+                order.setShippingFee(rs.getBigDecimal("ShippingFee"));
+                order.setAdditionalFee(rs.getBigDecimal("AdditionalFee"));
+                order.setNote(rs.getString("Note"));
+                order.setCustomerId(rs.getString("CustomerId"));
+                order.setTotal(rs.getBigDecimal("Total"));
+                order.setOrderStatus(rs.getInt("OrderStatus"));
+                return order;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public List<CartItem> getCartItemsOfOrder(int orderId) {
+        List<CartItem> list = new ArrayList<>();
+        String sql = "SELECT ItemId, Quantity FROM ItemOrder WHERE OrderId = ?";
+
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, orderId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                CartItem item = new CartItem();
+                item.setItemId(rs.getString("ItemId"));
+                item.setQuantity(rs.getInt("Quantity"));
+                list.add(item);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+public boolean insertItemOrderBatch(int orderId, List<CartItem> items) {
+    System.out.println(" insertItemOrderBatch được gọi với OrderId = " + orderId + ", số lượng items = " + items.size());
+    String sql = "INSERT INTO ItemOrder (OrderId, ItemId, Quantity, ListPrice) VALUES (?, ?, ?, ?)";
+    try (Connection conn = new DBContext().getConnection();
          PreparedStatement ps = conn.prepareStatement(sql)) {
 
-        ps.setInt(1, orderId);
-        ResultSet rs = ps.executeQuery();
-
-        if (rs.next()) {
-            CustomerOrder order = new CustomerOrder();
-            order.setOrderId(rs.getInt("OrderId"));
-            order.setOrderDate(rs.getDate("OrderDate"));
-            order.setOrderAddress(rs.getString("OrderAddress"));
-            order.setOrderPhone(rs.getString("OrderPhone"));
-            order.setOrderEmail(rs.getString("OrderEmail"));
-            order.setShippingFee(rs.getBigDecimal("ShippingFee"));
-            order.setAdditionalFee(rs.getBigDecimal("AdditionalFee"));
-            order.setNote(rs.getString("Note"));
-            order.setCustomerId(rs.getString("CustomerId"));
-            order.setTotal(rs.getBigDecimal("Total"));
-            order.setOrderStatus(rs.getInt("OrderStatus"));
-            return order;
+        for (CartItem ci : items) {
+            ps.setInt(1, orderId);
+            ps.setString(2, ci.getItemId()); 
+            ps.setInt(3, ci.getQuantity());
+            ps.setBigDecimal(4, ci.getItemDetail().getPrice()); 
+            ps.addBatch();
         }
+
+        ps.executeBatch();
+        return true;
 
     } catch (Exception e) {
         e.printStackTrace();
+        return false;
     }
-    return null;
 }
-public List<CartItem> getCartItemsOfOrder(int orderId) {
-    List<CartItem> list = new ArrayList<>();
-    String sql = "SELECT ItemId, Quantity FROM OrderDetail WHERE OrderId = ?";
 
-    try (Connection conn = getConnection();
-         PreparedStatement ps = conn.prepareStatement(sql)) {
 
-        ps.setInt(1, orderId);
-        ResultSet rs = ps.executeQuery();
 
-        while (rs.next()) {
-            CartItem item = new CartItem();
-            item.setItemId(rs.getString("ItemId"));
-            item.setQuantity(rs.getInt("Quantity"));
-            list.add(item);
+
+public boolean decreaseStockIfEnough(Connection conn, List<CartItem> items) throws SQLException {
+    ItemDAO itemDAO = new ItemDAO();
+    for (CartItem item : items) {
+        Item fullItem = itemDAO.getItemByIdForUpdate(conn, item.getItemId());
+        if (fullItem == null || fullItem.getStock() < item.getQuantity()) {
+            System.out.println(" Không đủ hàng: " + item.getItemId());
+            return false;
         }
+    }
+
+    for (CartItem item : items) {
+        boolean ok = itemDAO.decreaseStockTransactional(conn, item.getItemId(), item.getQuantity());
+        if (!ok) return false;
+    }
+
+    return true;
+}
+
+    public static void main(String[] args) {
+    try {
+        DBContext db = new DBContext();
+        CustomerOrderDAO dao = new CustomerOrderDAO();
+        ItemDAO itemDAO = new ItemDAO();
+        List<CartItem> cartItems = new ArrayList<>();
+        String itemId = "PC001"; 
+        int quantity = 2;
+
+        Item item = itemDAO.getItemById(itemId);
+        if (item == null) {
+            System.out.println(" Item không tồn tại trong DB: " + itemId);
+            return;
+        }
+
+        CartItem cartItem = new CartItem();
+        cartItem.setItemId(itemId);
+        cartItem.setQuantity(quantity);
+        cartItems.add(cartItem);
+        int orderId = 70; 
 
     } catch (Exception e) {
         e.printStackTrace();
+        System.out.println(" Lỗi khi test insertItemOrderBatch");
     }
-
-    return list;
-}
-
-
-
-
-public static void main(String[] args) {
-    CustomerOrderDAO dao = new CustomerOrderDAO();
-    CustomerOrder testOrder = new CustomerOrder();
-    testOrder.setOrderId(44);  
-    testOrder.setOrderStatus(1); 
-
-    dao.updateOrderStatus(testOrder); 
 }
 
 }

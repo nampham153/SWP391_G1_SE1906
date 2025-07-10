@@ -119,5 +119,15 @@ public class CartItemDAO extends DBContext {
     }
     return 0;
 }
+    public void clearCart(int cartId) {
+    String sql = "DELETE FROM CartItem WHERE CartId = ?";
+    try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setInt(1, cartId);
+        ps.executeUpdate();
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
+
 
 }
