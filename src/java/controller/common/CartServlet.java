@@ -98,7 +98,15 @@ public class CartServlet extends HttpServlet {
         String itemId = request.getParameter("itemId");
         String action = request.getParameter("action");
 
-        System.out.println("===> doPost: action = " + action + ", itemId = " + itemId + ", isGuest = " + isGuest);
+        int currentQtyParam = 0;
+        try {
+            currentQtyParam = Integer.parseInt(request.getParameter("currentQty"));
+        } catch (NumberFormatException e) {
+            currentQtyParam = 0;
+        }
+
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
 
         if (isGuest) {
             @SuppressWarnings("unchecked")
@@ -110,11 +118,17 @@ public class CartServlet extends HttpServlet {
             CartItem existingItem = cart.get(itemId);
 
             switch (action) {
-                case "add":
+                case "add": {
+                    Item item = itemDAO.getItemById(itemId);
+
+                    if (item.getStock() < currentQtyParam) {
+                        response.getWriter().write("{\"error\":\"Sản phẩm chỉ còn " + item.getStock() + " cái trong kho.\"}");
+                        return;
+                    }
+
                     if (existingItem != null) {
-                        existingItem.setQuantity(existingItem.getQuantity() + 1);
+                        existingItem.setQuantity(currentQtyParam);
                     } else {
-                        Item item = itemDAO.getItemById(itemId);
                         if (itemId.startsWith("P")) {
                             BigDecimal pcTotal = productComponentDAO.getTotalPriceOfProduct(itemId);
                             item.setPrice(pcTotal);
@@ -127,6 +141,7 @@ public class CartServlet extends HttpServlet {
                         cart.put(itemId, newItem);
                     }
                     break;
+                }
 
                 case "removeOne":
                     if (existingItem != null) {
@@ -155,9 +170,19 @@ public class CartServlet extends HttpServlet {
             }
 
             switch (action) {
-                case "add":
+                case "add": {
+                    CartItem existingItem = cartItemDAO.getCartItem(cart.getCartId(), itemId);
+                    int currentQty = existingItem != null ? existingItem.getQuantity() : 0;
+
+                    Item item = itemDAO.getItemById(itemId);
+                    if (item.getStock() < currentQtyParam + 1) {
+                        response.getWriter().write("{\"error\":\"Sản phẩm chỉ còn " + item.getStock() + " cái trong kho.\"}");
+                        return;
+                    }
+
                     cartItemDAO.addOrUpdateItem(cart.getCartId(), itemId, 1);
                     break;
+                }
 
                 case "removeOne":
                     CartItem existingItem = cartItemDAO.getCartItem(cart.getCartId(), itemId);
@@ -177,12 +202,6 @@ public class CartServlet extends HttpServlet {
             }
         }
 
-        String requestedWith = request.getHeader("X-Requested-With");
-        if ("XMLHttpRequest".equals(requestedWith)) {
-            response.setContentType("application/json");
-            response.getWriter().write("{\"status\":\"ok\"}");
-        } else {
-            response.sendRedirect("cart");
-        }
+        response.getWriter().write("{\"status\":\"ok\"}");
     }
 }

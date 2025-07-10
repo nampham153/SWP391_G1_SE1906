@@ -1,11 +1,7 @@
 package controller.common;
 
-import dao.CartDAO;
-import dao.CartItemDAO;
-import dao.CustomerAddressDAO;
-import dao.CustomerOrderDAO;
-import dao.ItemDAO;
-import dao.ProductComponentDAO;
+import context.DBContext;
+import dao.*;
 import model.*;
 
 import java.io.IOException;
@@ -13,6 +9,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.*;
 
 @WebServlet("/checkout")
@@ -22,7 +20,6 @@ public class CheckoutServlet extends HttpServlet {
     private final CartItemDAO cartItemDAO = new CartItemDAO();
     private final ItemDAO itemDAO = new ItemDAO();
     private final ProductComponentDAO productComponentDAO = new ProductComponentDAO();
-
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -63,10 +60,11 @@ public class CheckoutServlet extends HttpServlet {
                 }
             }
         }
-System.out.println("🟡 Số lượng item trong checkout: " + items.size());
-for (CartItem ci : items) {
-    System.out.println("➡️ " + ci.getItemId() + " x " + ci.getQuantity());
-}
+
+        if (items.isEmpty()) {
+            response.sendRedirect("cart");
+            return;
+        }
 
         request.setAttribute("cartItems", items);
         request.setAttribute("cartTotal", total);
@@ -80,16 +78,14 @@ for (CartItem ci : items) {
 
         HttpSession session = request.getSession();
         Account account = (Account) session.getAttribute("account");
-        
+
         List<CartItem> cartItems = new ArrayList<>();
         BigDecimal total = BigDecimal.ZERO;
 
         if (account == null) {
             Map<String, CartItem> guestCart = (Map<String, CartItem>) session.getAttribute("cart");
             if (guestCart == null || guestCart.isEmpty()) {
-                response.setContentType("application/json");
-                response.setCharacterEncoding("UTF-8");
-                response.getWriter().write("{\"error\":\"Giỏ hàng trống.\"}");
+                respondWithError(response, "Giỏ hàng trống.");
                 return;
             }
 
@@ -107,17 +103,13 @@ for (CartItem ci : items) {
         } else {
             Cart cart = cartDAO.getCartByCustomerId(account.getPhone());
             if (cart == null) {
-                response.setContentType("application/json");
-                response.setCharacterEncoding("UTF-8");
-                response.getWriter().write("{\"error\":\"Không tìm thấy giỏ hàng.\"}");
+                respondWithError(response, "Không tìm thấy giỏ hàng.");
                 return;
             }
 
             cartItems = cartItemDAO.getItemsInCart(cart.getCartId());
             if (cartItems == null || cartItems.isEmpty()) {
-                response.setContentType("application/json");
-                response.setCharacterEncoding("UTF-8");
-                response.getWriter().write("{\"error\":\"Giỏ hàng đang trống.\"}");
+                respondWithError(response, "Giỏ hàng đang trống.");
                 return;
             }
 
@@ -131,14 +123,12 @@ for (CartItem ci : items) {
                 total = total.add(fullItem.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
             }
         }
-
-        // Lấy thông tin khách
         String address = request.getParameter("address");
         String phone = request.getParameter("phone");
         String email = request.getParameter("email");
         String noteInput = request.getParameter("note");
+        String paymentMethod = request.getParameter("payment");
 
-        // Lấy các thông tin phụ để ghi vào note
         String title = request.getParameter("title");
         String firstName = request.getParameter("firstName");
         String middleName = request.getParameter("middleName");
@@ -147,19 +137,19 @@ for (CartItem ci : items) {
         String country = request.getParameter("country");
         String province = request.getParameter("province");
         String fax = request.getParameter("fax");
-        System.out.println("📦 Address from form = " + address);
+
         StringBuilder noteBuilder = new StringBuilder();
         if (account == null) {
             noteBuilder.append("Khách vãng lai: ")
-                .append(title != null ? title + " " : "")
-                .append(firstName != null ? firstName + " " : "")
-                .append(middleName != null ? middleName + " " : "")
-                .append(lastName != null ? lastName : "")
-                .append("\nĐịa chỉ: ").append(address != null ? address : "")
-                .append("\nMã bưu điện: ").append(zipcode != null ? zipcode : "")
-                .append("\nQuốc gia: ").append(country != null ? country : "")
-                .append("\nTỉnh/thành: ").append(province != null ? province : "")
-                .append("\nSố fax: ").append(fax != null ? fax : "");
+                    .append(title != null ? title + " " : "")
+                    .append(firstName != null ? firstName + " " : "")
+                    .append(middleName != null ? middleName + " " : "")
+                    .append(lastName != null ? lastName : "")
+                    .append("\nĐịa chỉ: ").append(address != null ? address : "")
+                    .append("\nMã bưu điện: ").append(zipcode != null ? zipcode : "")
+                    .append("\nQuốc gia: ").append(country != null ? country : "")
+                    .append("\nTỉnh/thành: ").append(province != null ? province : "")
+                    .append("\nSố fax: ").append(fax != null ? fax : "");
         }
 
         if (noteInput != null && !noteInput.trim().isEmpty()) {
@@ -179,11 +169,16 @@ for (CartItem ci : items) {
         order.setNote(note);
         order.setCustomerId(account != null && account.getRoleId() == 1 ? account.getPhone() : null);
         order.setTotal(total);
-        order.setOrderStatus(0);
+        order.setOrderStatus(0); 
 
         CustomerOrderDAO orderDAO = new CustomerOrderDAO();
         int orderId = orderDAO.insertCustomerOrderReturnId(order);
 
+        boolean inserted = orderDAO.insertItemOrderBatch(orderId, cartItems);
+        if (!inserted) {
+            respondWithError(response, "Không thể tạo chi tiết đơn hàng.");
+            return;
+        }
         if (account != null && account.getRoleId() == 1) {
             CustomerAddressDAO addrDAO = new CustomerAddressDAO();
             if (!addrDAO.hasAddress(account.getPhone())) {
@@ -193,13 +188,44 @@ for (CartItem ci : items) {
                 addrDAO.insert(addr);
             }
         }
+        if ("cod".equalsIgnoreCase(paymentMethod)) {
+            try (Connection conn = new DBContext().getConnection()) {
+                conn.setAutoCommit(false);
 
-        if (account == null) {
-            session.removeAttribute("cart");
+                boolean success = orderDAO.decreaseStockIfEnough(conn, cartItems);
+                if (!success) {
+                    conn.rollback();
+                    respondWithError(response, "Một số sản phẩm không đủ hàng.");
+                    return;
+                }
+
+                if (account == null) {
+                    session.removeAttribute("cart");
+                } else {
+                    Cart cart = cartDAO.getCartByCustomerId(account.getPhone());
+                    if (cart != null) {
+                        cartItemDAO.clearCart(cart.getCartId());
+                    }
+                }
+
+                order.setOrderStatus(1); 
+                order.setOrderId(orderId);
+                orderDAO.updateOrderStatus(order);
+                conn.commit();
+            } catch (Exception e) {
+                e.printStackTrace();
+                respondWithError(response, "Lỗi khi xử lý đơn hàng COD.");
+                return;
+            }
         }
-
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         response.getWriter().write("{\"orderId\":" + orderId + ", \"amount\":" + total.longValue() + "}");
+    }
+
+    private void respondWithError(HttpServletResponse response, String msg) throws IOException {
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write("{\"error\":\"" + msg + "\"}");
     }
 }

@@ -72,6 +72,7 @@
                                     <td class="cart_description">
                                         <h4>${item.itemName}</h4>
                                         <p>Web ID: ${item.serialNumber}</p>
+                                        <p> Stock: ${item.stock}</p>
                                     </td>
                                     <td class="cart_price">
                                         <p id="price-${item.serialNumber}">
@@ -166,6 +167,13 @@
         document.addEventListener("DOMContentLoaded", function () {
 
             window.updateQuantity = function (itemId, delta) {
+                const qtyInput = document.getElementById('qty-' + itemId);
+                let currentQty = parseInt(qtyInput.value);
+                let newQty = currentQty + delta;
+
+                if (newQty < 1)
+                    return;
+
                 fetch('${pageContext.request.contextPath}/cart', {
                     method: 'POST',
                     headers: {
@@ -174,19 +182,17 @@
                     },
                     body: new URLSearchParams({
                         action: delta > 0 ? 'add' : 'removeOne',
-                        itemId: itemId
+                        itemId: itemId,
+                        currentQty: newQty
                     })
                 })
                         .then(res => res.json())
                         .then(data => {
                             if (data.status === 'ok') {
-                                const qtyInput = document.getElementById('qty-' + itemId);
-                                let qty = parseInt(qtyInput.value) + delta;
-                                if (qty < 1)
-                                    qty = 1;
-                                qtyInput.value = qty;
-
+                                qtyInput.value = newQty;
                                 updateCartTotal();
+                            } else if (data.error) {
+                                alert(data.error);
                             }
                         })
                         .catch(err => console.error("Lỗi:", err));
@@ -210,7 +216,23 @@
                                 const row = document.getElementById('row-' + itemId);
                                 if (row)
                                     row.remove();
+
                                 updateCartTotal();
+
+                                //  Kiểm tra còn sản phẩm trong bảng không
+                                const remainingRows = document.querySelectorAll('tr[id^="row-"]');
+                                if (remainingRows.length === 0) {
+                                    // Hiển thị hàng giỏ hàng trống
+                                    const tbody = document.querySelector('tbody');
+                                    const emptyRow = document.createElement('tr');
+                                    emptyRow.innerHTML = '<td colspan="6" class="text-center">Giỏ hàng trống.</td>';
+                                    tbody.appendChild(emptyRow);
+
+                                    // Disable nút Check Out
+                                    const checkoutBtn = document.querySelector('.check_out');
+                                    checkoutBtn.disabled = true;
+                                    checkoutBtn.onclick = () => alert('Giỏ hàng trống! Vui lòng thêm sản phẩm trước khi thanh toán.');
+                                }
                             }
                         });
             };
