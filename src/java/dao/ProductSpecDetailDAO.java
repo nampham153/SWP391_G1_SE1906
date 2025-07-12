@@ -46,5 +46,30 @@ public class ProductSpecDetailDAO extends DBContext {
     }
     return result;
 }
+     public static void main(String[] args) {
+        ProductSpecDetailDAO dao = new ProductSpecDetailDAO();
+
+        // ⚠️ Thay bằng ID thật trong CSDL mà bạn muốn test, ví dụ "PC001", "PC003" v.v.
+        String testProductId = "PC003";
+
+        Map<ProductSpec, List<Item>> specMap = dao.getSpecDetailsByProduct(testProductId);
+
+        System.out.println("===== Kết quả truy vấn các cấu hình biến thể =====");
+
+        for (Map.Entry<ProductSpec, List<Item>> entry : specMap.entrySet()) {
+            ProductSpec spec = entry.getKey();
+            System.out.println("→ Spec: " + spec.getSpecId() + " | " + spec.getSpecName());
+
+            for (Item item : entry.getValue()) {
+                System.out.println("    - Item: " + item.getSerialNumber() +
+                        " | " + item.getItemName() +
+                        " | Giá: " + item.getPrice() + " VND");
+            }
+        }
+
+        if (specMap.isEmpty()) {
+            System.out.println("⚠️ Không tìm thấy biến thể nào cho productId = " + testProductId);
+        }
+    }
 
 }

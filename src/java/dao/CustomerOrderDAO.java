@@ -73,7 +73,7 @@ public class CustomerOrderDAO extends DBContext {
             }
 
         } catch (Exception e) {
-            System.err.println("❌ Exception when inserting CustomerOrder:");
+            System.err.println(" Exception when inserting CustomerOrder:");
             e.printStackTrace();
         }
         return orderId;
