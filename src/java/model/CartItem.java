@@ -4,23 +4,19 @@
  */
 package model;
 
-/**
- *
- * @author namp0
- */
-
-
 public class CartItem {
     private int cartId;
     private String itemId;
+    private String variantSignature; 
     private int quantity;
     private Item itemDetail;
 
     public CartItem() {}
 
-    public CartItem(int cartId, String itemId, int quantity) {
+    public CartItem(int cartId, String itemId, String variantSignature, int quantity) {
         this.cartId = cartId;
         this.itemId = itemId;
+        this.variantSignature = variantSignature;
         this.quantity = quantity;
     }
 
@@ -38,6 +34,14 @@ public class CartItem {
 
     public void setItemId(String itemId) {
         this.itemId = itemId;
+    }
+
+    public String getVariantSignature() {
+        return variantSignature;
+    }
+
+    public void setVariantSignature(String variantSignature) {
+        this.variantSignature = variantSignature;
     }
 
     public int getQuantity() {

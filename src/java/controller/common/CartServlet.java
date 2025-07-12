@@ -39,16 +39,15 @@ public class CartServlet extends HttpServlet {
                 List<CartItem> items = new ArrayList<>();
 
                 for (CartItem cartItem : sessionCart.values()) {
-                    Item fullItem = itemDAO.getItemById(cartItem.getItemId());
+                    Item item = itemDAO.getItemById(cartItem.getItemId());
 
                     if (cartItem.getItemId().startsWith("P")) {
-                        BigDecimal pcTotal = productComponentDAO.getTotalPriceOfProduct(cartItem.getItemId());
-                        fullItem.setPrice(pcTotal);
+                        BigDecimal pcTotal = productComponentDAO.getTotalPriceByVariant(cartItem.getItemId(), cartItem.getVariantSignature());
+                        item.setPrice(pcTotal);
                     }
 
-                    cartItem.setItemDetail(fullItem);
-                    BigDecimal itemTotal = fullItem.getPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity()));
-                    total = total.add(itemTotal);
+                    cartItem.setItemDetail(item);
+                    total = total.add(item.getPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity())));
                     items.add(cartItem);
                 }
 
@@ -57,8 +56,8 @@ public class CartServlet extends HttpServlet {
             }
 
         } else {
-            String cartOwner = acc.getPhone();
-            Cart cart = cartDAO.getCartByCustomerId(cartOwner);
+            String phone = acc.getPhone();
+            Cart cart = cartDAO.getCartByCustomerId(phone);
             if (cart == null) {
                 request.setAttribute("cartItems", null);
                 request.setAttribute("cartTotal", BigDecimal.ZERO);
@@ -75,8 +74,7 @@ public class CartServlet extends HttpServlet {
                     }
 
                     item.setItemDetail(fullItem);
-                    BigDecimal itemTotal = fullItem.getPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
-                    total = total.add(itemTotal);
+                    total = total.add(fullItem.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
                 }
 
                 request.setAttribute("cartItems", items);
@@ -95,15 +93,17 @@ public class CartServlet extends HttpServlet {
         HttpSession session = request.getSession();
         Account acc = (Account) session.getAttribute("account");
         boolean isGuest = (acc == null);
-        String itemId = request.getParameter("itemId");
-        String action = request.getParameter("action");
 
-        int currentQtyParam = 0;
+        String itemId = request.getParameter("itemId");
+        String variantSignature = request.getParameter("variantSignature") != null ? request.getParameter("variantSignature") : "";
+        String action = request.getParameter("action");
+        int quantity = 1;
+
         try {
-            currentQtyParam = Integer.parseInt(request.getParameter("currentQty"));
-        } catch (NumberFormatException e) {
-            currentQtyParam = 0;
-        }
+            quantity = Integer.parseInt(request.getParameter("currentQty"));
+        } catch (NumberFormatException ignored) {}
+
+        String cartKey = itemId + (variantSignature.isEmpty() ? "" : "|" + variantSignature);
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
@@ -111,94 +111,80 @@ public class CartServlet extends HttpServlet {
         if (isGuest) {
             @SuppressWarnings("unchecked")
             Map<String, CartItem> cart = (Map<String, CartItem>) session.getAttribute("cart");
-            if (cart == null) {
-                cart = new HashMap<>();
-            }
+            if (cart == null) cart = new HashMap<>();
 
-            CartItem existingItem = cart.get(itemId);
+            CartItem existingItem = cart.get(cartKey);
 
             switch (action) {
-                case "add": {
+                case "add" -> {
                     Item item = itemDAO.getItemById(itemId);
-
-                    if (item.getStock() < currentQtyParam) {
-                        response.getWriter().write("{\"error\":\"Sản phẩm chỉ còn " + item.getStock() + " cái trong kho.\"}");
+                    if (item.getStock() < quantity) {
+                        response.getWriter().write("{\"error\":\"Chỉ còn " + item.getStock() + " sản phẩm trong kho.\"}");
                         return;
                     }
 
                     if (existingItem != null) {
-                        existingItem.setQuantity(currentQtyParam);
+                        existingItem.setQuantity(existingItem.getQuantity() + 1);
                     } else {
-                        if (itemId.startsWith("P")) {
-                            BigDecimal pcTotal = productComponentDAO.getTotalPriceOfProduct(itemId);
-                            item.setPrice(pcTotal);
-                        }
-
                         CartItem newItem = new CartItem();
                         newItem.setItemId(itemId);
+                        newItem.setVariantSignature(variantSignature);
                         newItem.setQuantity(1);
                         newItem.setItemDetail(item);
-                        cart.put(itemId, newItem);
+                        cart.put(cartKey, newItem);
                     }
-                    break;
                 }
 
-                case "removeOne":
+                case "removeOne" -> {
                     if (existingItem != null) {
-                        int currentQty = existingItem.getQuantity();
-                        if (currentQty > 1) {
-                            existingItem.setQuantity(currentQty - 1);
+                        if (existingItem.getQuantity() > 1) {
+                            existingItem.setQuantity(existingItem.getQuantity() - 1);
                         } else {
-                            cart.remove(itemId);
+                            cart.remove(cartKey);
                         }
                     }
-                    break;
+                }
 
-                case "remove":
-                    cart.remove(itemId);
-                    break;
+                case "remove" -> cart.remove(cartKey);
             }
 
             session.setAttribute("cart", cart);
 
         } else {
-            String cartOwner = acc.getPhone();
-            Cart cart = cartDAO.getCartByCustomerId(cartOwner);
+            String customerId = acc.getPhone();
+            Cart cart = cartDAO.getCartByCustomerId(customerId);
             if (cart == null) {
-                int newCartId = cartDAO.createCart(cartOwner);
-                cart = new Cart(newCartId, cartOwner, null);
+                int newCartId = cartDAO.createCart(customerId);
+                cart = new Cart(newCartId, customerId, null);
             }
 
-            switch (action) {
-                case "add": {
-                    CartItem existingItem = cartItemDAO.getCartItem(cart.getCartId(), itemId);
-                    int currentQty = existingItem != null ? existingItem.getQuantity() : 0;
+            int cartId = cart.getCartId();
+            CartItem existingItem = cartItemDAO.getCartItem(cartId, itemId, variantSignature);
 
+            switch (action) {
+                case "add" -> {
+                    int currentQty = existingItem != null ? existingItem.getQuantity() : 0;
                     Item item = itemDAO.getItemById(itemId);
-                    if (item.getStock() < currentQtyParam + 1) {
-                        response.getWriter().write("{\"error\":\"Sản phẩm chỉ còn " + item.getStock() + " cái trong kho.\"}");
+                    if (item.getStock() < currentQty + 1) {
+                        response.getWriter().write("{\"error\":\"Chỉ còn " + item.getStock() + " sản phẩm trong kho.\"}");
                         return;
                     }
 
-                    cartItemDAO.addOrUpdateItem(cart.getCartId(), itemId, 1);
-                    break;
+                    cartItemDAO.addOrUpdateItem(cartId, itemId, variantSignature, 1);
                 }
 
-                case "removeOne":
-                    CartItem existingItem = cartItemDAO.getCartItem(cart.getCartId(), itemId);
+                case "removeOne" -> {
                     if (existingItem != null) {
                         int currentQty = existingItem.getQuantity();
                         if (currentQty > 1) {
-                            cartItemDAO.updateQuantity(cart.getCartId(), itemId, currentQty - 1);
+                            cartItemDAO.updateQuantity(cartId, itemId, variantSignature, currentQty - 1);
                         } else {
-                            cartItemDAO.removeItem(cart.getCartId(), itemId);
+                            cartItemDAO.removeItem(cartId, itemId, variantSignature);
                         }
                     }
-                    break;
+                }
 
-                case "remove":
-                    cartItemDAO.removeItem(cart.getCartId(), itemId);
-                    break;
+                case "remove" -> cartItemDAO.removeItem(cartId, itemId, variantSignature);
             }
         }
 

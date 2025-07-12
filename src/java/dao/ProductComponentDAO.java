@@ -84,5 +84,55 @@ public class ProductComponentDAO extends DBContext {
         }
         return result;
     }
+public BigDecimal getTotalPriceByVariant(String itemId, String variantSignature) {
+    BigDecimal total = BigDecimal.ZERO;
+
+    // Giá gốc của PC
+    Item baseItem = new ItemDAO().getItemById(itemId);
+    if (baseItem != null && baseItem.getPrice() != null) {
+        total = total.add(baseItem.getPrice());
+    }
+
+    // Giá các linh kiện tùy chọn
+    if (variantSignature != null && !variantSignature.isEmpty()) {
+        String[] componentIds = variantSignature.split("\\|");
+        for (String componentId : componentIds) {
+            Item item = new ItemDAO().getItemById(componentId);
+            if (item != null && item.getPrice() != null) {
+                total = total.add(item.getPrice());
+            }
+        }
+    }
+
+    return total;
+}
+
+    public static void main(String[] args) {
+    ProductComponentDAO dao = new ProductComponentDAO();
+
+    // Test 1: Biến thể có đầy đủ thông tin hợp lệ
+    String itemId = "PC001";  // mã sản phẩm chính (không dùng trong tính giá cụ thể ở đây)
+    String variantSignature = "RAM:RAM002|Storage:ST002";
+
+    BigDecimal price = dao.getTotalPriceByVariant(itemId, variantSignature);
+    System.out.println("👉 Tổng giá của biến thể [" + variantSignature + "]: " + price + " VNĐ");
+
+//    // Test 2: Không có variant (trả về giá mặc định của PC)
+//    String defaultVariant = "";
+//    BigDecimal defaultPrice = dao.getTotalPriceByVariant(itemId, defaultVariant);
+//    System.out.println("👉 Giá mặc định của PC [" + itemId + "]: " + defaultPrice + " VNĐ");
+//
+//    // Test 3: Variant không hợp lệ
+//    String invalidVariant = "RAM|SSD";  // format sai
+//    BigDecimal priceInvalid = dao.getTotalPriceByVariant(itemId, invalidVariant);
+//    System.out.println("👉 Giá với biến thể sai cú pháp: " + priceInvalid + " VNĐ");
+//
+//    // Test 4: Component không tồn tại
+//    String variantNotExist = "CPU:XYZ999|GPU:ABC000";
+//    BigDecimal priceNotExist = dao.getTotalPriceByVariant(itemId, variantNotExist);
+//    System.out.println("👉 Giá với linh kiện không tồn tại: " + priceNotExist + " VNĐ");
+}
+
+
 }
 
