@@ -1,3 +1,7 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package dao;
 
 import context.DBContext;
@@ -11,7 +15,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
+/**
+ *
+ * @author namp0
+ */
 public class AccountDAO extends DBContext {
 
     public Account getAccount(String phone, String password) {
@@ -38,12 +45,10 @@ public class AccountDAO extends DBContext {
         return null;
     }
 
-    // ✅ Hàm createAccount mặc định status = 1
     public boolean createAccount(String phone, String password, int roleId) {
         return createAccount(phone, password, roleId, 1);
     }
 
-    // Hàm tạo tài khoản đầy đủ tham số
     public boolean createAccount(String phone, String password, int roleId, int status) {
         try (Connection conn = getConnection()) {
             String query = "INSERT INTO Account (Phone, Password, RoleId, Status) VALUES (?, ?, ?, ?)";
@@ -157,38 +162,36 @@ public class AccountDAO extends DBContext {
         return false;
     }
 
-public Account getAccountByPhone(String phone) {
-    String sql = "SELECT * FROM Account WHERE Phone = ?";
-    try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-        ps.setString(1, phone);
-        ResultSet rs = ps.executeQuery();
-        if (rs.next()) {
-            Account acc = new Account();
-            acc.setPhone(rs.getString("Phone"));
-            acc.setPassword(rs.getString("Password"));       
-            acc.setRoleId(rs.getInt("RoleId"));               
-            acc.setStatus(rs.getInt("Status"));               
-            acc.setVerified(rs.getBoolean("IsVerified"));     
-            return acc;
+    public Account getAccountByPhone(String phone) {
+        String sql = "SELECT * FROM Account WHERE Phone = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, phone);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                Account acc = new Account();
+                acc.setPhone(rs.getString("Phone"));
+                acc.setPassword(rs.getString("Password"));
+                acc.setRoleId(rs.getInt("RoleId"));
+                acc.setStatus(rs.getInt("Status"));
+                acc.setVerified(rs.getBoolean("IsVerified"));
+                return acc;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-    } catch (Exception e) {
-        e.printStackTrace();
+        return null;
     }
-    return null;
-}
 
-
-public boolean updatePasswordByPhone(String phone, String newPassword) {
-    String sql = "UPDATE Account SET Password = ? WHERE Phone = ?";
-    try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-        ps.setString(1, newPassword);
-        ps.setString(2, phone);
-        return ps.executeUpdate() > 0;
-    } catch (Exception e) {
-        e.printStackTrace();
+    public boolean updatePasswordByPhone(String phone, String newPassword) {
+        String sql = "UPDATE Account SET Password = ? WHERE Phone = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, newPassword);
+            ps.setString(2, phone);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
-    return false;
-}
-
 
 }

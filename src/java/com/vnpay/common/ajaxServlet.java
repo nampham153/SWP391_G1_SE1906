@@ -15,7 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-@WebServlet("/ajaxServlet") // ✅ Rất quan trọng: đúng URL mà JS gọi
+@WebServlet("/ajaxServlet") 
 public class ajaxServlet extends HttpServlet {
 
     @Override
@@ -29,7 +29,7 @@ public class ajaxServlet extends HttpServlet {
         String orderId = req.getParameter("orderId");
         String bankCode = req.getParameter("bankCode");
 
-        String vnp_TxnRef = orderId; // ✅ Dùng chính orderId làm mã giao dịch
+        String vnp_TxnRef = orderId; 
         String vnp_IpAddr = Config.getIpAddress(req);
         String vnp_TmnCode = Config.vnp_TmnCode;
 
@@ -66,8 +66,6 @@ public class ajaxServlet extends HttpServlet {
         calendar.add(Calendar.MINUTE, 15);
         String expireDate = formatter.format(calendar.getTime());
         vnp_Params.put("vnp_ExpireDate", expireDate);
-
-        // Build data for hash and query string
         List<String> fieldNames = new ArrayList<>(vnp_Params.keySet());
         Collections.sort(fieldNames);
 
@@ -92,7 +90,7 @@ public class ajaxServlet extends HttpServlet {
 
         String paymentUrl = Config.vnp_PayUrl + "?" + query;
 
-        // ✅ Gửi JSON response về cho JavaScript
+        // Gửi JSON response về cho JavaScript
         JsonObject result = new JsonObject();
         result.addProperty("code", "00");
         result.addProperty("message", "success");

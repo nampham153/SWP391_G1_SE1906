@@ -45,10 +45,11 @@ public class GetComponentListServlet extends HttpServlet {
             out.print("\"price\":" + item.getPrice() + ",");
             out.print("\"image\":\"" + image + "\"");
             out.print("}");
-            if (i < items.size() - 1) out.print(",");
+            if (i < items.size() - 1) {
+                out.print(",");
+            }
         }
         out.print("]");
         out.flush();
     }
 }
-

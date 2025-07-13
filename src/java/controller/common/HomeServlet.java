@@ -1,3 +1,7 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package controller.common;
 
 import dao.BrandDAO;
@@ -12,9 +16,13 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.*;
-
+/**
+ *
+ * @author namp0
+ */
 @WebServlet("/home")
 public class HomeServlet extends HttpServlet {
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -38,14 +46,14 @@ public class HomeServlet extends HttpServlet {
 
         List<Brand> productBrands;
         List<Brand> componentBrands;
-String searchKeyword = request.getParameter("search");
-List<Item> searchResults = null;
+        String searchKeyword = request.getParameter("search");
+        List<Item> searchResults = null;
 
-if (searchKeyword != null && !searchKeyword.trim().isEmpty()) {
-    searchResults = dao.searchItemsByName(searchKeyword.trim());
-    request.setAttribute("searchKeyword", searchKeyword);
-    request.setAttribute("searchResults", searchResults);
-}
+        if (searchKeyword != null && !searchKeyword.trim().isEmpty()) {
+            searchResults = dao.searchItemsByName(searchKeyword.trim());
+            request.setAttribute("searchKeyword", searchKeyword);
+            request.setAttribute("searchResults", searchResults);
+        }
 
         if (minParam != null && maxParam != null) {
             try {
@@ -86,10 +94,5 @@ if (searchKeyword != null && !searchKeyword.trim().isEmpty()) {
         request.setAttribute("pageContent1", "home.jsp");
 
         request.getRequestDispatcher("index.jsp").forward(request, response);
-    }
-
-    @Override
-    public String getServletInfo() {
-        return "Trang chủ hiển thị sản phẩm chia theo danh mục linh kiện như TTGShop";
     }
 }

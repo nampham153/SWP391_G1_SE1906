@@ -1,3 +1,7 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package dao;
 
 import context.DBContext;
@@ -5,7 +9,10 @@ import model.Staff;
 
 import java.sql.*;
 import java.util.*;
-
+/**
+ *
+ * @author namp0
+ */
 public class StaffDAO {
 
     private Connection conn;
@@ -103,29 +110,26 @@ public class StaffDAO {
         return null;
     }
 
-public void insert(Staff s) throws SQLException {
-    String sql = "INSERT INTO staff (staffId, staffName, staffTitle, staffAddress, staffBirthDate, staffGender, supervisorId, departmentId, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    PreparedStatement stmt = conn.prepareStatement(sql);
-    stmt.setString(1, s.getStaffId());
-    stmt.setString(2, s.getStaffName());
-    stmt.setString(3, s.getStaffTitle());
-    stmt.setString(4, s.getStaffAddress());
-    stmt.setDate(5, new java.sql.Date(s.getStaffBirthDate().getTime()));
-    stmt.setBoolean(6, s.isStaffGender());
+    public void insert(Staff s) throws SQLException {
+        String sql = "INSERT INTO staff (staffId, staffName, staffTitle, staffAddress, staffBirthDate, staffGender, supervisorId, departmentId, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        PreparedStatement stmt = conn.prepareStatement(sql);
+        stmt.setString(1, s.getStaffId());
+        stmt.setString(2, s.getStaffName());
+        stmt.setString(3, s.getStaffTitle());
+        stmt.setString(4, s.getStaffAddress());
+        stmt.setDate(5, new java.sql.Date(s.getStaffBirthDate().getTime()));
+        stmt.setBoolean(6, s.isStaffGender());
+        if (s.getSupervisorId() == null || s.getSupervisorId().trim().isEmpty()) {
+            stmt.setNull(7, java.sql.Types.VARCHAR);
+        } else {
+            stmt.setString(7, s.getSupervisorId());
+        }
 
-    // ✅ BỔ SUNG xử lý tham số thứ 7 (supervisorId)
-    if (s.getSupervisorId() == null || s.getSupervisorId().trim().isEmpty()) {
-        stmt.setNull(7, java.sql.Types.VARCHAR);
-    } else {
-        stmt.setString(7, s.getSupervisorId());
+        stmt.setInt(8, s.getDepartmentId());
+        stmt.setBoolean(9, s.getStatus());
+
+        stmt.executeUpdate();
     }
-
-    stmt.setInt(8, s.getDepartmentId());
-    stmt.setBoolean(9, s.getStatus());
-
-    stmt.executeUpdate();
-}
-
 
     public void update(Staff s) throws SQLException {
         String sql = "UPDATE staff SET staffName=?, staffTitle=?, staffAddress=?, staffBirthDate=?, staffGender=?, supervisorId=?, departmentId=?, status=? WHERE staffId=?";
@@ -194,7 +198,7 @@ public void insert(Staff s) throws SQLException {
 
             List<Staff> list = dao.getAll("", "all");
             for (Staff s : list) {
-                System.out.println(s.getStaffId() + " - " + s.getStaffName() + " - Status: " + (s.getStatus()? "Hoạt động" : "Ngưng hoạt động"));
+                System.out.println(s.getStaffId() + " - " + s.getStaffName() + " - Status: " + (s.getStatus() ? "Hoạt động" : "Ngưng hoạt động"));
             }
 
             conn.close();

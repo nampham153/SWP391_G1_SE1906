@@ -1,3 +1,7 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package controller.common;
 
 import dao.ComponentCategoryDAO;
@@ -10,22 +14,23 @@ import model.Item;
 
 import java.io.IOException;
 import java.util.*;
-
+/**
+ *
+ * @author namp0
+ */
 @WebServlet("/build-pc")
 public class BuildPCServlet extends HttpServlet {
 
     private final ComponentCategoryDAO categoryDAO = new ComponentCategoryDAO();
     private final ItemDAO itemDAO = new ItemDAO();
-
+        // 1. Lấy danh sách danh mục linh kiện
+        // 2. Lấy linh kiện mặc định rẻ nhất theo từng danh mục
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
-        // 1. Lấy danh sách danh mục linh kiện (CPU, RAM, SSD,...)
         List<ComponentCategory> componentCategories = categoryDAO.getAll();
         request.setAttribute("componentCategories", componentCategories);
 
-        // 2. Lấy linh kiện mặc định rẻ nhất theo từng danh mục
         Map<Integer, Item> defaultComponents = new HashMap<>();
         for (ComponentCategory category : componentCategories) {
             Item defaultItem = itemDAO.getDefaultItemByCategory(category.getCategoryId());
@@ -34,8 +39,6 @@ public class BuildPCServlet extends HttpServlet {
             }
         }
         request.setAttribute("defaultComponents", defaultComponents);
-
-        // 3. Gửi sang trang JSP (forward)
         request.getRequestDispatcher("build-pc.jsp").forward(request, response);
     }
 

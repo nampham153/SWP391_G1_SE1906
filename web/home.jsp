@@ -277,7 +277,7 @@
                     })
                     .then(data => {
                         if (data.status === 'ok') {
-                            updateCartSize(); 
+                            updateCartSize();
                             alert("Đã thêm vào giỏ hàng!");
                         } else {
                             alert("Không thể thêm vào giỏ hàng.");

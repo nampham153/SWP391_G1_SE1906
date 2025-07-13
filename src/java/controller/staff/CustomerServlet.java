@@ -1,3 +1,7 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package controller.staff;
 
 import dao.CustomerDAO;
@@ -10,7 +14,10 @@ import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-
+/**
+ *
+ * @author namp0
+ */
 @WebServlet("/staff/customer")
 public class CustomerServlet extends HttpServlet {
 
@@ -94,15 +101,14 @@ public class CustomerServlet extends HttpServlet {
         }
 
         // Validate Email
-if (email == null || email.trim().isEmpty()) {
-    errors.put("email", "Email không được để trống.");
-} else {
-    email = email.trim().toLowerCase();
-    if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$")) {
-        errors.put("email", "Email không hợp lệ. Phải đúng định dạng ví dụ: example@gmail.com");
-    }
-}
-
+        if (email == null || email.trim().isEmpty()) {
+            errors.put("email", "Email không được để trống.");
+        } else {
+            email = email.trim().toLowerCase();
+            if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$")) {
+                errors.put("email", "Email không hợp lệ. Phải đúng định dạng ví dụ: example@gmail.com");
+            }
+        }
 
         // Validate birth date
         java.sql.Date birthDate = null;

@@ -1,3 +1,7 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package controller.common;
 
 import dao.AccountDAO;
@@ -8,11 +12,13 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import model.Customer;
 import Until.EmailUtil;
-
 import java.io.IOException;
 import java.sql.Date;
 import java.sql.Timestamp;
-
+/**
+ *
+ * @author namp0
+ */
 @WebServlet("/register")
 public class RegisterServlet extends HttpServlet {
 
@@ -128,7 +134,7 @@ public class RegisterServlet extends HttpServlet {
         }
 
         String otp = String.valueOf((int) (Math.random() * 900000 + 100000));
-        Timestamp expireAt = new Timestamp(System.currentTimeMillis() + 5 * 60 * 1000); 
+        Timestamp expireAt = new Timestamp(System.currentTimeMillis() + 5 * 60 * 1000);
 
         boolean saved = verificationDao.saveVerificationCode(phone, otp, expireAt);
         if (!saved) {

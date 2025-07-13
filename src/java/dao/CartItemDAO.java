@@ -6,7 +6,10 @@ import model.CartItem;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ *
+ * @author namp0
+ */
 public class CartItemDAO extends DBContext {
 
     // Thêm mới hoặc cập nhật số lượng sản phẩm (theo variantSignature)
@@ -41,7 +44,6 @@ public class CartItemDAO extends DBContext {
         }
     }
 
-    // Xóa một sản phẩm (theo variantSignature)
     public void removeItem(int cartId, String itemId, String variantSignature) {
         String sql = "DELETE FROM CartItem WHERE CartId = ? AND ItemId = ? AND VariantSignature = ?";
         try (Connection conn = getConnection();
@@ -55,7 +57,6 @@ public class CartItemDAO extends DBContext {
         }
     }
 
-    // Lấy toàn bộ sản phẩm có trong giỏ hàng
     public List<CartItem> getItemsInCart(int cartId) {
         List<CartItem> list = new ArrayList<>();
         String sql = "SELECT * FROM CartItem WHERE CartId = ?";
@@ -101,7 +102,6 @@ public class CartItemDAO extends DBContext {
         return null;
     }
 
-    // Đếm tổng số lượng sản phẩm trong giỏ hàng (theo customerId)
     public int countItemsByCustomerId(String customerId) {
         String sql = """
             SELECT SUM(Quantity) AS TotalQuantity
@@ -122,7 +122,6 @@ public class CartItemDAO extends DBContext {
         return 0;
     }
 
-    // Xóa toàn bộ giỏ hàng
     public void clearCart(int cartId) {
         String sql = "DELETE FROM CartItem WHERE CartId = ?";
         try (Connection conn = getConnection();

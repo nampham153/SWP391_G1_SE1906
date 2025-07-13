@@ -1,5 +1,8 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package controller.common;
-
 import context.DBContext;
 import dao.*;
 import model.*;
@@ -12,7 +15,10 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
-
+/**
+ *
+ * @author namp0
+ */
 @WebServlet("/checkout")
 public class CheckoutServlet extends HttpServlet {
 
@@ -20,6 +26,7 @@ public class CheckoutServlet extends HttpServlet {
     private final CartItemDAO cartItemDAO = new CartItemDAO();
     private final ItemDAO itemDAO = new ItemDAO();
     private final ProductComponentDAO productComponentDAO = new ProductComponentDAO();
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -36,9 +43,9 @@ public class CheckoutServlet extends HttpServlet {
                 for (CartItem cartItem : cart.values()) {
                     Item fullItem = itemDAO.getItemById(cartItem.getItemId());
                     if (cartItem.getItemId().startsWith("P")) {
-    BigDecimal pcTotal = productComponentDAO.getTotalPriceByVariant(cartItem.getItemId(), cartItem.getVariantSignature());
-    fullItem.setPrice(pcTotal);
-}
+                        BigDecimal pcTotal = productComponentDAO.getTotalPriceByVariant(cartItem.getItemId(), cartItem.getVariantSignature());
+                        fullItem.setPrice(pcTotal);
+                    }
 
                     cartItem.setItemDetail(fullItem);
                     total = total.add(fullItem.getPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity())));
@@ -93,8 +100,8 @@ public class CheckoutServlet extends HttpServlet {
             for (CartItem cartItem : guestCart.values()) {
                 Item fullItem = itemDAO.getItemById(cartItem.getItemId());
                 if (cartItem.getItemId().startsWith("P")) {
-    BigDecimal pcTotal = productComponentDAO.getTotalPriceByVariant(cartItem.getItemId(), cartItem.getVariantSignature());
-    fullItem.setPrice(pcTotal);
+                    BigDecimal pcTotal = productComponentDAO.getTotalPriceByVariant(cartItem.getItemId(), cartItem.getVariantSignature());
+                    fullItem.setPrice(pcTotal);
                 }
                 cartItem.setItemDetail(fullItem);
                 total = total.add(fullItem.getPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity())));
@@ -154,7 +161,9 @@ public class CheckoutServlet extends HttpServlet {
         }
 
         if (noteInput != null && !noteInput.trim().isEmpty()) {
-            if (noteBuilder.length() > 0) noteBuilder.append("\n\n");
+            if (noteBuilder.length() > 0) {
+                noteBuilder.append("\n\n");
+            }
             noteBuilder.append("Ghi chú khách: ").append(noteInput.trim());
         }
 
@@ -170,7 +179,7 @@ public class CheckoutServlet extends HttpServlet {
         order.setNote(note);
         order.setCustomerId(account != null && account.getRoleId() == 1 ? account.getPhone() : null);
         order.setTotal(total);
-        order.setOrderStatus(0); 
+        order.setOrderStatus(0);
 
         CustomerOrderDAO orderDAO = new CustomerOrderDAO();
         int orderId = orderDAO.insertCustomerOrderReturnId(order);
@@ -209,7 +218,7 @@ public class CheckoutServlet extends HttpServlet {
                     }
                 }
 
-                order.setOrderStatus(1); 
+                order.setOrderStatus(1);
                 order.setOrderId(orderId);
                 orderDAO.updateOrderStatus(order);
                 conn.commit();
