@@ -6,34 +6,58 @@
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="">
-    <meta name="author" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Home | E-Shopper</title>
+
+    <!-- Bootstrap CSS -->
     <link href="${pageContext.request.contextPath}/css/bootstrap.min.css" rel="stylesheet">
-    <link href="${pageContext.request.contextPath}/css/font-awesome.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome CDN (đảm bảo icon mắt hiển thị) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
     <link href="${pageContext.request.contextPath}/css/prettyPhoto.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/price-range.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/animate.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/main.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/css/responsive.css" rel="stylesheet">
-    <!--[if lt IE 9]>
-    <script src="js/html5shiv.js"></script>
-    <script src="js/respond.min.js"></script>
-    <![endif]-->       
-    <link rel="shortcut icon" href="${pageContext.request.contextPath}/images/ico/favicon.ico">
-    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="${pageContext.request.contextPath}/images/ico/apple-touch-icon-144-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="${pageContext.request.contextPath}/images/ico/apple-touch-icon-114-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="${pageContext.request.contextPath}/images/ico/apple-touch-icon-72-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" href="${pageContext.request.contextPath}/images/ico/apple-touch-icon-57-precomposed.png">
-</head><!--/head-->
-<style>
-    #loginContainer {
-    margin-top: 30px;
+
+    <style>
+        #loginContainer {
+            margin-top: 30px;
+        }
+.password-wrapper {
+    position: relative;
+    display: block;
+    width: 100%;
 }
-</style>
+
+.password-wrapper input {
+    width: 100%;
+    padding-right: 40px;
+    box-sizing: border-box;
+}
+
+.password-wrapper button {
+    position: absolute;
+    right: 8px;
+    top: 8px;
+    bottom: 8px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 16px;
+    color: #666;
+    width: 24px;
+    outline: none;
+}
+    </style>
+</head>
+<body>
+
 <section id="form"><!--form-->
     <div class="container" id="loginContainer">
         <div class="row">
@@ -42,7 +66,18 @@
                     <h2>Login to your account</h2>
                     <form id="loginForm" action="login" method="POST">
                         <input type="text" name="phone" placeholder="Phone Number" required />
-                        <input type="password" name="password" placeholder="Password" required />
+<div class="password-wrapper">
+    <input type="password" id="passwordInput" name="password" placeholder="Password" required style="padding-right: 35px;" />
+    <button type="button" id="togglePassword" tabindex="-1" aria-label="Toggle password visibility" 
+            style="position: absolute; right: 8px; top: 8px; bottom: 8px; border: none; background: none; cursor: pointer; font-size: 16px; color: #666; width: 24px; outline: none;">
+        <i class="fa fa-eye" aria-hidden="true"></i>
+    </button>
+</div>
+
+                        <p style="margin-top: 10px;">
+                            <a href="${pageContext.request.contextPath}/forgot-password">Quên mật khẩu?</a>
+                        </p>
+
                         <span>
                             <input type="checkbox" class="checkbox" name="remember"> 
                             Keep me signed in
@@ -76,4 +111,25 @@
             </div>
         </div>
     </div>
+
+    <script>
+        const passwordInput = document.getElementById('passwordInput');
+        const togglePassword = document.getElementById('togglePassword');
+        const icon = togglePassword.querySelector('i');
+
+        togglePassword.addEventListener('click', function () {
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+    </script>
 </section>
+
+</body>
+</html>

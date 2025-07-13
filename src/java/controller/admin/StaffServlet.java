@@ -1,7 +1,6 @@
 package controller.admin;
 
 import dao.StaffDAO;
-import dao.CustomerDAO;
 import dao.AccountDAO;
 import model.Staff;
 import model.Account;
@@ -21,7 +20,6 @@ import java.util.*;
 public class StaffServlet extends HttpServlet {
 
     private StaffDAO staffDao;
-    private final CustomerDAO customerDao = new CustomerDAO();
     private final AccountDAO accountDao = new AccountDAO();
 
     private StaffDAO getStaffDao() throws SQLException, ClassNotFoundException {
@@ -32,130 +30,185 @@ public class StaffServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        try {
-            StaffDAO dao = getStaffDao();
-            String action = request.getParameter("action");
-            String keyword = request.getParameter("keyword") != null ? request.getParameter("keyword") : "";
-            String status = request.getParameter("status") != null ? request.getParameter("status") : "all";
-            if ("delete".equals(action)) {
-                dao.disableStaff(request.getParameter("id"));
-                response.sendRedirect("staff");
-                return;
-            }
-            List<Staff> staffList = dao.getAll(keyword, status);
-            request.setAttribute("staffList", staffList);
-            if ("edit".equals(action)) {
-                Staff staff = dao.getById(request.getParameter("id"));
-                if (staff == null) {
-                    response.sendRedirect("staff");
-                    return;
-                }
+protected void doGet(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
+    try {
+        StaffDAO dao = getStaffDao();
+        String action = request.getParameter("action");
+
+        if ("delete".equals(action)) {
+            dao.disableStaff(request.getParameter("id"));
+            response.sendRedirect("staff");
+            return;
+        }
+
+        List<Staff> staffList = dao.getAll("", "all");
+        request.setAttribute("staffList", staffList);
+
+        if ("edit".equals(action)) {
+            Staff staff = dao.getById(request.getParameter("id"));
+            if (staff != null) {
                 request.setAttribute("staff", staff);
             }
-            List<String> staffIdOptions = getAvailableStaffIdsFromCustomersWithRole2();
-            for (Staff st : staffList) {
-                staffIdOptions.remove(st.getStaffId()); 
-            }
-            request.setAttribute("staffIdOptions", staffIdOptions);
+        }
 
+        List<String> staffIdOptions = getAvailableStaffIdsFromAccountsWithRole2();
+        for (Staff s : staffList) {
+            staffIdOptions.remove(s.getStaffId());
+        }
+        request.setAttribute("staffIdOptions", staffIdOptions);
+
+        // ✅ Chỉ hiển thị form khi có action add hoặc edit
+        if ("add".equals(action) || "edit".equals(action)) {
+            request.setAttribute("pageContent", "/admin/staff-form.jsp");
+        } else {
             request.setAttribute("pageContent", "/admin/staff-manage.jsp");
-                request.getRequestDispatcher("/admin/layout.jsp").forward(request, response);
-        } catch (Exception e) {
-            throw new ServletException(e);
         }
-    }
 
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+        request.getRequestDispatcher("/admin/layout.jsp").forward(request, response);
+    } catch (Exception e) {
+        throw new ServletException(e);
+    }
+}
+
+
+@Override
+protected void doPost(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
+    try {
+        StaffDAO dao = getStaffDao();
+        String action = request.getParameter("action");
+        boolean isEdit = "edit".equals(action);
+
+        String staffId = request.getParameter("staffId").trim();
+        String staffName = request.getParameter("staffName").trim();
+        String staffTitle = request.getParameter("staffTitle").trim();
+        String staffAddress = request.getParameter("staffAddress").trim();
+        String birthDateStr = request.getParameter("staffBirthDate");
+        String genderStr = request.getParameter("staffGender");
+        String departmentIdStr = request.getParameter("departmentId");
+        String statusStr = request.getParameter("status");
+
+        // Kiểm tra không để trống
+        if (staffId.isEmpty() || staffName.isEmpty() || staffTitle.isEmpty() ||
+            staffAddress.isEmpty() || birthDateStr == null || birthDateStr.isBlank() ||
+            genderStr == null || departmentIdStr == null || statusStr == null) {
+            request.setAttribute("error", "Vui lòng nhập đầy đủ các trường bắt buộc.");
+            reloadFormWithError(request, response);
+            return;
+        }
+
+        // Validate định dạng và độ dài họ tên
+        if (!staffName.matches("[\\p{L}\\s]{3,}")) {
+            request.setAttribute("error", "Họ tên phải có ít nhất 3 ký tự chữ và không chứa ký tự đặc biệt.");
+            reloadFormWithError(request, response);
+            return;
+        }
+
+        // Validate chức danh
+        if (!staffTitle.matches("[\\p{L}\\s]{3,}")) {
+            request.setAttribute("error", "Chức danh phải có ít nhất 3 ký tự chữ và không chứa ký tự đặc biệt.");
+            reloadFormWithError(request, response);
+            return;
+        }
+
+        // Validate địa chỉ
+        if (!staffAddress.matches("[\\p{L}\\d\\s,./-]{5,}")) {
+            request.setAttribute("error", "Địa chỉ phải có ít nhất 5 ký tự hợp lệ.");
+            reloadFormWithError(request, response);
+            return;
+        }
+
+        // Validate ngày sinh
+        Date staffBirthDate;
         try {
-            StaffDAO dao = getStaffDao();
-
-            String action = request.getParameter("action");   // add | edit
-            boolean isEdit = "edit".equals(action);
-            String staffId = request.getParameter("staffId");
-
-            String birthDateStr = request.getParameter("staffBirthDate");
-            if (birthDateStr == null || birthDateStr.isBlank()) {
-                request.setAttribute("error", "Ngày sinh không được để trống.");
+            staffBirthDate = new SimpleDateFormat("yyyy-MM-dd").parse(birthDateStr);
+            Date today = new Date();
+            if (staffBirthDate.after(today)) {
+                request.setAttribute("error", "Ngày sinh không được vượt quá ngày hiện tại.");
                 reloadFormWithError(request, response);
                 return;
             }
-            Date staffBirthDate;
-            try {
-                staffBirthDate = new SimpleDateFormat("yyyy-MM-dd").parse(birthDateStr);
-            } catch (ParseException pe) {
-                request.setAttribute("error", "Ngày sinh không hợp lệ! Định dạng: yyyy-MM-dd.");
-                reloadFormWithError(request, response);
-                return;
-            }
-            if (!isEdit) {
-                List<String> validIds = getAvailableStaffIdsFromCustomersWithRole2();
-                if (!validIds.contains(staffId)) {
-                    request.setAttribute("error", "Mã nhân viên không hợp lệ. Chỉ được chọn từ danh sách khách hàng có tài khoản role 2.");
-                    reloadFormWithError(request, response);
-                    return;
-                }
-                if (dao.getById(staffId) != null) {
-                    request.setAttribute("error", "Mã nhân viên đã tồn tại trong danh sách nhân viên.");
-                    reloadFormWithError(request, response);
-                    return;
-                }
-            } else {
-                if (dao.getById(staffId) == null) {
-                    request.setAttribute("error", "Không tìm thấy nhân viên để cập nhật.");
-                    reloadFormWithError(request, response);
-                    return;
-                }
-            }
-            Staff staff = new Staff();
-            staff.setStaffId(staffId);
-            staff.setStaffName(request.getParameter("staffName"));
-            staff.setStaffTitle(request.getParameter("staffTitle"));
-            staff.setStaffAddress(request.getParameter("staffAddress"));
-            staff.setStaffBirthDate(new java.sql.Date(staffBirthDate.getTime()));
-            staff.setStaffGender(Boolean.parseBoolean(request.getParameter("staffGender")));
-            staff.setDepartmentId(Integer.parseInt(request.getParameter("departmentId")));
-            staff.setStatus(Boolean.parseBoolean(request.getParameter("status")));
-            if (isEdit) {
-                dao.update(staff);
-            } else {
-                dao.insert(staff);
-            }
-            response.sendRedirect("staff");
-            System.out.println("Action: " + action);
-System.out.println("staffId: " + staffId);
-
-
-        } catch (Exception e) {
-            throw new ServletException(e);
+        } catch (ParseException e) {
+            request.setAttribute("error", "Ngày sinh không đúng định dạng (yyyy-MM-dd).");
+            reloadFormWithError(request, response);
+            return;
         }
+
+        // Validate mã phòng ban
+        int departmentId;
+        try {
+            departmentId = Integer.parseInt(departmentIdStr);
+        } catch (NumberFormatException e) {
+            request.setAttribute("error", "Mã phòng ban phải là số.");
+            reloadFormWithError(request, response);
+            return;
+        }
+
+        if (!isEdit) {
+            List<String> validIds = getAvailableStaffIdsFromAccountsWithRole2();
+            if (!validIds.contains(staffId)) {
+                request.setAttribute("error", "Mã nhân viên không hợp lệ. Chỉ được chọn từ tài khoản có role là nhân viên.");
+                reloadFormWithError(request, response);
+                return;
+            }
+            if (dao.getById(staffId) != null) {
+                request.setAttribute("error", "Mã nhân viên đã tồn tại.");
+                reloadFormWithError(request, response);
+                return;
+            }
+        } else {
+            if (dao.getById(staffId) == null) {
+                request.setAttribute("error", "Không tìm thấy nhân viên để cập nhật.");
+                reloadFormWithError(request, response);
+                return;
+            }
+        }
+
+        // Build staff object
+        Staff staff = new Staff();
+        staff.setStaffId(staffId);
+        staff.setStaffName(staffName);
+        staff.setStaffTitle(staffTitle);
+        staff.setStaffAddress(staffAddress);
+        staff.setStaffBirthDate(new java.sql.Date(staffBirthDate.getTime()));
+        staff.setStaffGender(Boolean.parseBoolean(genderStr));
+        staff.setDepartmentId(departmentId);
+        staff.setStatus(Boolean.parseBoolean(statusStr));
+        staff.setSupervisorId(null); // Tạm thời để null
+
+        if (isEdit) {
+            dao.update(staff);
+        } else {
+            dao.insert(staff);
+        }
+
+        response.sendRedirect("staff");
+
+    } catch (Exception e) {
+        throw new ServletException(e);
     }
+}
+
 
     private void reloadFormWithError(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
             StaffDAO dao = getStaffDao();
-
-            // Luôn có staffList để bảng không trắng
             request.setAttribute("staffList", dao.getAll("", "all"));
-
-            List<String> staffIdOptions = getAvailableStaffIdsFromCustomersWithRole2();
-            for (Staff st : dao.getAll("", "all")) {
-                staffIdOptions.remove(st.getStaffId());
+            List<String> staffIdOptions = getAvailableStaffIdsFromAccountsWithRole2();
+            for (Staff s : dao.getAll("", "all")) {
+                staffIdOptions.remove(s.getStaffId());
             }
             request.setAttribute("staffIdOptions", staffIdOptions);
-
-            request.getRequestDispatcher("staff-manage.jsp").forward(request, response);
+            request.setAttribute("pageContent", "/admin/staff-form.jsp");
+            request.getRequestDispatcher("/admin/layout.jsp").forward(request, response);
         } catch (Exception ex) {
-            ex.printStackTrace();
+            throw new ServletException(ex);
         }
-
     }
 
-    private List<String> getAvailableStaffIdsFromCustomersWithRole2() throws SQLException, ClassNotFoundException {
+    private List<String> getAvailableStaffIdsFromAccountsWithRole2() throws SQLException, ClassNotFoundException {
         List<Account> role2Accounts = accountDao.getByRole(2);
         List<String> ids = new ArrayList<>();
         for (Account acc : role2Accounts) {
@@ -163,5 +216,4 @@ System.out.println("staffId: " + staffId);
         }
         return ids;
     }
-
-}
+} 

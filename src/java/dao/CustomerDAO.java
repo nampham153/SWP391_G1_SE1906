@@ -25,6 +25,21 @@ public class CustomerDAO extends DBContext {
         return null;
     }
 
+    public String getEmailByPhone(String phone) {
+        String sql = "SELECT CustomerEmail FROM Customer WHERE CustomerId = ?";
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, phone);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getString("CustomerEmail");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public List<Customer> getAllCustomers() {
         List<Customer> list = new ArrayList<>();
         String query = "SELECT * FROM Customer";
@@ -94,31 +109,32 @@ public class CustomerDAO extends DBContext {
         }
         return false;
     }
+
     private Customer getCustomerFromResultSet(ResultSet rs) throws SQLException {
-    Customer c = new Customer();
-    c.setCustomerId(rs.getString("CustomerId"));
-    c.setCustomerName(rs.getString("CustomerName"));
-    c.setCustomerEmail(rs.getString("CustomerEmail"));
-    c.setCustomerBirthDate(rs.getDate("CustomerBirthDate"));
-    c.setCustomerGender(rs.getBoolean("CustomerGender"));
-    c.setStatus(rs.getObject("Status") != null ? rs.getBoolean("Status") : null);
-    return c;
-}
+        Customer c = new Customer();
+        c.setCustomerId(rs.getString("CustomerId"));
+        c.setCustomerName(rs.getString("CustomerName"));
+        c.setCustomerEmail(rs.getString("CustomerEmail"));
+        c.setCustomerBirthDate(rs.getDate("CustomerBirthDate"));
+        c.setCustomerGender(rs.getBoolean("CustomerGender"));
+        c.setStatus(rs.getObject("Status") != null ? rs.getBoolean("Status") : null);
+        return c;
+    }
+
     public void changeStatusToInactiveIfActive(String id) {
         String sql = "UPDATE Customer SET Status = 0 WHERE CustomerId = ? AND Status = 1";
-        try (Connection conn = new DBContext().getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, id);
             ps.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-        public boolean accountExists(String accountId) {
+
+    public boolean accountExists(String accountId) {
         String query = "SELECT COUNT(*) FROM Account WHERE Phone = ?";
 
-        try (Connection conn = new DBContext().getConnection();
-             PreparedStatement ps = conn.prepareStatement(query)) {
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
 
             ps.setString(1, accountId);
             ResultSet rs = ps.executeQuery();
@@ -134,12 +150,17 @@ public class CustomerDAO extends DBContext {
         return false;
     }
 
-
     public static void main(String[] args) {
         CustomerDAO dao = new CustomerDAO();
-        List<Customer> list = dao.getAllCustomers();
-        for (Customer c : list) {
-            System.out.println(c.getCustomerId() + " - " + c.getCustomerName() + " - status: " + c.getStatus());
+
+        // Thay số điện thoại này bằng số tồn tại trong DB của bạn để test
+        String phone = "01652761815";
+
+        String email = dao.getEmailByPhone(phone);
+        if (email != null && !email.trim().isEmpty()) {
+            System.out.println("Email tìm được: " + email);
+        } else {
+            System.out.println("Không tìm thấy email cho số điện thoại: " + phone);
         }
     }
 }
