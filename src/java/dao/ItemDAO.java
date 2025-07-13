@@ -1,3 +1,7 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package dao;
 
 import context.DBContext;
@@ -10,16 +14,18 @@ import model.Item;
 import model.ItemImage;
 import java.sql.Connection;
 import java.sql.SQLException;
-
-
+/**
+ *
+ * @author namp0
+ */
 public class ItemDAO extends DBContext {
 
     public List<Item> getPCItems(int limit) {
         List<Item> list = new ArrayList<>();
         String query = "SELECT i.SerialNumber, i.ItemName, i.Views, i.Description,i.Stock, img.ImageContent "
-                     + "FROM Item i LEFT JOIN ItemImage img ON i.SerialNumber = img.InventoryId "
-                     + "WHERE i.SerialNumber LIKE 'PC%' "
-                     + "ORDER BY i.Views DESC LIMIT ?";
+                + "FROM Item i LEFT JOIN ItemImage img ON i.SerialNumber = img.InventoryId "
+                + "WHERE i.SerialNumber LIKE 'PC%' "
+                + "ORDER BY i.Views DESC LIMIT ?";
 
         try (java.sql.Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, limit);
@@ -60,9 +66,9 @@ public class ItemDAO extends DBContext {
     private List<Item> getItemsByPrefix(String prefix, int limit) {
         List<Item> list = new ArrayList<>();
         String query = "SELECT i.SerialNumber, i.ItemName, i.Price, i.Views, i.Description, img.ImageContent "
-                     + "FROM Item i LEFT JOIN ItemImage img ON i.SerialNumber = img.InventoryId "
-                     + "WHERE i.SerialNumber LIKE ? "
-                     + "ORDER BY i.Views DESC LIMIT ?";
+                + "FROM Item i LEFT JOIN ItemImage img ON i.SerialNumber = img.InventoryId "
+                + "WHERE i.SerialNumber LIKE ? "
+                + "ORDER BY i.Views DESC LIMIT ?";
         try (java.sql.Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setString(1, prefix + "%");
             ps.setInt(2, limit);
@@ -93,8 +99,8 @@ public class ItemDAO extends DBContext {
     public Item getItemById(String serialNumber) {
         Item item = null;
         String query = "SELECT i.SerialNumber, i.ItemName, i.Price, i.Views,i.Stock, i.Description, img.ImageContent "
-                     + "FROM Item i LEFT JOIN ItemImage img ON i.SerialNumber = img.InventoryId "
-                     + "WHERE i.SerialNumber = ?";
+                + "FROM Item i LEFT JOIN ItemImage img ON i.SerialNumber = img.InventoryId "
+                + "WHERE i.SerialNumber = ?";
         try (java.sql.Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setString(1, serialNumber);
             ResultSet rs = ps.executeQuery();
@@ -130,8 +136,7 @@ public class ItemDAO extends DBContext {
             WHERE c.CategoryId = ?
             LIMIT ?
         """;
-        try (java.sql.Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(query)) {
+        try (java.sql.Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, categoryId);
             ps.setInt(2, limit);
             ResultSet rs = ps.executeQuery();
@@ -160,8 +165,7 @@ public class ItemDAO extends DBContext {
         List<Item> list = new ArrayList<>();
         String sql = "SELECT * FROM Item i LEFT JOIN ItemImage img ON i.SerialNumber = img.InventoryId WHERE i.ItemName LIKE ?";
 
-        try (java.sql.Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (java.sql.Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, "%" + keyword + "%");
             ResultSet rs = ps.executeQuery();
@@ -220,6 +224,7 @@ public class ItemDAO extends DBContext {
         }
         return null;
     }
+
     public boolean decreaseStockTransactional(Connection conn, String serialNumber, int quantity) throws SQLException {
         String sql = "UPDATE Item SET Stock = Stock - ? WHERE SerialNumber = ? AND Stock >= ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -230,44 +235,45 @@ public class ItemDAO extends DBContext {
             return affectedRows > 0;
         }
     }
+
     public Item getItemByIdForUpdate(Connection conn, String itemId) throws SQLException {
-    String sql = "SELECT * FROM Item WHERE serialNumber = ? FOR UPDATE";
-    try (PreparedStatement ps = conn.prepareStatement(sql)) {
-        ps.setString(1, itemId);
-        ResultSet rs = ps.executeQuery();
-        if (rs.next()) {
-            Item item = new Item();
-            item.setSerialNumber(rs.getString("serialNumber"));
-            item.setItemName(rs.getString("itemName"));
-            item.setStock(rs.getInt("stock"));
-            item.setPrice(rs.getBigDecimal("price"));
-            return item;
+        String sql = "SELECT * FROM Item WHERE serialNumber = ? FOR UPDATE";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, itemId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                Item item = new Item();
+                item.setSerialNumber(rs.getString("serialNumber"));
+                item.setItemName(rs.getString("itemName"));
+                item.setStock(rs.getInt("stock"));
+                item.setPrice(rs.getBigDecimal("price"));
+                return item;
+            }
         }
+        return null;
     }
-    return null;
-}
-public static void main(String[] args) {
-    ItemDAO dao = new ItemDAO();
-    String testSerial = "PC001";  
 
-    Item item = dao.getItemById(testSerial);
+    public static void main(String[] args) {
+        ItemDAO dao = new ItemDAO();
+        String testSerial = "PC001";
 
-    if (item != null) {
-        System.out.println(" Thông tin sản phẩm:");
-        System.out.println(" Serial Number: " + item.getSerialNumber());
-        System.out.println(" Tên: " + item.getItemName());
-        System.out.println(" Giá: " + item.getPrice());
-        System.out.println(" Lượt xem: " + item.getViews());
-        System.out.println(" Mô tả: " + item.getDescription());
-        System.out.println(" Số lượng tồn kho: " + item.getStock());
-        if (item.getImage() != null) {
-            System.out.println("️ Ảnh: " + item.getImage().getImageContent());
+        Item item = dao.getItemById(testSerial);
+
+        if (item != null) {
+            System.out.println(" Thông tin sản phẩm:");
+            System.out.println(" Serial Number: " + item.getSerialNumber());
+            System.out.println(" Tên: " + item.getItemName());
+            System.out.println(" Giá: " + item.getPrice());
+            System.out.println(" Lượt xem: " + item.getViews());
+            System.out.println(" Mô tả: " + item.getDescription());
+            System.out.println(" Số lượng tồn kho: " + item.getStock());
+            if (item.getImage() != null) {
+                System.out.println("️ Ảnh: " + item.getImage().getImageContent());
+            } else {
+                System.out.println("️ Ảnh: (không có)");
+            }
         } else {
-            System.out.println("️ Ảnh: (không có)");
+            System.out.println(" Không tìm thấy sản phẩm với mã: " + testSerial);
         }
-    } else {
-        System.out.println("❌ Không tìm thấy sản phẩm với mã: " + testSerial);
     }
-}
-
 }

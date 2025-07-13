@@ -1,17 +1,23 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package controller.common;
-
 import dao.CartItemDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import model.Account;
 import model.CartItem;
-
 import java.io.IOException;
 import java.util.Map;
-
+/**
+ *
+ * @author namp0
+ */
 @WebServlet("/cart-size")
 public class CartSizeServlet extends HttpServlet {
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -35,4 +41,3 @@ public class CartSizeServlet extends HttpServlet {
         response.getWriter().print(totalQuantity);
     }
 }
-

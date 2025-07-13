@@ -1,3 +1,7 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package dao;
 
 import context.DBContext;
@@ -10,8 +14,12 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import model.ProductCategory;
-
+/**
+ *
+ * @author namp0
+ */
 public class ProductCategoryDAO {
+
     private DBContext dbContext;
 
     public ProductCategoryDAO() {
@@ -20,8 +28,7 @@ public class ProductCategoryDAO {
 
     public void createProductCategory(String categoryName) {
         String sql = "INSERT INTO ProductCategory (CategoryName) VALUES (?)";
-        try (Connection conn = dbContext.getConnection();
-             PreparedStatement statement = conn.prepareStatement(sql)) {
+        try (Connection conn = dbContext.getConnection(); PreparedStatement statement = conn.prepareStatement(sql)) {
             statement.setString(1, categoryName);
             statement.executeUpdate();
         } catch (ClassNotFoundException | SQLException ex) {
@@ -32,9 +39,7 @@ public class ProductCategoryDAO {
     public ArrayList<ProductCategory> getAllProductCategory() {
         ArrayList<ProductCategory> list = new ArrayList<>();
         String sql = "SELECT CategoryId, CategoryName FROM ProductCategory";
-        try (Connection conn = dbContext.getConnection();
-             PreparedStatement statement = conn.prepareStatement(sql);
-             ResultSet rs = statement.executeQuery()) {
+        try (Connection conn = dbContext.getConnection(); PreparedStatement statement = conn.prepareStatement(sql); ResultSet rs = statement.executeQuery()) {
             while (rs.next()) {
                 ProductCategory pc = new ProductCategory(rs.getInt("CategoryId"), rs.getString("CategoryName"));
                 list.add(pc);
@@ -47,8 +52,7 @@ public class ProductCategoryDAO {
 
     public void deleteProductCategory(int categoryId) {
         String sql = "DELETE FROM ProductCategory WHERE CategoryId = ?";
-        try (Connection conn = dbContext.getConnection();
-             PreparedStatement statement = conn.prepareStatement(sql)) {
+        try (Connection conn = dbContext.getConnection(); PreparedStatement statement = conn.prepareStatement(sql)) {
             statement.setInt(1, categoryId);
             statement.executeUpdate();
         } catch (ClassNotFoundException | SQLException ex) {
@@ -59,8 +63,7 @@ public class ProductCategoryDAO {
     public ArrayList<ProductCategory> searchProductCategory(String keyword) {
         ArrayList<ProductCategory> list = new ArrayList<>();
         String sql = "SELECT CategoryId, CategoryName FROM ProductCategory WHERE CategoryName LIKE ?";
-        try (Connection conn = dbContext.getConnection();
-             PreparedStatement statement = conn.prepareStatement(sql)) {
+        try (Connection conn = dbContext.getConnection(); PreparedStatement statement = conn.prepareStatement(sql)) {
             statement.setString(1, "%" + keyword + "%");
             try (ResultSet rs = statement.executeQuery()) {
                 while (rs.next()) {
@@ -73,12 +76,11 @@ public class ProductCategoryDAO {
         }
         return list;
     }
-        public List<ProductCategory> getAll() {
+
+    public List<ProductCategory> getAll() {
         List<ProductCategory> list = new ArrayList<>();
         String sql = "SELECT * FROM ProductCategory";
-        try (Connection conn = dbContext.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = dbContext.getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 ProductCategory c = new ProductCategory();
                 c.setCategoryId(rs.getInt("CategoryId"));

@@ -1,3 +1,7 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package filter;
 
 import jakarta.servlet.*;
@@ -9,7 +13,10 @@ import model.Account;
 
 import java.io.IOException;
 import java.util.Arrays;
-
+/**
+ *
+ * @author namp0
+ */
 @WebFilter("/*")
 public class AuthorizationFilter implements Filter {
 
@@ -38,15 +45,16 @@ public class AuthorizationFilter implements Filter {
             "/product-detail",
             "/cart",
             "/checkout",
-            "/checkout-success" ,
-            "/ajaxServlet" ,
-            "/vnpay_return", 
+            "/checkout-success",
+            "/ajaxServlet",
+            "/vnpay_return",
             "/cart-size",
             "/verify",
             "/build-pc",
             "/contact",
             "/getComponentList",
-            "/forgot-password"
+            "/forgot-password",
+            "/404.html"
         };
 
         String[] prefixPublicPaths = {
@@ -80,10 +88,10 @@ public class AuthorizationFilter implements Filter {
             }
             return;
         }
-if (uri.startsWith("/api/") || uri.endsWith("Servlet")) {
-    chain.doFilter(request, response);
-    return;
-}
+        if (uri.startsWith("/api/") || uri.endsWith("Servlet")) {
+            chain.doFilter(request, response);
+            return;
+        }
         if (uri.startsWith("/staff")) {
             if (role == 2 || role == 3) {
                 chain.doFilter(request, response);

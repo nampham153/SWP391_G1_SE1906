@@ -1,15 +1,20 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package controller.common;
 
 import dao.DAOWrapper;
 import model.Account;
 import model.Customer;
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
-
 import java.io.IOException;
-
+/**
+ *
+ * @author namp0
+ */
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
 
@@ -62,10 +67,5 @@ public class LoginServlet extends HttpServlet {
         request.setAttribute("valid", false);
         request.setAttribute("pageContent1", "login.jsp");
         request.getRequestDispatcher("index.jsp").forward(request, response);
-    }
-
-    @Override
-    public String getServletInfo() {
-        return "Login servlet with role-based session setup and verification check";
     }
 }

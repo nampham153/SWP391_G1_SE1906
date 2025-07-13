@@ -46,7 +46,7 @@ public class VnpayReturn extends HttpServlet {
         boolean isSuccess = false;
 
         if (signValue.equals(vnp_SecureHash)) {
-            System.out.println("✅ [Signature OK]");
+            System.out.println(" [Signature OK]");
 
             String orderIdStr = request.getParameter("vnp_TxnRef");
             String vnpStatus = request.getParameter("vnp_TransactionStatus");

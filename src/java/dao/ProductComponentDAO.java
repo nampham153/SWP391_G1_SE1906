@@ -11,10 +11,12 @@ import model.ProductComponent;
 import java.sql.*;
 import java.util.*;
 import java.math.BigDecimal;
-
+/**
+ *
+ * @author namp0
+ */
 public class ProductComponentDAO extends DBContext {
 
-    // Lấy danh sách linh kiện của một sản phẩm
     public List<ProductComponent> getComponentsByProductId(String productId) {
         List<ProductComponent> list = new ArrayList<>();
         String sql = "SELECT * FROM ProductComponent WHERE ProductId = ?";
@@ -84,11 +86,13 @@ public class ProductComponentDAO extends DBContext {
         }
         return result;
     }
-public BigDecimal getTotalPriceByVariant(String productId, String variantSignature) {
-    BigDecimal total = BigDecimal.ZERO;
-
     // 1. Lấy giá gốc: tất cả các linh kiện mặc định trừ RAM và STORAGE
-    String sql = """
+    // 2. Cộng thêm giá của các biến thể được chọn (RAM002|ST001)
+
+    public BigDecimal getTotalPriceByVariant(String productId, String variantSignature) {
+        BigDecimal total = BigDecimal.ZERO;
+
+        String sql = """
         SELECT SUM(i.Price * pc.Quantity) AS Total
         FROM ProductComponent pc
         JOIN Item i ON pc.ComponentId = i.SerialNumber
@@ -97,58 +101,38 @@ public BigDecimal getTotalPriceByVariant(String productId, String variantSignatu
         WHERE pc.ProductId = ? AND cc.CategoryName NOT IN ('RAM', 'STORAGE')
     """;
 
-    try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-        ps.setString(1, productId);
-        ResultSet rs = ps.executeQuery();
-        if (rs.next()) {
-            total = rs.getBigDecimal("Total");
-            if (total == null) total = BigDecimal.ZERO;
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, productId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                total = rs.getBigDecimal("Total");
+                if (total == null) {
+                    total = BigDecimal.ZERO;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
 
-    // 2. Cộng thêm giá của các biến thể được chọn (RAM002|ST001)
-    if (variantSignature != null && !variantSignature.isEmpty()) {
-        String[] componentIds = variantSignature.split("\\|");
-        for (String componentId : componentIds) {
-            Item item = new ItemDAO().getItemById(componentId);
-            if (item != null && item.getPrice() != null) {
-                total = total.add(item.getPrice());
+        if (variantSignature != null && !variantSignature.isEmpty()) {
+            String[] componentIds = variantSignature.split("\\|");
+            for (String componentId : componentIds) {
+                Item item = new ItemDAO().getItemById(componentId);
+                if (item != null && item.getPrice() != null) {
+                    total = total.add(item.getPrice());
+                }
             }
         }
+
+        return total;
     }
 
-    return total;
-}
-
-
     public static void main(String[] args) {
-    ProductComponentDAO dao = new ProductComponentDAO();
+        ProductComponentDAO dao = new ProductComponentDAO();
+        String itemId = "PC001";
+        String variantSignature = "RAM:RAM002|Storage:ST002";
 
-    // Test 1: Biến thể có đầy đủ thông tin hợp lệ
-    String itemId = "PC001";  // mã sản phẩm chính (không dùng trong tính giá cụ thể ở đây)
-    String variantSignature = "RAM:RAM002|Storage:ST002";
-
-    BigDecimal price = dao.getTotalPriceByVariant(itemId, variantSignature);
-    System.out.println("👉 Tổng giá của biến thể [" + variantSignature + "]: " + price + " VNĐ");
-
-//    // Test 2: Không có variant (trả về giá mặc định của PC)
-//    String defaultVariant = "";
-//    BigDecimal defaultPrice = dao.getTotalPriceByVariant(itemId, defaultVariant);
-//    System.out.println("👉 Giá mặc định của PC [" + itemId + "]: " + defaultPrice + " VNĐ");
-//
-//    // Test 3: Variant không hợp lệ
-//    String invalidVariant = "RAM|SSD";  // format sai
-//    BigDecimal priceInvalid = dao.getTotalPriceByVariant(itemId, invalidVariant);
-//    System.out.println("👉 Giá với biến thể sai cú pháp: " + priceInvalid + " VNĐ");
-//
-//    // Test 4: Component không tồn tại
-//    String variantNotExist = "CPU:XYZ999|GPU:ABC000";
-//    BigDecimal priceNotExist = dao.getTotalPriceByVariant(itemId, variantNotExist);
-//    System.out.println("👉 Giá với linh kiện không tồn tại: " + priceNotExist + " VNĐ");
+        BigDecimal price = dao.getTotalPriceByVariant(itemId, variantSignature);
+        System.out.println("👉 Tổng giá của biến thể [" + variantSignature + "]: " + price + " VNĐ");
+    }
 }
-
-
-}
-

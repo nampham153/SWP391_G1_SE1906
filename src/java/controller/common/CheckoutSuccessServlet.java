@@ -3,7 +3,6 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
 package controller.common;
-
 import dao.CustomerOrderDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -49,4 +48,3 @@ public class CheckoutSuccessServlet extends HttpServlet {
         request.getRequestDispatcher("index.jsp").forward(request, response);
     }
 }
-

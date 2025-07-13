@@ -1,3 +1,7 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package controller.common;
 
 import dao.ItemDAO;
@@ -6,14 +10,16 @@ import dao.ProductSpecDetailDAO;
 import model.Item;
 import model.ProductComponent;
 import model.ProductSpec;
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
-
+/**
+ *
+ * @author namp0
+ */
 @WebServlet("/product-detail")
 public class ProductDetailServlet extends HttpServlet {
 
@@ -45,7 +51,7 @@ public class ProductDetailServlet extends HttpServlet {
                 for (Item item : items) {
                     for (ProductComponent pc : pcList) {
                         if (item.getSerialNumber().equals(pc.getComponentId())) {
-                            defaultMap.put(spec.getSpecName(), item); 
+                            defaultMap.put(spec.getSpecName(), item);
                             break;
                         }
                     }

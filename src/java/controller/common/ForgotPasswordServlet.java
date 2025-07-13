@@ -1,5 +1,8 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package controller.common;
-
 import dao.AccountDAO;
 import model.Account;
 import Until.EmailUtil;
@@ -11,7 +14,10 @@ import jakarta.servlet.http.*;
 
 import java.io.IOException;
 import java.util.Random;
-
+/**
+ *
+ * @author namp0
+ */
 @WebServlet("/forgot-password")
 public class ForgotPasswordServlet extends HttpServlet {
 

@@ -1,10 +1,18 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package Until;
-
+/**
+ *
+ * @author namp0
+ */
 import java.util.Properties;
 import jakarta.mail.*;
 import jakarta.mail.internet.*;
 
 public class EmailUtil {
+
     public static boolean sendOTP(String to, String code) {
         final String username = "namp04464@gmail.com";
         final String password = "kwmd zcjs aruj soot";
@@ -16,11 +24,11 @@ public class EmailUtil {
         props.put("mail.smtp.starttls.enable", "true");
 
         Session session = Session.getInstance(props,
-            new Authenticator() {
-                protected PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication(username, password);
-                }
-            });
+                new Authenticator() {
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(username, password);
+            }
+        });
 
         try {
             Message message = new MimeMessage(session);

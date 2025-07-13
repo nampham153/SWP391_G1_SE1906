@@ -1,3 +1,7 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package dao;
 
 import context.DBContext;
@@ -8,7 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
+/**
+ *
+ * @author namp0
+ */
 public class CustomerDAO extends DBContext {
 
     public Customer getCustomerByEmail(String email) throws ClassNotFoundException {
@@ -152,10 +159,7 @@ public class CustomerDAO extends DBContext {
 
     public static void main(String[] args) {
         CustomerDAO dao = new CustomerDAO();
-
-        // Thay số điện thoại này bằng số tồn tại trong DB của bạn để test
         String phone = "01652761815";
-
         String email = dao.getEmailByPhone(phone);
         if (email != null && !email.trim().isEmpty()) {
             System.out.println("Email tìm được: " + email);

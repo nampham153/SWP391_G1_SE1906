@@ -12,14 +12,12 @@ import context.DBContext;
 import model.Cart;
 
 import java.sql.*;
-import model.CartItem;
 
 public class CartDAO extends DBContext {
 
     public Cart getCartByCustomerId(String customerId) {
         String sql = "SELECT * FROM Cart WHERE CustomerId = ?";
-        try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, customerId);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
@@ -37,19 +35,16 @@ public class CartDAO extends DBContext {
 
     public int createCart(String customerId) {
         String sql = "INSERT INTO Cart (CustomerId) VALUES (?)";
-        try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, customerId);
             ps.executeUpdate();
             ResultSet rs = ps.getGeneratedKeys();
             if (rs.next()) {
-                return rs.getInt(1); // CartId
+                return rs.getInt(1);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
         return -1;
     }
-
 }
-
