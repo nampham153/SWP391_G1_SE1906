@@ -1,102 +1,103 @@
-<%-- 
-    Document   : Slidebar
-    Created on : Jun 9, 2025, 8:28:27 AM
-    Author     : namp0
---%>
-
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<!DOCTYPE html>
-<html>
-            <head>
-        <meta charset="UTF-8">
-        <title>Director | General UI</title>
-        <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
-        <meta name="description" content="Developed By M Abdur Rokib Promy">
-        <meta name="keywords" content="Admin, Bootstrap 3, Template, Theme, Responsive">
-        <!-- bootstrap 3.0.2 -->
-        <link href="${pageContext.request.contextPath}/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
-        <!-- font Awesome -->
-        <link href="${pageContext.request.contextPath}/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
-        <!-- Ionicons -->
-        <link href="${pageContext.request.contextPath}/css/ionicons.min.css" rel="stylesheet" type="text/css" />
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
-        <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
-        <!-- Theme style -->
-        <link href="${pageContext.request.contextPath}/css/style.css" rel="stylesheet" type="text/css" />
+<aside class="left-side sidebar-offcanvas">
+    <section class="sidebar">
 
-        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-        <!--[if lt IE 9]>
-          <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-          <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
-        <![endif]-->
-        <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
-        <script src="${pageContext.request.contextPath}/js/jquery.min.js" type="text/javascript"></script>
+        <!-- Sidebar user panel -->
+        <div class="user-panel">
+            <div class="pull-left image">
+                <img src="${pageContext.request.contextPath}/img/avatar3.png" class="img-circle" alt="User Image" />
+            </div>
+            <div class="pull-left info">
+                <p>
+                    Hello, 
+                    <c:choose>
+                        <c:when test="${not empty sessionScope.account}">
+                            ${sessionScope.account.phone}
+                        </c:when>
+                        <c:otherwise>Guest</c:otherwise>
+                    </c:choose>
+                </p>
+                <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
+            </div>
+        </div>
 
-        <!-- Bootstrap -->
-        <script src="${pageContext.request.contextPath}/js/bootstrap.min.js" type="text/javascript"></script>
-        <!-- Director App -->
-        <script src="${pageContext.request.contextPath}/js/Director/app.js" type="text/javascript"></script>
-    </head>
-    <body>
-            <!-- Left side column. contains the logo and sidebar -->
-            <aside class="left-side sidebar-offcanvas">
-                <section class="sidebar">
-                    <!-- Sidebar user panel -->
-                    <div class="user-panel">
-                        <div class="pull-left image">
-                            <img src="${pageContext.request.contextPath}/img/avatar3.png" class="img-circle" alt="User Image" />
-                        </div>
-                        <div class="pull-left info">
-                            <p>Hello, Jane</p>
+        <!-- search form -->
+        <form action="#" method="get" class="sidebar-form">
+            <div class="input-group">
+                <input type="text" name="q" class="form-control" placeholder="Search..."/>
+                <span class="input-group-btn">
+                    <button type='submit' name='seach' id='search-btn' class="btn btn-flat"><i class="fa fa-search"></i></button>
+                </span>
+            </div>
+        </form>
 
-                            <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
-                        </div>
-                    </div>
-                    <!-- search form -->
-                    <form action="#" method="get" class="sidebar-form">
-                        <div class="input-group">
-                            <input type="text" name="q" class="form-control" placeholder="Search..."/>
-                            <span class="input-group-btn">
-                                <button type='submit' name='seach' id='search-btn' class="btn btn-flat"><i class="fa fa-search"></i></button>
-                            </span>
-                        </div>
-                    </form>
-                    <!-- /.search form -->
-                    <!-- sidebar menu: : style can be found in sidebar.less -->
-                    <ul class="sidebar-menu">
-                        <li>
-                            <a href="admin/admin-index.jsp">
-                                <i class="fa fa-dashboard"></i> <span>Dashboard</span>
-                            </a>
-                        </li>
-                        <li class="treeview active">
-                            <a href="#">
-                                <i class="fa fa-gavel"></i> <span>General</span>
-                                <i class="fa fa-angle-left pull-right"></i>
-                            </a>
-                            <ul class="treeview-menu">
-                                <li><a href="/SWP391_G1/staff/customer"><i class="fa fa-circle-o"></i> Customer</a></li>
-                                <li><a href="/SWP391_G1/admin/staff"><i class="fa fa-circle-o"></i> Staff</a></li>
-                                <li><a href="general-reports.html"><i class="fa fa-circle-o"></i> Reports</a></li>
-                            </ul>
-                        </li>
+        <!-- sidebar menu -->
+        <ul class="sidebar-menu">
+            <li>
+                <a href="${pageContext.request.contextPath}/admin/admin-index.jsp">
+                    <i class="fa fa-dashboard"></i> <span>Dashboard</span>
+                </a>
+            </li>
 
-                        <li>
-                            <a href="basic_form.html">
-                                <i class="fa fa-globe"></i> <span>Basic Elements</span>
-                            </a>
-                        </li>
+            <!-- Quản lý khách hàng: Admin & Staff -->
+            <c:if test="${sessionScope.account.roleId == 2 || sessionScope.account.roleId == 3}">
+                <li>
+                    <a href="${pageContext.request.contextPath}/staff/customer">
+                        <i class="fa fa-users"></i> <span>Quản lý khách hàng</span>
+                    </a>
+                </li>
+            </c:if>
 
-                        <li>
-                            <a href="simple.html">
-                                <i class="fa fa-glass"></i> <span>Simple tables</span>
-                            </a>
-                        </li>
+            <!-- Quản lý đơn hàng: Admin & Staff (GỢI Ý) -->
+            <c:if test="${sessionScope.account.roleId == 2 || sessionScope.account.roleId == 3}">
+                <li>
+                    <a href="${pageContext.request.contextPath}/staff/order">
+                        <i class="fa fa-truck"></i> <span>Quản lý đơn hàng</span>
+                    </a>
+                </li>
+            </c:if>
 
-                    </ul>
-                </section>
-                <!-- /.sidebar -->
-            </aside>
-    </body>
-</html>
+            <!-- Quản lý nhân viên: Chỉ Admin -->
+            <c:if test="${sessionScope.account.roleId == 3}">
+                <li>
+                    <a href="${pageContext.request.contextPath}/admin/staff">
+                        <i class="fa fa-user-secret"></i> <span>Quản lý nhân viên</span>
+                    </a>
+                </li>
+            </c:if>
+
+            <!-- Gợi ý: Quản lý sản phẩm, blog, báo cáo... chỉ dành cho admin -->
+            <c:if test="${sessionScope.account.roleId == 3}">
+                <li>
+                    <a href="${pageContext.request.contextPath}/admin/product">
+                        <i class="fa fa-desktop"></i> <span>Quản lý sản phẩm</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="${pageContext.request.contextPath}/admin/blog">
+                        <i class="fa fa-newspaper-o"></i> <span>Quản lý blog</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="${pageContext.request.contextPath}/admin/report">
+                        <i class="fa fa-bar-chart"></i> <span>Báo cáo & thống kê</span>
+                    </a>
+                </li>
+            </c:if>
+
+            <!-- Tùy chọn khác -->
+            <li>
+                <a href="${pageContext.request.contextPath}/basic_form.html">
+                    <i class="fa fa-globe"></i> <span>Basic Elements</span>
+                </a>
+            </li>
+            <li>
+                <a href="${pageContext.request.contextPath}/simple.html">
+                    <i class="fa fa-glass"></i> <span>Simple tables</span>
+                </a>
+            </li>
+        </ul>
+    </section>
+</aside>

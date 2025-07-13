@@ -84,16 +84,31 @@ public class ProductComponentDAO extends DBContext {
         }
         return result;
     }
-public BigDecimal getTotalPriceByVariant(String itemId, String variantSignature) {
+public BigDecimal getTotalPriceByVariant(String productId, String variantSignature) {
     BigDecimal total = BigDecimal.ZERO;
 
-    // Giá gốc của PC
-    Item baseItem = new ItemDAO().getItemById(itemId);
-    if (baseItem != null && baseItem.getPrice() != null) {
-        total = total.add(baseItem.getPrice());
+    // 1. Lấy giá gốc: tất cả các linh kiện mặc định trừ RAM và STORAGE
+    String sql = """
+        SELECT SUM(i.Price * pc.Quantity) AS Total
+        FROM ProductComponent pc
+        JOIN Item i ON pc.ComponentId = i.SerialNumber
+        JOIN Component c ON i.SerialNumber = c.ComponentId
+        JOIN ComponentCategory cc ON c.CategoryId = cc.CategoryId
+        WHERE pc.ProductId = ? AND cc.CategoryName NOT IN ('RAM', 'STORAGE')
+    """;
+
+    try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setString(1, productId);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            total = rs.getBigDecimal("Total");
+            if (total == null) total = BigDecimal.ZERO;
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
     }
 
-    // Giá các linh kiện tùy chọn
+    // 2. Cộng thêm giá của các biến thể được chọn (RAM002|ST001)
     if (variantSignature != null && !variantSignature.isEmpty()) {
         String[] componentIds = variantSignature.split("\\|");
         for (String componentId : componentIds) {
@@ -106,6 +121,7 @@ public BigDecimal getTotalPriceByVariant(String itemId, String variantSignature)
 
     return total;
 }
+
 
     public static void main(String[] args) {
     ProductComponentDAO dao = new ProductComponentDAO();

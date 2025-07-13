@@ -114,6 +114,9 @@
 </header>
 
 <script>
+        window.addEventListener("DOMContentLoaded", function () {
+        updateCartSize();
+    });
 function updateCartSize() {
     fetch('${pageContext.request.contextPath}/cart-size')
         .then(res => res.text())

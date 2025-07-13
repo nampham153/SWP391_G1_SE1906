@@ -36,9 +36,10 @@ public class CheckoutServlet extends HttpServlet {
                 for (CartItem cartItem : cart.values()) {
                     Item fullItem = itemDAO.getItemById(cartItem.getItemId());
                     if (cartItem.getItemId().startsWith("P")) {
-                        BigDecimal pcTotal = productComponentDAO.getTotalPriceOfProduct(cartItem.getItemId());
-                        fullItem.setPrice(pcTotal);
-                    }
+    BigDecimal pcTotal = productComponentDAO.getTotalPriceByVariant(cartItem.getItemId(), cartItem.getVariantSignature());
+    fullItem.setPrice(pcTotal);
+}
+
                     cartItem.setItemDetail(fullItem);
                     total = total.add(fullItem.getPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity())));
                     items.add(cartItem);
@@ -92,8 +93,8 @@ public class CheckoutServlet extends HttpServlet {
             for (CartItem cartItem : guestCart.values()) {
                 Item fullItem = itemDAO.getItemById(cartItem.getItemId());
                 if (cartItem.getItemId().startsWith("P")) {
-                    BigDecimal pcTotal = productComponentDAO.getTotalPriceOfProduct(cartItem.getItemId());
-                    fullItem.setPrice(pcTotal);
+    BigDecimal pcTotal = productComponentDAO.getTotalPriceByVariant(cartItem.getItemId(), cartItem.getVariantSignature());
+    fullItem.setPrice(pcTotal);
                 }
                 cartItem.setItemDetail(fullItem);
                 total = total.add(fullItem.getPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity())));

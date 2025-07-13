@@ -45,7 +45,8 @@ public class AuthorizationFilter implements Filter {
             "/verify",
             "/build-pc",
             "/contact",
-            "/getComponentList"
+            "/getComponentList",
+            "/forgot-password"
         };
 
         String[] prefixPublicPaths = {
@@ -71,7 +72,7 @@ public class AuthorizationFilter implements Filter {
         }
 
         if (uri.startsWith("/admin")) {
-            if (role == 2) {
+            if (role == 3) {
                 chain.doFilter(request, response);
             } else {
                 System.out.println(">>> Access denied to admin page");

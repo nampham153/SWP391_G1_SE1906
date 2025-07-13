@@ -147,30 +147,29 @@ public class CustomerOrderDAO extends DBContext {
         return list;
     }
 
-public boolean insertItemOrderBatch(int orderId, List<CartItem> items) {
-    System.out.println(" insertItemOrderBatch được gọi với OrderId = " + orderId + ", số lượng items = " + items.size());
-    String sql = "INSERT INTO ItemOrder (OrderId, ItemId, Quantity, ListPrice) VALUES (?, ?, ?, ?)";
-    try (Connection conn = new DBContext().getConnection();
+public boolean insertItemOrderBatch(int orderId, List<CartItem> cartItems) {
+    String sql = "INSERT INTO ItemOrder (OrderId, ItemId, Quantity, ListPrice, VariantSignature) VALUES (?, ?, ?, ?, ?)";
+
+    try (Connection conn = getConnection();
          PreparedStatement ps = conn.prepareStatement(sql)) {
 
-        for (CartItem ci : items) {
+        for (CartItem item : cartItems) {
             ps.setInt(1, orderId);
-            ps.setString(2, ci.getItemId()); 
-            ps.setInt(3, ci.getQuantity());
-            ps.setBigDecimal(4, ci.getItemDetail().getPrice()); 
+            ps.setString(2, item.getItemId());
+            ps.setInt(3, item.getQuantity());
+            ps.setBigDecimal(4, item.getItemDetail().getPrice());
+            ps.setString(5, item.getVariantSignature());
             ps.addBatch();
         }
 
         ps.executeBatch();
         return true;
 
-    } catch (Exception e) {
+    } catch (SQLException | ClassNotFoundException e) {
         e.printStackTrace();
         return false;
     }
 }
-
-
 
 
 public boolean decreaseStockIfEnough(Connection conn, List<CartItem> items) throws SQLException {

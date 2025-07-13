@@ -69,9 +69,10 @@ public class CartServlet extends HttpServlet {
                     Item fullItem = itemDAO.getItemById(item.getItemId());
 
                     if (item.getItemId().startsWith("P")) {
-                        BigDecimal pcTotal = productComponentDAO.getTotalPriceOfProduct(item.getItemId());
-                        fullItem.setPrice(pcTotal);
-                    }
+    BigDecimal pcTotal = productComponentDAO.getTotalPriceByVariant(item.getItemId(), item.getVariantSignature());
+    fullItem.setPrice(pcTotal);
+}
+
 
                     item.setItemDetail(fullItem);
                     total = total.add(fullItem.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
@@ -86,108 +87,132 @@ public class CartServlet extends HttpServlet {
         request.getRequestDispatcher("index.jsp").forward(request, response);
     }
 
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+@Override
+protected void doPost(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
 
-        HttpSession session = request.getSession();
-        Account acc = (Account) session.getAttribute("account");
-        boolean isGuest = (acc == null);
+    HttpSession session = request.getSession();
+    Account acc = (Account) session.getAttribute("account");
+    boolean isGuest = (acc == null);
 
-        String itemId = request.getParameter("itemId");
-        String variantSignature = request.getParameter("variantSignature") != null ? request.getParameter("variantSignature") : "";
-        String action = request.getParameter("action");
-        int quantity = 1;
+    String itemId = request.getParameter("itemId");
+    String variantSignature = request.getParameter("variantSignature") != null ? request.getParameter("variantSignature") : "";
+    String action = request.getParameter("action");
+    int quantity = 1;
 
-        try {
-            quantity = Integer.parseInt(request.getParameter("currentQty"));
-        } catch (NumberFormatException ignored) {}
+    try {
+        quantity = Integer.parseInt(request.getParameter("currentQty"));
+    } catch (NumberFormatException ignored) {}
 
-        String cartKey = itemId + (variantSignature.isEmpty() ? "" : "|" + variantSignature);
+    String cartKey = itemId + (variantSignature.isEmpty() ? "" : "|" + variantSignature);
 
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
+    response.setContentType("application/json");
+    response.setCharacterEncoding("UTF-8");
 
-        if (isGuest) {
-            @SuppressWarnings("unchecked")
-            Map<String, CartItem> cart = (Map<String, CartItem>) session.getAttribute("cart");
-            if (cart == null) cart = new HashMap<>();
+    if (isGuest) {
+        @SuppressWarnings("unchecked")
+        Map<String, CartItem> cart = (Map<String, CartItem>) session.getAttribute("cart");
+        if (cart == null) cart = new HashMap<>();
 
-            CartItem existingItem = cart.get(cartKey);
+        CartItem existingItem = cart.get(cartKey);
 
-            switch (action) {
-                case "add" -> {
-                    Item item = itemDAO.getItemById(itemId);
-                    if (item.getStock() < quantity) {
-                        response.getWriter().write("{\"error\":\"Chỉ còn " + item.getStock() + " sản phẩm trong kho.\"}");
-                        return;
+        switch (action) {
+            case "add" -> {
+                Item item = itemDAO.getItemById(itemId);
+
+                // Tính tổng quantity tất cả biến thể cùng itemId trong giỏ session
+                int totalQtyForItem = 0;
+                for (CartItem ci : cart.values()) {
+                    if (ci.getItemId().equals(itemId)) {
+                        totalQtyForItem += ci.getQuantity();
                     }
+                }
 
-                    if (existingItem != null) {
-                        existingItem.setQuantity(existingItem.getQuantity() + 1);
+                int currentQty = existingItem != null ? existingItem.getQuantity() : 0;
+                int totalQtyAfterAdd = totalQtyForItem - currentQty + (currentQty + 1);
+
+                if (item.getStock() < totalQtyAfterAdd) {
+                    response.getWriter().write("{\"error\":\"Chỉ còn " + item.getStock() + " sản phẩm trong kho.\"}");
+                    return;
+                }
+
+                if (existingItem != null) {
+                    existingItem.setQuantity(existingItem.getQuantity() + 1);
+                } else {
+                    CartItem newItem = new CartItem();
+                    newItem.setItemId(itemId);
+                    newItem.setVariantSignature(variantSignature);
+                    newItem.setQuantity(1);
+                    newItem.setItemDetail(item);
+                    cart.put(cartKey, newItem);
+                }
+            }
+
+            case "removeOne" -> {
+                if (existingItem != null) {
+                    if (existingItem.getQuantity() > 1) {
+                        existingItem.setQuantity(existingItem.getQuantity() - 1);
                     } else {
-                        CartItem newItem = new CartItem();
-                        newItem.setItemId(itemId);
-                        newItem.setVariantSignature(variantSignature);
-                        newItem.setQuantity(1);
-                        newItem.setItemDetail(item);
-                        cart.put(cartKey, newItem);
+                        cart.remove(cartKey);
                     }
                 }
-
-                case "removeOne" -> {
-                    if (existingItem != null) {
-                        if (existingItem.getQuantity() > 1) {
-                            existingItem.setQuantity(existingItem.getQuantity() - 1);
-                        } else {
-                            cart.remove(cartKey);
-                        }
-                    }
-                }
-
-                case "remove" -> cart.remove(cartKey);
             }
 
-            session.setAttribute("cart", cart);
-
-        } else {
-            String customerId = acc.getPhone();
-            Cart cart = cartDAO.getCartByCustomerId(customerId);
-            if (cart == null) {
-                int newCartId = cartDAO.createCart(customerId);
-                cart = new Cart(newCartId, customerId, null);
-            }
-
-            int cartId = cart.getCartId();
-            CartItem existingItem = cartItemDAO.getCartItem(cartId, itemId, variantSignature);
-
-            switch (action) {
-                case "add" -> {
-                    int currentQty = existingItem != null ? existingItem.getQuantity() : 0;
-                    Item item = itemDAO.getItemById(itemId);
-                    if (item.getStock() < currentQty + 1) {
-                        response.getWriter().write("{\"error\":\"Chỉ còn " + item.getStock() + " sản phẩm trong kho.\"}");
-                        return;
-                    }
-
-                    cartItemDAO.addOrUpdateItem(cartId, itemId, variantSignature, 1);
-                }
-
-                case "removeOne" -> {
-                    if (existingItem != null) {
-                        int currentQty = existingItem.getQuantity();
-                        if (currentQty > 1) {
-                            cartItemDAO.updateQuantity(cartId, itemId, variantSignature, currentQty - 1);
-                        } else {
-                            cartItemDAO.removeItem(cartId, itemId, variantSignature);
-                        }
-                    }
-                }
-
-                case "remove" -> cartItemDAO.removeItem(cartId, itemId, variantSignature);
-            }
+            case "remove" -> cart.remove(cartKey);
         }
 
-        response.getWriter().write("{\"status\":\"ok\"}");
+        session.setAttribute("cart", cart);
+
+    } else {
+        String customerId = acc.getPhone();
+        Cart cart = cartDAO.getCartByCustomerId(customerId);
+        if (cart == null) {
+            int newCartId = cartDAO.createCart(customerId);
+            cart = new Cart(newCartId, customerId, null);
+        }
+
+        int cartId = cart.getCartId();
+        CartItem existingItem = cartItemDAO.getCartItem(cartId, itemId, variantSignature);
+
+        switch (action) {
+            case "add" -> {
+                // Lấy tất cả biến thể cùng itemId trong giỏ hàng của user
+                List<CartItem> allVariants = cartItemDAO.getItemsInCart(cartId);
+
+                int totalQtyForItem = 0;
+                for (CartItem ci : allVariants) {
+                    if (ci.getItemId().equals(itemId)) {
+                        totalQtyForItem += ci.getQuantity();
+                    }
+                }
+
+                int currentQty = existingItem != null ? existingItem.getQuantity() : 0;
+                int totalQtyAfterAdd = totalQtyForItem - currentQty + (currentQty + 1);
+
+                Item item = itemDAO.getItemById(itemId);
+                if (item.getStock() < totalQtyAfterAdd) {
+                    response.getWriter().write("{\"error\":\"Chỉ còn " + item.getStock() + " sản phẩm trong kho.\"}");
+                    return;
+                }
+
+                cartItemDAO.addOrUpdateItem(cartId, itemId, variantSignature, 1);
+            }
+
+            case "removeOne" -> {
+                if (existingItem != null) {
+                    int currentQty = existingItem.getQuantity();
+                    if (currentQty > 1) {
+                        cartItemDAO.updateQuantity(cartId, itemId, variantSignature, currentQty - 1);
+                    } else {
+                        cartItemDAO.removeItem(cartId, itemId, variantSignature);
+                    }
+                }
+            }
+
+            case "remove" -> cartItemDAO.removeItem(cartId, itemId, variantSignature);
+        }
     }
+
+    response.getWriter().write("{\"status\":\"ok\"}");
+}
 }

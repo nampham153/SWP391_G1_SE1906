@@ -86,8 +86,6 @@
                                         <br/>
                                         <span class="variant-debug">${ci.variantSignature}</span>
                                         <br/>
-                                        <strong class="variant-debug">Key:</strong>
-                                        <span class="variant-debug">${ci.itemId}|${ci.variantSignature}</span>
                                     </c:if>
                                     <c:if test="${empty ci.variantSignature}">
                                         <span class="variant-debug">(Không có biến thể)</span>
@@ -187,6 +185,15 @@
         document.getElementById('grand-total-2').innerText = formatCurrency(total);
     }
 
+    function updateCartSize() {
+        fetch('${pageContext.request.contextPath}/cart-size')
+            .then(res => res.text())
+            .then(size => {
+                const el = document.getElementById("cart-size");
+                if (el) el.textContent = size;
+            });
+    }
+
     function updateQuantity(itemId, variantSignature, delta) {
         const rowId = itemId + '-' + variantSignature.replace(/\s/g, '');
         const qtyInput = document.getElementById('qty-' + rowId);
@@ -213,6 +220,7 @@
             if (data.status === 'ok') {
                 qtyInput.value = newQty;
                 updateCartTotal();
+                updateCartSize();
             } else {
                 alert(data.error || "Lỗi cập nhật số lượng.");
             }
@@ -241,6 +249,7 @@
                 if (row) row.remove();
 
                 updateCartTotal();
+                updateCartSize();
 
                 if (document.querySelectorAll('[id^="row-"]').length === 0) {
                     const tbody = document.querySelector('tbody');
@@ -256,7 +265,10 @@
         });
     }
 
-    document.addEventListener("DOMContentLoaded", updateCartTotal);
+    document.addEventListener("DOMContentLoaded", () => {
+        updateCartTotal();
+        updateCartSize();
+    });
 </script>
 
 </body>

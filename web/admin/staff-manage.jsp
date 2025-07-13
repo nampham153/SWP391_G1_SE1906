@@ -32,7 +32,7 @@
                     <td><%= new java.text.SimpleDateFormat("yyyy-MM-dd").format(s.getStaffBirthDate())%></td>
                     <td><%= s.isStaffGender() ? "Nam" : "Nữ"%></td>
                     <td><%= s.getDepartmentId()%></td>
-                    <td><%= s.isStatus() ? "Hoạt động" : "Ngưng"%></td>
+                    <td><%= s.getStatus() ? "Hoạt động" : "Ngưng"%></td>
                     <td>
                         <a class="btn btn-warning btn-sm" 
                            href="${pageContext.request.contextPath}/admin/staff?action=edit&id=<%= s.getStaffId()%>">
