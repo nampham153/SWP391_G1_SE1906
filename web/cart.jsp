@@ -11,7 +11,7 @@
         <link href="${pageContext.request.contextPath}/css/bootstrap.min.css" rel="stylesheet">
         <style>
             .cart_product {
-                width: 120px;
+                width: 140px; 
                 padding: 10px;
             }
             .cart_description {
@@ -23,16 +23,66 @@
                 line-height: 1.4;
             }
             .product-image-wrapper img {
-                width: 100px;
-                height: 100px;
-                object-fit: cover;
+                width: 120px; 
+                height: 120px;
+                object-fit: contain;
+                display: block;
             }
             .variant-debug {
                 font-size: 13px;
                 color: #990000;
                 margin-top: 4px;
             }
+
+            .cart_info table {
+                table-layout: fixed;
+                width: 100%;
+            }
+
+            .cart_info th.image {
+                width: 160px; 
+            }
+
+            .cart_info td, .cart_info th {
+                word-wrap: break-word;
+                vertical-align: top;
+            }
+
+            .cart_info th.delete-col,      
+            .cart_info td.cart_delete {    
+                width: 42px;               
+                padding: 0;                
+                text-align: center;        
+            }
+
+            .cart_delete a.cart_quantity_delete {
+                display: inline-block;     
+                line-height: 1;            
+                padding: 4px;              
+            }
+
+            .cart_delete i.fa-times {
+                font-size: 16px;           
+            }
+            .cart_delete1 {
+                width: 42px;
+                padding: 0;
+                text-align: center;
+                vertical-align: top;
+            }
+
+            .cart_delete1 a.cart_quantity_delete {
+                display: inline-block;
+                line-height: 1;
+                padding: 4px;
+            }
+
+            .cart_delete1 i.fa-times {
+                font-size: 16px;
+            }
+
         </style>
+
     </head>
     <body>
 
@@ -53,7 +103,7 @@
                                 <th class="price">Price</th>
                                 <th class="quantity">Quantity</th>
                                 <th class="total">Total</th>
-                                <th></th>
+                                <th class="delete-col"></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -88,7 +138,7 @@
                                                 <br/>
                                             </c:if>
                                             <c:if test="${empty ci.variantSignature}">
-                                                <span class="variant-debug">(Không có biến thể)</span>
+                                                <span class="variant-debug">Sản phẩm bình thường</span>
                                             </c:if>
                                         </p>
                                         <p>Stock: ${item.stock}</p>
@@ -114,7 +164,7 @@
                                         </p>
                                     </td>
 
-                                    <td class="cart_delete">
+                                    <td class="cart_delete1">
                                         <a class="cart_quantity_delete" href="javascript:void(0)" onclick="removeItem('${item.serialNumber}', '${ci.variantSignature}')">
                                             <i class="fa fa-times"></i>
                                         </a>

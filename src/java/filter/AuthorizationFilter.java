@@ -38,6 +38,7 @@ public class AuthorizationFilter implements Filter {
         System.out.println("Role: " + role);
 
         String[] exactPublicPaths = {
+            "/",
             "/home",
             "/login",
             "/register",
@@ -54,7 +55,9 @@ public class AuthorizationFilter implements Filter {
             "/contact",
             "/getComponentList",
             "/forgot-password",
-            "/404.html"
+            "/404.jsp",
+            "/blog",
+            "/blog-detail"
         };
 
         String[] prefixPublicPaths = {
@@ -106,7 +109,7 @@ public class AuthorizationFilter implements Filter {
             if (role == 1 || role == 2 || role == 3) {
                 chain.doFilter(request, response);
             } else {
-                System.out.println(">>> Access denied to customer page");
+                System.out.println(">>> Access denied to customer page.");
                 res.sendError(HttpServletResponse.SC_FORBIDDEN, "Access denied.");
             }
             return;

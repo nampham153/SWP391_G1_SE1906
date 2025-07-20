@@ -280,7 +280,7 @@
                             updateCartSize();
                             alert("Đã thêm vào giỏ hàng!");
                         } else {
-                            alert("Không thể thêm vào giỏ hàng.");
+                            alert("Đã hết hàng hoặc xảy ra lỗi , vui lòng kiểm tra lại!");
                         }
                     })
                     .catch(error => console.error("Lỗi khi thêm vào giỏ hàng:", error));
