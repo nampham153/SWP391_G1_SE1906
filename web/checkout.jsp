@@ -23,6 +23,45 @@
         <link href="${pageContext.request.contextPath}/css/main.css" rel="stylesheet">
         <link href="${pageContext.request.contextPath}/css/responsive.css" rel="stylesheet">
         <link rel="shortcut icon" href="${pageContext.request.contextPath}/images/ico/favicon.ico">
+        <style>
+                        .cart_product {
+                width: 140px; 
+                padding: 10px;
+            }
+            .cart_description {
+                padding-left: 10px;
+                vertical-align: top;
+            }
+            .cart_description h4, .cart_description p {
+                margin: 0;
+                line-height: 1.4;
+            }
+            .product-image-wrapper img {
+                width: 120px; 
+                height: 120px;
+                object-fit: contain;
+                display: block;
+            }
+            .variant-debug {
+                font-size: 13px;
+                color: #990000;
+                margin-top: 4px;
+            }
+
+            .cart_info table {
+                table-layout: fixed;
+                width: 100%;
+            }
+
+            .cart_info th.image {
+                width: 160px; 
+            }
+
+            .cart_info td, .cart_info th {
+                word-wrap: break-word;
+                vertical-align: top;
+            }
+        </style>
     </head>
     <body>
 
@@ -102,7 +141,7 @@
                                 <thead>
                                     <tr class="cart_menu">
                                         <td class="image">Item</td>
-                                        <td class="description"></td>
+                                        <td class="description">Description</td>
                                         <td class="price">Price</td>
                                         <td class="quantity">Quantity</td>
                                         <td class="total">Total</td>

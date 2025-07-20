@@ -97,13 +97,8 @@
                     <div class="mainmenu pull-left">
                         <ul class="nav navbar-nav collapse navbar-collapse">
                             <li><a href="${pageContext.request.contextPath}/home" class="active">Home</a></li>
-                            <li class="dropdown"><a href="#">Blog<i class="fa fa-angle-down"></i></a>
-                                <ul role="menu" class="sub-menu">
-                                    <li><a href="#">Blog List</a></li>
-                                    <li><a href="#">Blog Single</a></li>
-                                </ul>
-                            </li>
-                            <li><a href="404.html">404</a></li>
+                            <li><a href="${pageContext.request.contextPath}/blog">Blog</a></li>
+                            <li><a href="404.jsp">404</a></li>
                             <li><a href="${pageContext.request.contextPath}/contact">Contact</a></li>
                         </ul>
                     </div>
