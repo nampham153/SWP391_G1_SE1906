@@ -111,7 +111,8 @@ public class VnpayReturn extends HttpServlet {
         }
 
         request.setAttribute("transResult", isSuccess);
-        request.getRequestDispatcher("/paymentResult.jsp").forward(request, response);
+        request.setAttribute("pageContent1", "paymentResult.jsp");
+        request.getRequestDispatcher("index.jsp").forward(request, response);
     }
 
     @Override

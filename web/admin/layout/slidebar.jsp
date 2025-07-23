@@ -41,8 +41,7 @@
                 </a>
             </li>
 
-            <!-- Quản lý khách hàng: Admin & Staff -->
-            <c:if test="${sessionScope.account.roleId == 2 || sessionScope.account.roleId == 3}">
+            <c:if test="${sessionScope.account.roleId == 2}">
                 <li>
                     <a href="${pageContext.request.contextPath}/staff/customer">
                         <i class="fa fa-users"></i> <span>Quản lý khách hàng</span>
@@ -50,8 +49,7 @@
                 </li>
             </c:if>
 
-            <!-- Quản lý đơn hàng: Admin & Staff (GỢI Ý) -->
-            <c:if test="${sessionScope.account.roleId == 2 || sessionScope.account.roleId == 3}">
+            <c:if test="${sessionScope.account.roleId == 2}">
                 <li>
                     <a href="${pageContext.request.contextPath}/staff/order">
                         <i class="fa fa-truck"></i> <span>Quản lý đơn hàng</span>
@@ -59,7 +57,6 @@
                 </li>
             </c:if>
 
-            <!-- Quản lý nhân viên: Chỉ Admin -->
             <c:if test="${sessionScope.account.roleId == 3}">
                 <li>
                     <a href="${pageContext.request.contextPath}/admin/staff">
@@ -67,8 +64,6 @@
                     </a>
                 </li>
             </c:if>
-
-            <!-- Gợi ý: Quản lý sản phẩm, blog, báo cáo... chỉ dành cho admin -->
             <c:if test="${sessionScope.account.roleId == 3}">
                 <li>
                     <a href="${pageContext.request.contextPath}/admin/product">
@@ -86,8 +81,6 @@
                     </a>
                 </li>
             </c:if>
-
-            <!-- Tùy chọn khác -->
             <li>
                 <a href="${pageContext.request.contextPath}/basic_form.html">
                     <i class="fa fa-globe"></i> <span>Basic Elements</span>
@@ -96,6 +89,11 @@
             <li>
                 <a href="${pageContext.request.contextPath}/simple.html">
                     <i class="fa fa-glass"></i> <span>Simple tables</span>
+                </a>
+            </li>
+            <li>
+                <a href="${pageContext.request.contextPath}/home">
+                    <i class="fa fa-globe"></i> <span>Quay về trang home</span>
                 </a>
             </li>
         </ul>

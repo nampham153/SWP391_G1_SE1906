@@ -80,13 +80,8 @@
                                 </div>
 
                                 <p style="margin-top: 10px;">
-                                    <a href="${pageContext.request.contextPath}/forgot-password">Quên mật khẩu?</a>
+                                    <a href="${pageContext.request.contextPath}/forgot-password">Lost password?</a>
                                 </p>
-
-                                <span>
-                                    <input type="checkbox" class="checkbox" name="remember"> 
-                                    Keep me signed in
-                                </span>
                                 <button type="submit" class="btn btn-default">Login</button>
                             </form>
 

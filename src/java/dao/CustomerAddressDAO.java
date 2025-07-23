@@ -28,6 +28,23 @@ public class CustomerAddressDAO extends DBContext {
             return false;
         }
     }
+    public CustomerAddress getAddressByCustomerId(String customerId) {
+    String sql = "SELECT customerAddress, customerId FROM CustomerAddress WHERE customerId = ?";
+    try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setString(1, customerId);
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                CustomerAddress addr = new CustomerAddress();
+                addr.setCustomerAddress(rs.getString("customerAddress"));
+                addr.setCustomerId(rs.getString("customerId"));
+                return addr;
+            }
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return null;
+}
 
     public void insert(CustomerAddress addr) {
         String sql = "INSERT INTO CustomerAddress (customerAddress, customerId) VALUES (?, ?)";

@@ -96,7 +96,7 @@ public class AuthorizationFilter implements Filter {
             return;
         }
         if (uri.startsWith("/staff")) {
-            if (role == 2 || role == 3) {
+            if (role == 2 ) {
                 chain.doFilter(request, response);
             } else {
                 System.out.println(">>> Access denied to staff page");

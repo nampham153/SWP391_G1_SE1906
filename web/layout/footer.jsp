@@ -52,7 +52,7 @@
 										<i class="fa fa-play-circle-o"></i>
 									</div>
 								</a>
-								<p>Circle of Hands</p>
+								<p>MSI</p>
 								<h2>24 DEC 2014</h2>
 							</div>
 						</div>
@@ -67,7 +67,7 @@
 										<i class="fa fa-play-circle-o"></i>
 									</div>
 								</a>
-								<p>Circle of Hands</p>
+								<p>ASUS</p>
 								<h2>24 DEC 2014</h2>
 							</div>
 						</div>
@@ -82,7 +82,7 @@
 										<i class="fa fa-play-circle-o"></i>
 									</div>
 								</a>
-								<p>Circle of Hands</p>
+								<p>APPLE</p>
 								<h2>24 DEC 2014</h2>
 							</div>
 						</div>
@@ -97,7 +97,7 @@
 										<i class="fa fa-play-circle-o"></i>
 									</div>
 								</a>
-								<p>Circle of Hands</p>
+								<p>DELL</p>
 								<h2>24 DEC 2014</h2>
 							</div>
 						</div>

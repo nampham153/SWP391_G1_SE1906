@@ -317,7 +317,6 @@
                             }
                         });
             }
-
             document.addEventListener("DOMContentLoaded", () => {
                 updateCartTotal();
                 updateCartSize();

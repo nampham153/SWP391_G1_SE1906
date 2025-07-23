@@ -39,7 +39,8 @@ public class BuildPCServlet extends HttpServlet {
             }
         }
         request.setAttribute("defaultComponents", defaultComponents);
-        request.getRequestDispatcher("build-pc.jsp").forward(request, response);
+        request.setAttribute("pageContent1", "build-pc.jsp");
+        request.getRequestDispatcher("index.jsp").forward(request, response);
     }
 
     @Override

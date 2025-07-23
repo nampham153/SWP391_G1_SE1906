@@ -99,11 +99,14 @@
                 <div class="row">
                     <div class="col-sm-3">
                         <div class="left-sidebar">
-                            <div class="shipping text-center"><!--shipping-->
-                                <img src="images/home/home_tabs_1_banner.jpg" alt="" />
-                            </div><!--/shipping-->
+                            <div class="shipping text-center">
+                                <a href="${pageContext.request.contextPath}/build-pc">
+                                    <img src="images/home/home_tabs_1_banner.jpg" alt="Build PC" />
+                                </a>
+                            </div>
                         </div>
                     </div>
+
 
                     <div class="col-sm-9 padding-right">
                         <c:choose>
@@ -131,10 +134,10 @@
                                                             <h2><fmt:formatNumber value="${item.price}" type="number" groupingUsed="true" minFractionDigits="0" maxFractionDigits="0"/> VNĐ</h2>
                                                             <p>${item.itemName}</p>
                                                             <button class="btn btn-default add-to-cart" onclick="addToCart('${item.serialNumber}')">
-                                                                <i class="fa fa-shopping-cart"></i> Add to cart
+                                                                <i class="fa fa-shopping-cart"></i> Thêm giỏ hàng
                                                             </button>
                                                             <a href="${pageContext.request.contextPath}/product-detail?pid=${item.serialNumber}" class="btn btn-default add-to-cart">
-                                                                <i class="fa fa-info-circle"></i> Detail
+                                                                <i class="fa fa-info-circle"></i> Chi tiết
                                                             </a>
                                                         </div>
                                                     </div>
@@ -177,11 +180,11 @@
                                                         <h2><fmt:formatNumber value="${item.price}" type="number" groupingUsed="true" minFractionDigits="0" maxFractionDigits="0"/> VNĐ</h2>
                                                         <p>${item.itemName}</p>
                                                         <button class="btn btn-default add-to-cart" onclick="addToCart('${item.serialNumber}')">
-                                                            <i class="fa fa-shopping-cart"></i> Add to cart
+                                                            <i class="fa fa-shopping-cart"></i> Thêm giỏ hàng
                                                         </button>
                                                         <a href="${pageContext.request.contextPath}/product-detail?pid=${item.serialNumber}"
                                                            class="btn btn-default add-to-cart" style="margin-left: 5px;">
-                                                            <i class="fa fa-info-circle"></i> Detail
+                                                            <i class="fa fa-info-circle"></i> Chi tiết
                                                         </a>
                                                     </div>
                                                 </div>
@@ -235,10 +238,10 @@
                                                                     <h2><fmt:formatNumber value="${item.price}" type="number" groupingUsed="true" minFractionDigits="0" maxFractionDigits="0"/> VNĐ</h2>
                                                                     <p>${item.itemName}</p>
                                                                     <button class="btn btn-default add-to-cart" onclick="addToCart('${item.serialNumber}')">
-                                                                        <i class="fa fa-shopping-cart"></i> Add to cart
+                                                                        <i class="fa fa-shopping-cart"></i> Thêm giỏ hàng
                                                                     </button>
                                                                     <a href="${pageContext.request.contextPath}/product-detail?pid=${item.serialNumber}" class="btn btn-default add-to-cart">
-                                                                        <i class="fa fa-info-circle"></i> Detail
+                                                                        <i class="fa fa-info-circle"></i> Chi tiết
                                                                     </a>
                                                                 </div>
                                                             </div>
