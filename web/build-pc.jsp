@@ -13,7 +13,7 @@
                 color: #fff;
             }
             .component-card {
-                background-color: #2b2b2b;
+                background-color: #FFA500;
                 border-radius: 8px;
                 padding: 16px;
                 margin-bottom: 20px;
@@ -24,7 +24,7 @@
                 object-fit: contain;
             }
             .summary-table {
-                background-color: #2b2b2b;
+                background-color: #FFA500;
                 border-radius: 8px;
                 padding: 16px;
             }

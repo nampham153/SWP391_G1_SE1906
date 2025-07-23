@@ -7,7 +7,7 @@
     pageContext.setAttribute("isLoggedIn", isLoggedIn);
 
     model.Customer customer = (model.Customer) session.getAttribute("customer");
-    model.CustomerAddress customeraddress = (model.CustomerAddress) session.getAttribute("customerAddress");
+    model.CustomerAddress customeraddress = (model.CustomerAddress) request.getAttribute("customerAddress");
 %>
 
 <!DOCTYPE html>
@@ -24,8 +24,8 @@
         <link href="${pageContext.request.contextPath}/css/responsive.css" rel="stylesheet">
         <link rel="shortcut icon" href="${pageContext.request.contextPath}/images/ico/favicon.ico">
         <style>
-                        .cart_product {
-                width: 140px; 
+            .cart_product {
+                width: 140px;
                 padding: 10px;
             }
             .cart_description {
@@ -37,7 +37,7 @@
                 line-height: 1.4;
             }
             .product-image-wrapper img {
-                width: 120px; 
+                width: 120px;
                 height: 120px;
                 object-fit: contain;
                 display: block;
@@ -54,7 +54,7 @@
             }
 
             .cart_info th.image {
-                width: 160px; 
+                width: 160px;
             }
 
             .cart_info td, .cart_info th {
@@ -64,7 +64,6 @@
         </style>
     </head>
     <body>
-
         <section id="cart_items">
             <div class="container">
                 <div class="breadcrumbs">
@@ -75,7 +74,7 @@
                 </div>
 
                 <div class="register-req">
-                    <p>Please use Register and Checkout to easily access your order history, or use Checkout as Guest</p>
+                    <p>Hãy nhập đúng các thông tin vào các trường dưới để chúng tôi có thể mang đơn hàng đến nhà của bạn nhé!</p>
                 </div>
 
                 <form id="checkoutForm" action="checkout" method="post">
@@ -90,7 +89,6 @@
                                                 <input type="email" name="email" placeholder="Email*" value="${customer.customerEmail}" required class="form-control">
                                                 <input type="text" name="title" placeholder="Title" class="form-control">
                                                 <input type="text" name="customerName" value="${customer.customerName}" readonly class="form-control">
-                                                <input type="text" name="address" value="${customeraddress.customerAddress}" required class="form-control">
                                             </c:when>
                                             <c:otherwise>
                                                 <input type="email" name="email" placeholder="Email *" required class="form-control">
@@ -98,57 +96,58 @@
                                                 <input type="text" name="firstName" placeholder="First Name *" required class="form-control">
                                                 <input type="text" name="middleName" placeholder="Middle Name" class="form-control">
                                                 <input type="text" name="lastName" placeholder="Last Name *" required class="form-control">
-                                                <input type="text" name="address" placeholder="Address 1 *" required class="form-control">
                                             </c:otherwise>
                                         </c:choose>
+                                        <input type="text" name="address" id="address"
+                                               value="${isLoggedIn ? customeraddress.customerAddress : ''}"
+                                               placeholder="Địa chỉ giao hàng *" class="form-control" required>
                                         <input type="text" name="zipcode" placeholder="Zip / Postal Code *" class="form-control">
                                         <select name="country" class="form-control">
                                             <option>-- Country --</option>
                                             <option>Vietnam</option>
-                                            <option>United States</option>
-                                            <option>UK</option>
                                         </select>
                                         <select name="province" class="form-control">
-                                            <option>-- State / Province / Region --</option>
+                                            <option>Thành Phố</option>
                                             <option>Hanoi</option>
-                                            <option>Ho Chi Minh City</option>
-                                            <option>Da Nang</option>
+                                            <option>HaiPhong</option>
+                                            <option>HaiDuong</option>
                                         </select>
-                                        <input type="text" name="phone" placeholder="Phone *"
-                                               required class="form-control"
-                                               <c:if test="${isLoggedIn}">value="${customer.customerId}" readonly</c:if>>
+                                        <input type="text" name="phone" id="phone"
+                                               placeholder="Số điện thoại *"
+                                               value="${isLoggedIn ? customer.customerId : ''}" 
+                                               class="form-control" required>
 
-                                               <input type="text" name="fax" placeholder="Fax" class="form-control">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-sm-4">
-                                    <div class="order-message">
-                                        <p>Shipping Order</p>
-                                        <textarea name="note" placeholder="Notes about your order, Special Notes for Delivery" rows="16" class="form-control"></textarea>
-                                        <label><input type="checkbox" name="sameAddress"> Shipping to bill address</label>
+                                        <input type="text" name="fax" placeholder="Fax" class="form-control">
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-sm-4">
+                                <div class="order-message">
+                                    <p>Shipping Order</p>
+                                    <textarea name="note" placeholder="Notes about your order, Special Notes for Delivery" rows="16" class="form-control"></textarea>
+                                    <label><input type="checkbox" name="sameAddress"> Shipping to bill address</label>
+                                </div>
+                            </div>
                         </div>
+                    </div>
 
-                        <div class="review-payment">
-                            <h2>Review & Payment</h2>
-                        </div>
+                    <div class="review-payment">
+                        <h2>Review & Payment</h2>
+                    </div>
 
-                        <div class="table-responsive cart_info">
-                            <table class="table table-condensed">
-                                <thead>
-                                    <tr class="cart_menu">
-                                        <td class="image">Item</td>
-                                        <td class="description">Description</td>
-                                        <td class="price">Price</td>
-                                        <td class="quantity">Quantity</td>
-                                        <td class="total">Total</td>
-                                        <td></td>
-                                    </tr>
-                                </thead>
-                                <tbody>
+                    <div class="table-responsive cart_info">
+                        <table class="table table-condensed">
+                            <thead>
+                                <tr class="cart_menu">
+                                    <td class="image">Item</td>
+                                    <td class="description">Description</td>
+                                    <td class="price">Price</td>
+                                    <td class="quantity">Quantity</td>
+                                    <td class="total">Total</td>
+                                    <td></td>
+                                </tr>
+                            </thead>
+                            <tbody>
                                 <c:forEach var="ci" items="${cartItems}">
                                     <c:set var="item" value="${ci.itemDetail}" />
                                     <tr>
@@ -215,13 +214,31 @@
                 form.addEventListener("submit", function (e) {
                     e.preventDefault();
 
+                    const address = document.getElementById('address').value.trim();
+                    const phone = document.getElementById('phone').value.trim();
+
+                    if (address.length === 0) {
+                        alert("Vui lòng nhập địa chỉ giao hàng.");
+                        return;
+                    }
+
+                    if (address.length < 5) {
+                        alert("Địa chỉ giao hàng quá ngắn.");
+                        return;
+                    }
+
+                    const phonePattern = /^[0-9]{9,12}$/;
+                    if (!phonePattern.test(phone)) {
+                        alert("Vui lòng nhập số điện thoại hợp lệ (9-12 chữ số).");
+                        return;
+                    }
+
                     let paymentMethod = "cod";
                     radios.forEach(r => {
                         if (r.checked)
                             paymentMethod = r.value;
                     });
 
-                    // Chuyển form data sang URLSearchParams để gửi dạng x-www-form-urlencoded
                     const formData = new URLSearchParams(new FormData(form));
 
                     fetch("checkout", {
@@ -259,11 +276,13 @@
                                 } else {
                                     window.location.href = "checkout-success?orderId=" + data.orderId;
                                 }
+                            })
+                            .catch(err => {
+                                alert("Lỗi hệ thống, vui lòng thử lại sau.");
+                                console.error(err);
                             });
                 });
             });
-
         </script>
-
     </body>
 </html>

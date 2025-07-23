@@ -117,6 +117,17 @@
                     }
                 }
 
+                function updateCartSize() {
+                    fetch('cart-size')
+                            .then(res => res.text())
+                            .then(size => {
+                                const el = document.getElementById("cart-size");
+                                if (el) {
+                                    el.textContent = size;
+                                }
+                            });
+                }
+
                 document.querySelectorAll(".spec-radio").forEach(input => {
                     input.addEventListener("change", updateTotalPrice);
                 });
@@ -150,6 +161,7 @@
                             .then(data => {
                                 if (data.status === "ok") {
                                     alert("Đã thêm vào giỏ hàng");
+                                    updateCartSize();
                                     location.href = "cart";
                                 } else {
                                     alert(data.error || "Lỗi khi thêm vào giỏ hàng");

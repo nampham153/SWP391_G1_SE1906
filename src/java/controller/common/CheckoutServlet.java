@@ -3,6 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package controller.common;
+
 import context.DBContext;
 import dao.*;
 import model.*;
@@ -15,6 +16,7 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
+
 /**
  *
  * @author namp0
@@ -46,7 +48,6 @@ public class CheckoutServlet extends HttpServlet {
                         BigDecimal pcTotal = productComponentDAO.getTotalPriceByVariant(cartItem.getItemId(), cartItem.getVariantSignature());
                         fullItem.setPrice(pcTotal);
                     }
-
                     cartItem.setItemDetail(fullItem);
                     total = total.add(fullItem.getPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity())));
                     items.add(cartItem);
@@ -67,6 +68,13 @@ public class CheckoutServlet extends HttpServlet {
                     items.add(item);
                 }
             }
+            CustomerAddressDAO addrDAO = new CustomerAddressDAO();
+            CustomerAddress address = addrDAO.getAddressByCustomerId(acc.getPhone());
+            request.setAttribute("customerAddress", address);
+
+            CustomerDAO customerDAO = new CustomerDAO();
+            Customer customer = customerDAO.getCustomerById(acc.getPhone());
+            request.setAttribute("customer", customer);
         }
 
         if (items.isEmpty()) {
@@ -99,7 +107,7 @@ public class CheckoutServlet extends HttpServlet {
 
             for (CartItem cartItem : guestCart.values()) {
                 Item fullItem = itemDAO.getItemById(cartItem.getItemId());
-                if (cartItem.getItemId().startsWith("P")) {
+                if (cartItem.getItemId().startsWith("PC")) {
                     BigDecimal pcTotal = productComponentDAO.getTotalPriceByVariant(cartItem.getItemId(), cartItem.getVariantSignature());
                     fullItem.setPrice(pcTotal);
                 }
@@ -177,7 +185,12 @@ public class CheckoutServlet extends HttpServlet {
         order.setShippingFee(BigDecimal.ZERO);
         order.setAdditionalFee(BigDecimal.ZERO);
         order.setNote(note);
-        order.setCustomerId(account != null && account.getRoleId() == 1 ? account.getPhone() : null);
+        if (account != null && (account.getRoleId() == 1 || account.getRoleId() == 2 || account.getRoleId() == 3)) {
+            order.setCustomerId(account.getPhone());
+        } else {
+            order.setCustomerId(null);
+        }
+
         order.setTotal(total);
         order.setOrderStatus(0);
 
