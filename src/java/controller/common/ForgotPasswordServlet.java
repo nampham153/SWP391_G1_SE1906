@@ -5,7 +5,7 @@
 package controller.common;
 import dao.AccountDAO;
 import model.Account;
-import Until.EmailUtil;
+import util.EmailUtil;
 import dao.CustomerDAO;
 
 import jakarta.servlet.ServletException;

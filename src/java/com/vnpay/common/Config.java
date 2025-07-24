@@ -23,7 +23,7 @@ import java.net.URLEncoder;
 public class Config {
 
     public static String vnp_PayUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-    public static String vnp_ReturnUrl = "https://a92d6201a8ae.ngrok-free.app/SWP391_G1/vnpay_return";
+    public static String vnp_ReturnUrl = "https://82f3901c86c9.ngrok-free.app/SWP391_G1/vnpay_return";
     public static String vnp_TmnCode = "UCNHR6J7";
     public static String secretKey = "3O4VXO15KDPHZ1TW1O3CPRCSBCWT5QOA";
     public static String vnp_ApiUrl = "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction";

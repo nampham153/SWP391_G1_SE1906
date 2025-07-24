@@ -11,7 +11,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import model.Customer;
-import Until.EmailUtil;
+import util.EmailUtil;
 import java.io.IOException;
 import java.sql.Date;
 import java.sql.Timestamp;
