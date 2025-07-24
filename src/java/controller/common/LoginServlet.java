@@ -1,16 +1,21 @@
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
 package controller.common;
 
+import context.DBContext;
 import dao.DAOWrapper;
+import dao.StaffDAO;
 import model.Account;
 import model.Customer;
+import model.Staff;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
+import java.sql.Connection;
+
 /**
  *
  * @author namp0
@@ -34,7 +39,6 @@ public class LoginServlet extends HttpServlet {
         String password = request.getParameter("password");
 
         Account account = DAOWrapper.accountDAO.getAccount(phone, password);
-
         if (account == null) {
             request.setAttribute("message", "Số điện thoại hoặc mật khẩu không đúng.");
             forwardToLogin(request, response);
@@ -43,6 +47,29 @@ public class LoginServlet extends HttpServlet {
 
         if (account.getStatus() != 1) {
             request.setAttribute("message", "Tài khoản của bạn đã bị khóa.");
+            forwardToLogin(request, response);
+            return;
+        }
+
+        Customer customer = DAOWrapper.customerDAO.getCustomerById(phone);
+        if (customer != null && !customer.getStatus()) {
+            request.setAttribute("message", "Tài khoản của bạn đã bị khóa.");
+            forwardToLogin(request, response);
+            return;
+        }
+
+        try (Connection conn = new DBContext().getConnection()) {
+            StaffDAO staffDAO = new StaffDAO(conn);
+            Staff staff = staffDAO.getById(phone);
+
+            if (staff != null && !staff.getStatus()) {
+                request.setAttribute("message", "Tài khoản nhân viên đã bị khóa.");
+                forwardToLogin(request, response);
+                return;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("message", "Đã xảy ra lỗi khi kiểm tra trạng thái tài khoản.");
             forwardToLogin(request, response);
             return;
         }
@@ -56,7 +83,6 @@ public class LoginServlet extends HttpServlet {
         HttpSession session = request.getSession();
         session.setAttribute("account", account);
         session.setAttribute("role", account.getRoleId());
-        Customer customer = DAOWrapper.customerDAO.getCustomerById(phone);
         session.setAttribute("customer", customer);
 
         response.sendRedirect(request.getContextPath() + "/home");
