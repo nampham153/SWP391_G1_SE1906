@@ -87,15 +87,15 @@
                                         <c:choose>
                                             <c:when test="${isLoggedIn}">
                                                 <input type="email" name="email" placeholder="Email*" value="${customer.customerEmail}" required class="form-control">
-                                                <input type="text" name="title" placeholder="Title" class="form-control">
+                                                <input type="text" name="Tên đơn" placeholder="Title" class="form-control">
                                                 <input type="text" name="customerName" value="${customer.customerName}" readonly class="form-control">
                                             </c:when>
                                             <c:otherwise>
                                                 <input type="email" name="email" placeholder="Email *" required class="form-control">
-                                                <input type="text" name="title" placeholder="Title" class="form-control">
-                                                <input type="text" name="firstName" placeholder="First Name *" required class="form-control">
-                                                <input type="text" name="middleName" placeholder="Middle Name" class="form-control">
-                                                <input type="text" name="lastName" placeholder="Last Name *" required class="form-control">
+                                                <input type="text" name="title" placeholder="Tên đơn" class="form-control">
+                                                <input type="text" name="firstName" placeholder="Họ *" required class="form-control">
+                                                <input type="text" name="middleName" placeholder="Tên đệm" class="form-control">
+                                                <input type="text" name="lastName" placeholder="Tên *" required class="form-control">
                                             </c:otherwise>
                                         </c:choose>
                                         <input type="text" name="address" id="address"
@@ -103,7 +103,7 @@
                                                placeholder="Địa chỉ giao hàng *" class="form-control" required>
                                         <input type="text" name="zipcode" placeholder="Zip / Postal Code *" class="form-control">
                                         <select name="country" class="form-control">
-                                            <option>-- Country --</option>
+                                            <option>-- Đất nước --</option>
                                             <option>Vietnam</option>
                                         </select>
                                         <select name="province" class="form-control">
@@ -124,7 +124,7 @@
                             <div class="col-sm-4">
                                 <div class="order-message">
                                     <p>Shipping Order</p>
-                                    <textarea name="note" placeholder="Notes about your order, Special Notes for Delivery" rows="16" class="form-control"></textarea>
+                                    <textarea name="note" placeholder="Ghi chú cho đơn hàng của bạn" rows="16" class="form-control"></textarea>
                                     <label><input type="checkbox" name="sameAddress"> Shipping to bill address</label>
                                 </div>
                             </div>
