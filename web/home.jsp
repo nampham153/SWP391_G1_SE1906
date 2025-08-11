@@ -26,7 +26,7 @@
         <div class="container">
             <div class="search_box">
                 <form action="home" method="get">
-                    <input type="text" name="search" placeholder="Tìm sản phẩm..." value="${searchKeyword != null ? searchKeyword : ''}"/>
+                    <input type="text" name="search" placeholder="Tìm kiếm sản phẩm..." value="${searchKeyword != null ? searchKeyword : ''}"/>
                     <button type="submit">Tìm kiếm</button>
                 </form>
             </div>
